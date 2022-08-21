@@ -1,0 +1,37 @@
+#include <windows.h>
+
+logo ICON "icon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    0,0,0,0
+ PRODUCTVERSION 0,0,0,0
+ FILEFLAGSMASK 0x3fL
+ #ifdef _DEBUG
+ FILEFLAGS 0x1L
+ #else
+ FILEFLAGS 0x0L
+ #endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+{
+    BLOCK "StringFileInfo"
+    { 
+        BLOCK "040904b0"
+        {
+            VALUE "Comments",         ""
+            VALUE "CompanyName",      ""
+            VALUE "FileDescription",  "Skeleton Engine\0"
+            VALUE "FileVersion",      "\0"
+            VALUE "InternalName",     "skele\0"
+            VALUE "LegalCopyright",   ""
+            VALUE "OriginalFilename", "Skele.exe\0"
+            VALUE "ProductName",      "Skele Engine\0"
+            VALUE "ProductVersion",   "\0"
+        } 
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x409, 1200
+    }
+}
