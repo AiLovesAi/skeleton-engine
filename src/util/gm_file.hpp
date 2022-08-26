@@ -23,14 +23,10 @@ class File {
     public:
         static void init();
 
-        static void const ensureParentDir(std::string path);
-        static std::string const asAscii(std::string str);
-        static bool const isAscii(std::string str);
+        static void const ensureParentDir(const std::string& path);
+        static std::string const asAscii(const std::string& str);
+        static bool const isAscii(const std::string& str);
         static std::string const getStack();
-        
-        static std::string OSStr;
-        static std::string CPUStr;
-        static std::string executableDir;
     private:
         static void getOS();
         static void getCPU();

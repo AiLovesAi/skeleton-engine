@@ -1,5 +1,6 @@
 #include "gm_file.hpp"
 
+#include "../gm_game.hpp"
 #include "gm_logger.hpp"
 
 #include <filesystem>
@@ -28,10 +29,6 @@
 namespace fs = std::filesystem;
 
 namespace game {
-    std::string File::OSStr = "NULL";
-    std::string File::CPUStr = "NULL";
-    std::string File::executableDir = "NULL";
-    
     void File::init() {
         getOS();
         getCPU();
@@ -39,6 +36,7 @@ namespace game {
     }
 
     void File::getOS() {
+        std::string OSStr;
 #if defined(_WIN32)
         OSStr = "Windows";
         OSVERSIONINFOA versionInfo{};
@@ -91,9 +89,10 @@ namespace game {
         OSStr += " ";
         OSStr += nameData.release;
 #endif
+        Game::OSStr = OSStr;
     }
 
-    std::string const File::asAscii(std::string str) {
+    std::string const File::asAscii(const std::string& str) {
         std::stringstream res;
 
         char c = '\0';
@@ -106,7 +105,7 @@ namespace game {
         return res.str();
     }
 
-    bool const File::isAscii(std::string str) {
+    bool const File::isAscii(const std::string& str) {
         char c = '\0';
         for (size_t i = 0; i < str.length(); i++) {
             c = str[i];
@@ -127,7 +126,7 @@ namespace game {
             mModelName += asAscii(std::string((const char*)&cpuID.RDX(), 4));
         }
 
-        CPUStr = mModelName;
+        Game::CPUStr = mModelName;
     }
 
     void File::getExecutableDir()
@@ -169,7 +168,7 @@ namespace game {
 #else
         path = p.parent_path().string() + "/";
 #endif
-        executableDir = path;
+        Game::executableDir = path;
     }
 
     std::string const File::getStack() {
@@ -177,12 +176,12 @@ namespace game {
         return "   EMPTY   "; // TODO
 #else
         std::ostringstream buffer;
-        void *stack[32];
+        void* stack[32];
         std::size_t depth = backtrace(stack, 32);
         if (!depth)
                 buffer << "   EMPTY   ");
         else {
-                char **symbols = backtrace_symbols(stack, depth);
+                char** symbols = backtrace_symbols(stack, depth);
                 for (std::size_t i = 1; i < depth; i++) {
                 std::string symbol = symbols[i];
                 std::istringstream iss(symbol);
@@ -196,7 +195,7 @@ namespace game {
 #endif
     }
 
-    void const File::ensureParentDir(std::string path) {
+    void const File::ensureParentDir(const std::string& path) {
         if (!fs::exists(path)) {
             fs::path p = path;
             fs::create_directories(p.parent_path());

@@ -13,7 +13,7 @@ namespace game {
     };
     class Logger {
         public:
-            static constexpr const char *LOG_TYPE_STRINGS[] = {
+            static constexpr const char* LOG_TYPE_STRINGS[] = {
                 "INFO",
                 "MSG",
                 "WARN",
@@ -21,9 +21,10 @@ namespace game {
                 "FATAL"
             };
 
-            static void setPaths(std::string logPath, std::string crashPath);
-            static void logMsg(int logType, std::string message);
-            [[noreturn]] static void crash(std::string message);
+            static void init(const std::string& logPath, const std::string& crashPath);
+            static void setPaths(const std::string& logPath, const std::string& crashPath);
+            static void logMsg(const int logType, const std::string& message);
+            [[noreturn]] static void crash(const std::string& message);
 
             static std::string logPath;
             static std::string crashPath;

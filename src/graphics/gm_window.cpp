@@ -34,7 +34,7 @@ namespace game {
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
         {
-            const char *name = glfwGetMonitorName(monitor);
+            const char* name = glfwGetMonitorName(monitor);
             std::stringstream msg;
             msg << "Using monitor: " << name;
             Logger::logMsg(LOG_INFO, msg.str());
@@ -66,27 +66,27 @@ namespace game {
         glfwFocusWindow(window);
     }
 
-    void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface) {
+    void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
         if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
             Logger::crash("Failed to create window surface.");
         }
     }
 
-    void Window::errorCallback(int error, const char *description) {
+    void Window::errorCallback(int error, const char* description) {
         std::stringstream msg;
         msg << "GLFW error code " << error << ": " << description;
         Logger::logMsg(LOG_ERR, msg.str());
     }
 
-    void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) {
-        auto mcpWindow = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+    void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+        Window* mcpWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         mcpWindow->frameBufferResized = true;
         mcpWindow->width = width;
         mcpWindow->height = height;
     }
 
-    void Window::focusCallback(GLFWwindow *window, int focused) {
-        auto mcpWindow = reinterpret_cast<Window *>(glfwGetWindowUserPointer(window));
+    void Window::focusCallback(GLFWwindow* window, int focused) {
+        Window* mcpWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 
         if (focused) {
             mcpWindow->focused = true;

@@ -18,7 +18,7 @@ class Window {
         Window(Window&&) = default;
         Window &operator=(Window&&) = default;
 
-        GLFWwindow *getGLFWwindow() const { return window; }
+        GLFWwindow* getGLFWwindow() const { return window; }
         bool shouldClose() { return glfwWindowShouldClose(window); }
         VkExtent2D getExtent() { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; }
         bool windowResized() { return frameBufferResized; }
@@ -27,7 +27,7 @@ class Window {
         void resetWindowResizedFlag() { frameBufferResized = false; }
 
         void showWindow();
-        void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+        void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
     
     private:
         void initWindow();
@@ -38,11 +38,11 @@ class Window {
         bool focused = true;
 
         std::string windowTitle;
-        GLFWwindow *window;
+        GLFWwindow* window;
 
         // Callback functions
-        static void errorCallback(int error, const char *description);
-        static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
-        static void focusCallback(GLFWwindow *window, int focused);
+        static void errorCallback(int error, const char* description);
+        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+        static void focusCallback(GLFWwindow* window, int focused);
 };
 }
