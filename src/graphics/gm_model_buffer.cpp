@@ -16,6 +16,8 @@ namespace game {
         usageFlags{usageFlags},
         memoryPropertyFlags{memoryPropertyFlags}
     {
+        if (device == nullptr) Logger::crash("Graphics device passed to ModelBuffer is null.");
+
         alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
         bufferSize = alignmentSize * instanceCount;
         device->createBuffer(bufferSize, usageFlags, memoryPropertyFlags, buffer, memory);

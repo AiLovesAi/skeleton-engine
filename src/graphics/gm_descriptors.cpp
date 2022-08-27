@@ -33,6 +33,8 @@ namespace game {
         GraphicsDevice* device, std::unordered_map<uint32_t,
         VkDescriptorSetLayoutBinding> bindings
     ) : graphicsDevice{device}, bindings{bindings} {
+        if (device == nullptr) Logger::crash("Graphics device passed to DescriptorSetLayout is null.");
+
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
         for (auto kv : bindings) {
             setLayoutBindings.push_back(kv.second);
@@ -89,6 +91,8 @@ namespace game {
         VkDescriptorPoolCreateFlags poolFlags,
         const std::vector<VkDescriptorPoolSize> &poolSizes
     ) : graphicsDevice{device} {
+        if (device == nullptr) Logger::crash("Graphics device passed to DescriptorPool is null.");
+
         VkDescriptorPoolCreateInfo descriptorPoolInfo{};
         descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());

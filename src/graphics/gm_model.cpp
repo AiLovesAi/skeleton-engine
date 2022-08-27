@@ -1,5 +1,7 @@
 #include "gm_model.hpp"
 
+#include "../util/gm_logger.hpp"
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
@@ -28,6 +30,8 @@ namespace std {
 
 namespace game {
     Model::Model(GraphicsDevice* device, const Model::Builder& builder) : graphicsDevice{device} {
+        if (device == nullptr) Logger::crash("Graphics device passed to Model is null.");
+
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
     }
@@ -41,7 +45,7 @@ namespace game {
 
     void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
         vertexCount = static_cast<uint32_t>(vertices.size());
-        assert(vertexCount >= 3 && "Vertex count must be at least 3.");
+        if (vertexCount < 3) Logger::crash("Vertex count must be at least 3.");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
         uint32_t vertexSize = sizeof(vertices[0]);
 

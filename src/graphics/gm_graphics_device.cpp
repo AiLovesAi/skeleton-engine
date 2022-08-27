@@ -85,6 +85,25 @@ namespace game {
             supportedFeatures.samplerAnisotropy && supportedFeatures.geometryShader;
     }
 
+    VkFormat GraphicsDevice::findSupportedFormat(
+        const std::vector<VkFormat> &candidates,
+        VkImageTiling tiling,
+        VkFormatFeatureFlags features
+    ) {
+        for (VkFormat format : candidates) {
+            VkFormatProperties props;
+            vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+
+            if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features) {
+            return format;
+            } else if (
+                tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features) {
+            return format;
+            }
+        }
+        Logger::crash("Failed to find supported format.");
+    }
+
     QueueFamilyIndices GraphicsDevice::findQueueFamilies(const VkPhysicalDevice& device) {
         QueueFamilyIndices indices;
 

@@ -3,8 +3,6 @@
 #include "gm_graphics_instance.hpp"
 #include "gm_window.hpp"
 
-#include <vulkan/vulkan.hpp>
-
 #include <vector>
 
 namespace game {
@@ -41,9 +39,14 @@ namespace game {
             VkQueue getPresentQueue() { return presentQueue; }
 
             SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
-            uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
             QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
 
+            uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+            VkFormat findSupportedFormat(
+                const std::vector<VkFormat> &candidates,
+                VkImageTiling tiling,
+                VkFormatFeatureFlags features
+            );
             void createBuffer(
                 const VkDeviceSize size,
                 const VkBufferUsageFlags& usage,
