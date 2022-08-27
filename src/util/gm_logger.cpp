@@ -15,6 +15,7 @@ namespace game {
     static std::mutex mtx;
     std::string Logger::logPath = "latest.log";
     std::string Logger::crashPath = "crash.log";
+    void signalHandler(int signum);
 
     void Logger::init(const std::string& logPath, const std::string& crashPath) {
         setPaths(logPath, crashPath);

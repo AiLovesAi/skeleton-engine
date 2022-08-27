@@ -156,7 +156,7 @@ namespace game {
 
         // Read the contents of the link.
         int count = readlink(link.c_str(), &buffer[0], bufferSize);
-        if(count == -1) McpLogger::crash("Could not read symbolic link");
+        if(count == -1) Logger::crash("Could not read symbolic link");
         buffer[count] = '\0';
 
 #endif

@@ -13,28 +13,34 @@ namespace game {
     bool Game::running = false;
     bool Game::isServer = false;
     std::unordered_map<std::thread::id, std::string> Game::gameThreads;
-    std::string graphicsDeviceName = "NULL";
-    std::string OSStr = "NULL";
-    std::string CPUStr = "NULL";
-    std::string executableDir = "NULL";
+    std::string Game::graphicsDeviceName = "NULL";
+    std::string Game::OSStr = "NULL";
+    std::string Game::CPUStr = "NULL";
+    std::string Game::executableDir = "NULL";
 
-    Game::Game(const int argc, char** argv) {
-        Game::argc = argc;
-        Game::argv = argv;
+    Window* Game::window = nullptr;
+
+    Game::~Game() {
+        delete window;
+        glfwTerminate();
     }
 
-    Game::~Game() {}
-
-    void Game::init() {
+    void Game::init(const int argc, char** argv) {
         gameThreads.emplace(std::this_thread::get_id(), "Main");
         std::srand(std::time(0));
         
         File::init();
         Logger::init("logs/latest.log", "logs/crash.txt");
         Logger::logMsg(LOG_INFO, "Initializing game.");
+        Window::init();
+
         Logger::logMsg(LOG_INFO, "Using CPU: " + CPUStr);
 
         parseArgs();
+
+        if (glfwInit() != GLFW_TRUE) {
+            Logger::crash("Failed to initialize GLFW.");
+        }
     }
 
     void Game::parseArgs() {
@@ -48,6 +54,20 @@ namespace game {
     }
 
     void Game::start() {
-        // Initialize
+        if (!isServer) {
+            window = new Window(800, 600, "Game");
+            window->show();
+
+            running = true;
+
+            while (running && !window->shouldClose()) {
+                glfwPollEvents();
+            }
+
+            running = false;
+
+            // Wait for device to stop
+            //vkDeviceWaitIdle(graphicsDevice.device());
+        }
     }
 }

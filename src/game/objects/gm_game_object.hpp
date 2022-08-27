@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../gm_command.hpp"
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -14,7 +16,7 @@ namespace game {
             using id_t = uint64_t;
 
             struct WorldTransformComponent {
-                glm::dvec3 translation{};
+                glm::dvec3 position{};
                 glm::dvec3 scale{1., 1., 1.};
                 glm::dquat rotation{0., 0., 0., 1.};
             };
@@ -42,5 +44,9 @@ namespace game {
         private:
             GameObject(id_t objId) : id{objId} {}
             id_t id;
+    };
+    class CmdGameObjectMove : Command {
+        public:
+            virtual void execute(GameObject& actor, const glm::dvec3& amount) { actor.transform.position += amount; }
     };
 }

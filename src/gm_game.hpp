@@ -2,20 +2,24 @@
 
 #include "graphics/gm_window.hpp"
 
-#include <unordered_map>
-#include <thread>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include <memory>
 #include <string>
+#include <thread>
+#include <unordered_map>
 
 namespace game {
     class Game {
         public:
             // Constructors
-            Game(const int argc, char** argv);
+            Game() {}
             ~Game();
 
             // Functions
-            void init();
-            void start();
+            static void init(const int argc, char** argv);
+            static void start();
 
             // Variables
             static int argc;
@@ -30,10 +34,9 @@ namespace game {
             static std::string graphicsDeviceName;
         private:
             // Functions
-            void parseArgs();
+            static void parseArgs();
 
             // Variables
-            Window window{800, 600, "Skeleton Engine"};
-
+            static Window* window;
     };
 }
