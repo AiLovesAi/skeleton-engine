@@ -1,6 +1,6 @@
 #pragma once
 
-#include "objects/gm_game_object.hpp"
+#include "gm_game_object.hpp"
 
 #include <map>
 
