@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace game {
+    // Types
     struct SwapChainSupportDetails {
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
@@ -21,7 +22,7 @@ namespace game {
         bool presentFamilyHasValue = false;
         bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
     };
-
+    
     class GraphicsDevice {
         public:
             // Constructors
@@ -42,6 +43,30 @@ namespace game {
             SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
             uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
             QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
+
+            void createBuffer(
+                const VkDeviceSize size,
+                const VkBufferUsageFlags& usage,
+                const VkMemoryPropertyFlags& properties,
+                VkBuffer& buffer,
+                VkDeviceMemory& bufferMemory
+            );
+            VkCommandBuffer beginSingleTimeCommands();
+            void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+            void copyBuffer(const VkBuffer& srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+            void copyBufferToImage(
+                const VkBuffer& buffer,
+                const VkImage& image,
+                uint32_t width,
+                uint32_t height,
+                uint32_t layerCount
+            );
+            void createImageWithInfo(
+                const VkImageCreateInfo& imageInfo,
+                const VkMemoryPropertyFlags& properties,
+                VkImage& image,
+                VkDeviceMemory& imageMemory
+            );
 
             // Variables
             VkPhysicalDeviceProperties properties;
