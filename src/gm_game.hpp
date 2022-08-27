@@ -1,6 +1,8 @@
 #pragma once
 
 #include "graphics/gm_window.hpp"
+#include "graphics/gm_graphics_device.hpp"
+#include "graphics/gm_graphics_instance.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -13,8 +15,11 @@
 namespace game {
     class Game {
         public:
+            // Constants
+            static constexpr char VERSION[] = "1.0.0";
+            static constexpr char TITLE[] = "Game";
+
             // Constructors
-            Game() {}
             ~Game();
 
             // Functions
@@ -38,5 +43,7 @@ namespace game {
 
             // Variables
             static Window* window;
+            static GraphicsInstance* graphicsInstance;
+            static GraphicsDevice* graphicsDevice;
     };
 }

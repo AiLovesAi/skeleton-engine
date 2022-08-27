@@ -19,10 +19,15 @@ namespace game {
     std::string Game::executableDir = "NULL";
 
     Window* Game::window = nullptr;
+    GraphicsInstance* Game::graphicsInstance = nullptr;
+    GraphicsDevice* Game::graphicsDevice = nullptr;
 
     Game::~Game() {
-        delete window;
+        if (window) delete window;
         glfwTerminate();
+
+        if (graphicsDevice) delete graphicsDevice;
+        if (graphicsInstance) delete graphicsInstance;
     }
 
     void Game::init(const int argc, char** argv) {
@@ -55,9 +60,11 @@ namespace game {
 
     void Game::start() {
         if (!isServer) {
-            window = new Window(800, 600, "Game");
-            window->show();
+            window = new Window(800, 600, TITLE);
+            graphicsInstance = new GraphicsInstance(window);
+            graphicsDevice = new GraphicsDevice(graphicsInstance);
 
+            window->show();
             running = true;
 
             while (running && !window->shouldClose()) {
@@ -67,7 +74,7 @@ namespace game {
             running = false;
 
             // Wait for device to stop
-            //vkDeviceWaitIdle(graphicsDevice.device());
+            vkDeviceWaitIdle(graphicsDevice->getDevice());
         }
     }
 }
