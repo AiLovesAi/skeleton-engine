@@ -1,11 +1,6 @@
 #pragma once
 
-#include "graphics/gm_window.hpp"
-#include "graphics/gm_graphics_device.hpp"
-#include "graphics/gm_graphics_instance.hpp"
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "game/gm_client.hpp"
 
 #include <memory>
 #include <string>
@@ -18,9 +13,6 @@ namespace game {
             // Constants
             static constexpr char VERSION[] = "1.0.0";
             static constexpr char TITLE[] = "Game";
-
-            // Constructors
-            ~Game();
 
             // Functions
             static void init(const int argc, char** argv);
@@ -40,10 +32,5 @@ namespace game {
         private:
             // Functions
             static void parseArgs();
-
-            // Variables
-            static Window* window;
-            static GraphicsInstance* graphicsInstance;
-            static GraphicsDevice* graphicsDevice;
     };
 }

@@ -11,8 +11,26 @@
 #include <sstream>
 
 namespace game {
+    Window::Window(const std::string& title) {
+        // Get monitor for window position, width, and height
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-    Window::Window(int w, int h, std::string title) : width{w}, height{h} {
+        {
+            const char* monitorName = glfwGetMonitorName(monitor);
+            std::stringstream msg;
+            msg << "Using monitor: " << monitorName;
+            Logger::logMsg(LOG_INFO, msg.str());
+        }
+
+        // Set window width & height
+        width = mode->width / 2;
+        height = mode->height / 2;
+        
+        createWindow(title, mode);
+    }
+
+    Window::Window(int w, int h, const std::string& title) : width{w}, height{h} {
         // Get monitor for window position
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -23,7 +41,11 @@ namespace game {
             msg << "Using monitor: " << monitorName;
             Logger::logMsg(LOG_INFO, msg.str());
         }
-        
+
+        createWindow(title, mode);
+    }
+
+    void Window::createWindow(const std::string& title, const GLFWvidmode* mode) {
         // Set window hints
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);

@@ -11,7 +11,8 @@ namespace game {
 class Window {
     public:
         // Constructors
-        Window(int w, int h, std::string title);
+        Window(const std::string& title);
+        Window(int w, int h, const std::string& title);
         ~Window();
 
         Window(const Window &) = delete;
@@ -33,16 +34,20 @@ class Window {
         void createWindowSurface(const VkInstance instance, VkSurfaceKHR* surface);
     
     private:
+        // Functions
+        void createWindow(const std::string& title, const GLFWvidmode* mode);
+
+        // Callback functions
+        static void errorCallback(int error, const char* description);
+        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+        static void focusCallback(GLFWwindow* window, int focused);
+
+        // Variables
         int width;
         int height;
         bool frameBufferResized = false;
         bool focused = true;
 
         GLFWwindow* window;
-
-        // Callback functions
-        static void errorCallback(int error, const char* description);
-        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-        static void focusCallback(GLFWwindow* window, int focused);
 };
 }

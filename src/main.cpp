@@ -8,11 +8,9 @@ using namespace game;
 
 int main (int argc, char** argv)
 {
-    Game game;
-
     try {
-        game.init(argc, argv);
-        game.start();
+        Game::init(argc, argv);
+        Game::start();
     } catch (const std::exception &e) {
         Logger::crash(e.what());
         return EXIT_FAILURE;
