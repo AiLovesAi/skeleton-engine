@@ -25,7 +25,7 @@ namespace game {
         while (Game::running && !window->shouldClose()) {
             glfwPollEvents();
         }
-        
+
         stop();
     }
 
@@ -64,6 +64,7 @@ namespace game {
         // Free graphics
         if (window) delete window;
         glfwTerminate();
+        globalPool.reset();
         if (graphicsDevice) delete graphicsDevice;
         if (graphicsInstance) delete graphicsInstance;
 

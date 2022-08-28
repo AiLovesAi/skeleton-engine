@@ -45,6 +45,10 @@ namespace game {
         createWindow(title, mode);
     }
 
+    Window::~Window() {
+        glfwDestroyWindow(window);
+    }
+
     void Window::createWindow(const std::string& title, const GLFWvidmode* mode) {
         // Set window hints
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -65,10 +69,6 @@ namespace game {
         // Set window callbacks
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
         glfwSetWindowFocusCallback(window, focusCallback);
-    }
-
-    Window::~Window() {
-        glfwDestroyWindow(window);
     }
 
     void Window::init() {

@@ -12,6 +12,24 @@ namespace game {
         const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
         void *pUserData
     ) {
+        std::stringstream msg;
+        switch (messageSeverity) {
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+                msg << "Validation layer info: " << pCallbackData->pMessage;
+                Logger::logMsg(LOG_INFO, msg.str());
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+                msg << "Validation layer caught error: " << pCallbackData->pMessage;
+                Logger::logMsg(LOG_ERR, msg.str());
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+                msg << "Validation layer caught warning: " << pCallbackData->pMessage;
+                Logger::logMsg(LOG_WARN, msg.str());
+                break;
+            default:
+                break;
+        }
         return VK_FALSE;
     }
 
@@ -127,7 +145,9 @@ namespace game {
             }
         }
 
+#ifdef NDEBUG
         enableValidationLayers = true;
+#endif
         return true;
     }
 
