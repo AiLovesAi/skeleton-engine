@@ -4,6 +4,8 @@
 #include "../util/gm_logger.hpp"
 #include "../graphics/gm_swap_chain.hpp"
 
+#include <thread>
+
 namespace game {
     GraphicsInstance* Client::graphicsInstance = nullptr;
     GraphicsDevice* Client::graphicsDevice = nullptr;
@@ -50,7 +52,7 @@ namespace game {
 
     void Client::start() {
         // Spawn threads
-        Game::createThread("Render", render);
+        std::thread renderThread(render);
 
         // Start game
         window->show();
@@ -60,21 +62,22 @@ namespace game {
         }
 
         Game::running = false;
-        
-        // Wait for device to stop
-        vkDeviceWaitIdle(graphicsDevice->getDevice());
 
         // Wait for threads to finish
-        while (Game::threadCount) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (renderThread.joinable()) renderThread.join();
     }
 
     void Client::render() {
+        Game::gameThreads.emplace(std::this_thread::get_id(), "Render");
         Logger::logMsg(LOG_INFO, "Render thread started.");
 
         while (Game::running) {
             
         }
 
-        --Game::threadCount;
+        // Wait for device to stop
+        vkDeviceWaitIdle(graphicsDevice->getDevice());
+
+        Game::gameThreads.erase(std::this_thread::get_id());
     }
 }

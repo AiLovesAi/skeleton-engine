@@ -13,13 +13,11 @@ namespace game {
 
             // Functions
             static void start(const int argc, char** argv);
-            static void createThread(const std::string& name, void (*function)(void));
 
             // Variables
             static volatile bool running;
             static bool isServer;
 
-            static volatile int threadCount;
             static std::unordered_map<std::thread::id, std::string> gameThreads;
 
             static std::string OSStr;
