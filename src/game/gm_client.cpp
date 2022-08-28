@@ -13,23 +13,7 @@ namespace game {
 
     std::map<GameObject::id_t, GameObject*> Client::renderableObjects;
 
-    void Client::start() {
-        init();
-
-        // Spawn threads
-        Game::createThread("Render", render);
-
-        // Start game
-        window->show();
-
-        while (Game::running && !window->shouldClose()) {
-            glfwPollEvents();
-        }
-
-        stop();
-    }
-
-    void Client::init() {
+    Client::Client() {
         // Initialize graphics
         if (glfwInit() != GLFW_TRUE) {
             Logger::crash("Failed to initialize GLFW.");
@@ -52,15 +36,7 @@ namespace game {
         Game::running = true;
     }
 
-    void Client::stop() {
-        Game::running = false;
-
-        // Wait for device to stop
-        vkDeviceWaitIdle(graphicsDevice->getDevice());
-
-        // Wait for threads to finish
-        while (Game::threadCount) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+    Client::~Client() {
         // Free graphics
         if (window) delete window;
         glfwTerminate();
@@ -70,6 +46,26 @@ namespace game {
 
         // Free sound
         // TODO
+    }
+
+    void Client::start() {
+        // Spawn threads
+        Game::createThread("Render", render);
+
+        // Start game
+        window->show();
+
+        while (Game::running && !window->shouldClose()) {
+            glfwPollEvents();
+        }
+
+        Game::running = false;
+        
+        // Wait for device to stop
+        vkDeviceWaitIdle(graphicsDevice->getDevice());
+
+        // Wait for threads to finish
+        while (Game::threadCount) std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     void Client::render() {

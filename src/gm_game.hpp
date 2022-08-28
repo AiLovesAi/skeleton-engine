@@ -16,8 +16,6 @@ namespace game {
             static void createThread(const std::string& name, void (*function)(void));
 
             // Variables
-            static int argc;
-            static char** argv;
             static volatile bool running;
             static bool isServer;
 
@@ -32,5 +30,9 @@ namespace game {
             // Functions
             static void init();
             static void parseArgs();
+
+            // Variables 
+            static int argc;
+            static char** argv;
     };
 }

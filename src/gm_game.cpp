@@ -30,10 +30,12 @@ namespace game {
 
         if (isServer) {
             running = true;
-            Server server;
+            
+            Server& server = Server::instance();
             server.start();
         } else {
-            Client::start();
+            Client& client = Client::instance();
+            client.start();
         }
 
         // Wait for threads to stop

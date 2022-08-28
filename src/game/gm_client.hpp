@@ -15,12 +15,25 @@
 namespace game {
     class Client {
         public:
+            // Constructors
+            Client(const Client &) = delete;
+            Client &operator=(const Client &) = delete;
+            Client(Client&&) = default;
+            Client &operator=(Client&&) = default;
+
             // Functions
-            static void start();
+            static Client& instance() {
+                static Client *instance = new Client();
+                return *instance;
+            }
+            void start();
+
         private:
+            // Constructors
+            Client();
+            ~Client();
+
             // Functions
-            static void init();
-            static void stop();
             static void render();
 
             // Variables
