@@ -9,8 +9,7 @@ using namespace game;
 int main (int argc, char** argv)
 {
     try {
-        Game::init(argc, argv);
-        Game::start();
+        Game::start(argc, argv);
     } catch (const std::exception &e) {
         Logger::crash(e.what());
         return EXIT_FAILURE;

@@ -17,8 +17,9 @@ namespace game {
             Server &operator=(Server&&) = delete;
 
             // Functions
+            void start();
 
-            // Object variables
+            // Variables
             std::map<GameObject::id_t, GameObject> gameObjects;
     };
 }

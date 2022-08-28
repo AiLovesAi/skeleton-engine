@@ -3,6 +3,8 @@
 #include "util/gm_cmd_args.hpp"
 #include "util/gm_file.hpp"
 #include "util/gm_logger.hpp"
+#include "game/gm_client.hpp"
+#include "game/gm_server.hpp"
 
 #include <ctime>
 #include <random>
@@ -10,15 +12,35 @@
 namespace game {
     int Game::argc;
     char** Game::argv;
-    bool Game::running = false;
+    volatile bool Game::running = false;
     bool Game::isServer = false;
+
+    volatile int Game::threadCount = 0;
     std::unordered_map<std::thread::id, std::string> Game::gameThreads;
+
     std::string Game::graphicsDeviceName = "NULL";
     std::string Game::OSStr = "NULL";
     std::string Game::CPUStr = "NULL";
     std::string Game::executableDir = "NULL";
 
-    void Game::init(const int argc, char** argv) {
+    void Game::start(const int argc, char** argv) {
+        Game::argc = argc;
+        Game::argv = argv;
+        init();
+
+        if (isServer) {
+            running = true;
+            Server server;
+            server.start();
+        } else {
+            Client::start();
+        }
+
+        // Wait for threads to stop
+        while (threadCount) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    void Game::init() {
         gameThreads.emplace(std::this_thread::get_id(), "Main");
         std::srand(std::time(0));
         
@@ -40,12 +62,10 @@ namespace game {
         }
     }
 
-    void Game::start() {
-        if (!isServer) {
-            Client client;
-            client.start();
-        } else {
-            // TODO Start server
-        }
+    void Game::createThread(const std::string& name, void (*function)(void)) {
+        std::thread t(function);
+        gameThreads.emplace(t.get_id(), name);
+        t.detach();
+        ++threadCount;
     }
 }
