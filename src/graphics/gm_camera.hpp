@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../game/gm_game_object.hpp"
+#include "../game/objects/gm_game_object.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

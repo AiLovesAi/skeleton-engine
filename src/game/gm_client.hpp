@@ -1,6 +1,7 @@
 #pragma once
 
-#include "gm_game_object.hpp"
+#include "objects/gm_game_object.hpp"
+#include "states/gm_game_states.hpp"
 #include "../graphics/gm_graphics_device.hpp"
 #include "../graphics/gm_graphics_instance.hpp"
 #include "../graphics/gm_window.hpp"
@@ -34,15 +35,18 @@ namespace game {
             ~Client();
 
             // Functions
-            static void render();
+            void game();
+            void render();
 
             // Variables
-            static GraphicsInstance* graphicsInstance;
-            static GraphicsDevice* graphicsDevice;
-            static Window* window;
-
-            static std::unique_ptr<DescriptorPool> globalPool;
+            GraphicsInstance* graphicsInstance = nullptr;
+            GraphicsDevice* graphicsDevice = nullptr;
+            std::unique_ptr<DescriptorPool> globalPool;
+            Window* window = nullptr;
             
-            static std::map<GameObject::id_t, GameObject*> renderableObjects;
+            static MenuState menuState;
+            static HostState hostState;
+            static ClientState clientState;
+            GameState*volatile gameState = &menuState;
     };
 }

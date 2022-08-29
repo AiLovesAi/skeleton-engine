@@ -1,7 +1,5 @@
 #pragma once
 
-#include "gm_game_object.hpp"
-
 #include <map>
 
 namespace game {
@@ -19,9 +17,6 @@ namespace game {
                 return *instance;
             }
             void start();
-
-            // Variables
-            std::map<GameObject::id_t, GameObject> gameObjects;
         
         private:
             // Constructors

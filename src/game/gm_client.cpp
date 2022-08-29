@@ -7,14 +7,6 @@
 #include <thread>
 
 namespace game {
-    GraphicsInstance* Client::graphicsInstance = nullptr;
-    GraphicsDevice* Client::graphicsDevice = nullptr;
-    Window* Client::window = nullptr;
-
-    std::unique_ptr<DescriptorPool> Client::globalPool;
-
-    std::map<GameObject::id_t, GameObject*> Client::renderableObjects;
-
     Client::Client() {
         // Initialize graphics
         if (glfwInit() != GLFW_TRUE) {
@@ -67,12 +59,23 @@ namespace game {
         if (renderThread.joinable()) renderThread.join();
     }
 
+    void Client::game() {
+        Game::gameThreads.emplace(std::this_thread::get_id(), "Render");
+        Logger::logMsg(LOG_INFO, "Game thread started.");
+
+        while (Game::running) {
+            gameState->update();
+        }
+
+        Game::gameThreads.erase(std::this_thread::get_id());
+    }
+
     void Client::render() {
         Game::gameThreads.emplace(std::this_thread::get_id(), "Render");
         Logger::logMsg(LOG_INFO, "Render thread started.");
 
         while (Game::running) {
-            
+            gameState->render();
         }
 
         // Wait for device to stop
