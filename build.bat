@@ -1,6 +1,3 @@
-:: Remove old logs
-del /s /q products\logs\*
-
 :: Compile shaders
 for %%F in (shaders/*) do (
   glslc "shaders\%%F" -o "products\assets\shaders\%%F.spv"
@@ -14,7 +11,7 @@ g++^
  -Wall -Wno-volatile -Ofast -Os -m64 -std=c++23^
  -mwindows -static-libgcc -static-libstdc++^
  -DNDEBUG^
- src/*.cpp src/util/*.cpp src/graphics/*.cpp src/graphics/systems/*.cpp src/game/*.cpp src/game/states/*.cpp src/game/gui/*.cpp src/game/objects/*.cpp src/input/*.cpp src/sound/*.cpp^
+ src/*.cpp src/util/*.cpp src/graphics/*.cpp src/graphics/systems/*.cpp src/game/*.cpp src/game/states/*.cpp src/game/objects/*.cpp src/input/*.cpp src/sound/*.cpp^
  -o products/out.exe resources.o^
  -I lib/include -L lib/^
  -Wl,--export-all-symbol^

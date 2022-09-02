@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../gm_client.hpp"
+#include "../../graphics/gm_renderer.hpp"
 
 namespace game {
     class GameState {
         public:
+            GameState() {}
             virtual ~GameState() {}
 
             virtual void update() {}
@@ -13,35 +14,28 @@ namespace game {
 
     class MenuState : public GameState {
         public:
-            MenuState(Client& client) : client{client} {}
+            MenuState(){}
 
             virtual void update();
             virtual void render();
 
         private:
-            Client& client;
             // Menu GUI
     };
 
     class HostState : public GameState {
         public:
-            HostState(Client& client) : client{client} {}
+            HostState() {}
 
             virtual void update();
             virtual void render();
-
-        private:
-            Client& client;
     };
 
     class ClientState : public GameState {
         public:
-            ClientState(Client& client) : client{client} {}
+            ClientState() {}
 
             virtual void update();
             virtual void render();
-
-        private:
-            Client& client;
     };
 }

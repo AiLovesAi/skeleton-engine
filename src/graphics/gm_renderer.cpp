@@ -100,7 +100,7 @@ namespace game {
         auto result = swapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->windowResized()) {
             window->resetWindowResizedFlag();
-            if (camera != nullptr) camera->updatePerspective();
+            if (camera) camera->updatePerspective();
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             Logger::crash("Failed to present swap chain image.");

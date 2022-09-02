@@ -4,6 +4,7 @@
 #include "states/gm_game_states.hpp"
 #include "../graphics/gm_graphics_device.hpp"
 #include "../graphics/gm_graphics_instance.hpp"
+#include "../graphics/gm_renderer.hpp"
 #include "../graphics/gm_window.hpp"
 #include "../graphics/gm_descriptors.hpp"
 
@@ -17,6 +18,8 @@ namespace game {
     class Client {
         public:
             // Constructors
+            ~Client();
+
             Client(const Client &) = delete;
             Client &operator=(const Client &) = delete;
             Client(Client&&) = default;
@@ -29,10 +32,14 @@ namespace game {
             }
             void start();
 
+            GraphicsInstance* getGraphicsInstance() { return graphicsInstance; }
+            GraphicsDevice* getGraphicsDevice() { return graphicsDevice; }
+            Renderer* getRenderer() { return renderer; }
+            Window* getWindow() { return window; }
+
         private:
             // Constructors
             Client();
-            ~Client();
 
             // Functions
             void game();
@@ -41,6 +48,7 @@ namespace game {
             // Variables
             GraphicsInstance* graphicsInstance = nullptr;
             GraphicsDevice* graphicsDevice = nullptr;
+            Renderer* renderer = nullptr;
             std::unique_ptr<DescriptorPool> globalPool;
             Window* window = nullptr;
             

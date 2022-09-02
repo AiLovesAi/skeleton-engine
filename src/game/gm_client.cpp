@@ -7,6 +7,10 @@
 #include <thread>
 
 namespace game {
+    MenuState Client::menuState;
+    HostState Client::hostState;
+    ClientState Client::clientState;
+
     Client::Client() {
         // Initialize graphics
         if (glfwInit() != GLFW_TRUE) {
@@ -18,6 +22,7 @@ namespace game {
         window = new Window(Game::TITLE);
         graphicsInstance = new GraphicsInstance(window);
         graphicsDevice = new GraphicsDevice(graphicsInstance);
+        renderer = new Renderer(graphicsInstance, graphicsDevice, window);
 
         globalPool = DescriptorPool::Builder(graphicsDevice)
             .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
@@ -32,6 +37,7 @@ namespace game {
 
     Client::~Client() {
         // Free graphics
+        if (renderer) delete renderer;
         if (window) delete window;
         glfwTerminate();
         globalPool.reset();
@@ -44,7 +50,8 @@ namespace game {
 
     void Client::start() {
         // Spawn threads
-        std::thread renderThread(render);
+        std::thread renderThread(render, this);
+        std::thread gameThread(game, this);
 
         // Start game
         window->show();
@@ -56,11 +63,12 @@ namespace game {
         Game::running = false;
 
         // Wait for threads to finish
+        if (gameThread.joinable()) gameThread.join();
         if (renderThread.joinable()) renderThread.join();
     }
 
     void Client::game() {
-        Game::gameThreads.emplace(std::this_thread::get_id(), "Render");
+        Game::gameThreads.emplace(std::this_thread::get_id(), "Game");
         Logger::logMsg(LOG_INFO, "Game thread started.");
 
         while (Game::running) {
