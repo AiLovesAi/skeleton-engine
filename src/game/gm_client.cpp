@@ -49,6 +49,9 @@ namespace game {
     }
 
     void Client::start() {
+        // Load menu
+        gameState->load();
+
         // Spawn threads
         std::thread renderThread(render, this);
         std::thread gameThread(game, this);
@@ -56,6 +59,7 @@ namespace game {
         // Start game
         window->show();
 
+        // Poll events
         while (Game::running && !window->shouldClose()) {
             glfwPollEvents();
         }
@@ -73,6 +77,7 @@ namespace game {
 
         while (Game::running) {
             gameState->update();
+
         }
 
         Game::gameThreads.erase(std::this_thread::get_id());

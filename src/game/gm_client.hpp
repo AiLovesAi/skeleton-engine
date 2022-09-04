@@ -55,6 +55,6 @@ namespace game {
             static MenuState menuState;
             static HostState hostState;
             static ClientState clientState;
-            GameState*volatile gameState = &menuState;
+            GameState* gameState = &menuState;
     };
 }
