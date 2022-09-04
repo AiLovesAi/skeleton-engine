@@ -6,7 +6,8 @@ lib/
 Makefile
 CMakeCache.txt
 .vscode/
-products/
+logs/
+*.exe
 *.zip
 
 

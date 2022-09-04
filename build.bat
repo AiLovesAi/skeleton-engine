@@ -1,6 +1,6 @@
 :: Compile shaders
 for %%F in (shaders/*) do (
-  glslc "shaders\%%F" -o "products\assets\shaders\%%F.spv"
+  glslc "shaders\%%F" -o "assets\shaders\%%F.spv"
 )
 
 :: Compile binary resources for icon and info
@@ -12,7 +12,7 @@ g++^
  -mwindows -static-libgcc -static-libstdc++^
  -DNDEBUG^
  src/*.cpp src/util/*.cpp src/graphics/*.cpp src/graphics/systems/*.cpp src/game/*.cpp src/game/states/*.cpp src/game/objects/*.cpp src/input/*.cpp src/sound/*.cpp^
- -o products/out.exe resources.o^
+ -o out.exe resources.o^
  -I lib/include -L lib/^
  -Wl,--export-all-symbol^
  -Wl,-Bstatic -lstdc++ -lpthread -l:libglfw3.a -l:vulkan-1.lib^
