@@ -61,7 +61,7 @@ namespace game {
 
         // Poll events
         while (Game::running && !window->shouldClose()) {
-            glfwPollEvents();
+            glfwWaitEvents();
         }
 
         Game::running = false;

@@ -17,16 +17,18 @@ namespace game {
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
 
+        // Render GUI
+
         renderer->endSwapChainRenderPass(commandBuffer);
         renderer->endFrame(nullptr);
     }
 
     void HostState::load() {
-
+        // Load world and shaders
     }
 
     void HostState::update() {
-        
+        // Update world
     }
 
     void HostState::render() {
@@ -34,22 +36,26 @@ namespace game {
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
 
+        // Render world
+
         renderer->endSwapChainRenderPass(commandBuffer);
         renderer->endFrame(nullptr);
     }
 
     void ClientState::load() {
-
+        // Connect and load shaders
     }
 
     void ClientState::update() {
-
+        // Listen/send to server
     }
 
     void ClientState::render() {
         auto renderer = Client::instance().getRenderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
+
+        // Render world
 
         renderer->endSwapChainRenderPass(commandBuffer);
         renderer->endFrame(nullptr);
