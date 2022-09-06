@@ -12,7 +12,7 @@ namespace game {
         // Traverse menu
     }
 
-    void MenuState::render() {
+    void MenuState::render(const double lag) {
         auto renderer = Client::instance().getRenderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
@@ -31,7 +31,7 @@ namespace game {
         // Update world
     }
 
-    void HostState::render() {
+    void HostState::render(const double lag) {
         auto renderer = Client::instance().getRenderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
@@ -50,7 +50,7 @@ namespace game {
         // Listen/send to server
     }
 
-    void ClientState::render() {
+    void ClientState::render(const double lag) {
         auto renderer = Client::instance().getRenderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
