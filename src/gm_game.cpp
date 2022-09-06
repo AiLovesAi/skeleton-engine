@@ -12,7 +12,7 @@
 namespace game {
     int Game::argc;
     char** Game::argv;
-    volatile bool Game::running = false;
+    std::atomic<bool> Game::running = false;
     bool Game::isServer = false;
 
     std::unordered_map<std::thread::id, std::string> Game::gameThreads;
