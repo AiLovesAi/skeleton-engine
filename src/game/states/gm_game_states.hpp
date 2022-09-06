@@ -12,7 +12,7 @@ namespace game {
 
             virtual void load() {}
             virtual void update() {}
-            virtual void render() {}
+            virtual void render(const double lag) {}
     };
 
     class MenuState : public GameState {
@@ -21,7 +21,7 @@ namespace game {
 
             virtual void load();
             virtual void update();
-            virtual void render();
+            virtual void render(const double lag);
 
         private:
             // Menu GUI
@@ -33,7 +33,7 @@ namespace game {
 
             virtual void load();
             virtual void update();
-            virtual void render();
+            virtual void render(const double lag);
     };
 
     class ClientState : public GameState {
@@ -42,6 +42,6 @@ namespace game {
 
             virtual void load();
             virtual void update();
-            virtual void render();
+            virtual void render(const double lag);
     };
 }

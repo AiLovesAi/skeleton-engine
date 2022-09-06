@@ -53,7 +53,6 @@ namespace game {
         gameState->load();
 
         // Spawn threads
-        std::thread renderThread(render, this);
         std::thread gameThread(game, this);
 
         // Start game
@@ -68,27 +67,28 @@ namespace game {
 
         // Wait for threads to finish
         if (gameThread.joinable()) gameThread.join();
-        if (renderThread.joinable()) renderThread.join();
     }
 
     void Client::game() {
         Game::gameThreads.emplace(std::this_thread::get_id(), "Game");
         Logger::logMsg(LOG_INFO, "Game thread started.");
 
+        auto previousTime = std::chrono::high_resolution_clock::now();
+        double lag = 0.0f;
         while (Game::running) {
-            gameState->update();
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            double elapsedTime = std::chrono::duration<double, std::chrono::milliseconds::period>(currentTime - previousTime).count();
+            previousTime = currentTime;
+            lag += elapsedTime;
 
-        }
+            // Prioritize game update when behind, skip to rendering when ahead
+            while (lag >= Game::MS_PER_TICK) {
+                gameState->update();
+                lag -= Game::MS_PER_TICK;
+            }
 
-        Game::gameThreads.erase(std::this_thread::get_id());
-    }
-
-    void Client::render() {
-        Game::gameThreads.emplace(std::this_thread::get_id(), "Render");
-        Logger::logMsg(LOG_INFO, "Render thread started.");
-
-        while (Game::running) {
-            gameState->render();
+            // Render at position between ticks (input is percentage of next tick)
+            gameState->render(lag / Game::MS_PER_TICK);
         }
 
         // Wait for device to stop
