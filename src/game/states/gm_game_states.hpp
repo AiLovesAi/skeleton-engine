@@ -2,8 +2,6 @@
 
 #include "../../graphics/gm_renderer.hpp"
 
-#include <chrono>
-
 namespace game {
     class GameState {
         public:
