@@ -58,13 +58,13 @@ namespace game {
             );
 
             void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
-
-            // Variables
+            
             static std::vector<char> readFile(const std::string filePath);
 
-            GraphicsDevice* graphicsDevice;
-            VkPipeline graphicsPipeline;
-            VkShaderModule vertShaderModule;
-            VkShaderModule fragShaderModule;
+            // Variables
+            GraphicsDevice* graphicsDevice_;
+            VkPipeline graphicsPipeline_;
+            VkShaderModule vertShaderModule_;
+            VkShaderModule fragShaderModule_;
     };
 }

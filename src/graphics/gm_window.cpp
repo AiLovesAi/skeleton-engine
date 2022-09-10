@@ -24,13 +24,13 @@ namespace game {
         }
 
         // Set window width & height
-        width = mode->width / 2;
-        height = mode->height / 2;
+        width_ = mode->width / 2;
+        height_ = mode->height / 2;
         
         createWindow(title, mode);
     }
 
-    Window::Window(int w, int h, const std::string& title) : width{w}, height{h} {
+    Window::Window(int w, int h, const std::string& title) : width_{w}, height_{h} {
         // Get monitor for window position
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -46,7 +46,7 @@ namespace game {
     }
 
     Window::~Window() {
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(window_);
     }
 
     void Window::createWindow(const std::string& title, const GLFWvidmode* mode) {
@@ -56,19 +56,19 @@ namespace game {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     
         // Create window
-        window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-        glfwSetWindowPos(window, (mode->width - width) / 2, (mode->height - height) / 2);
-        glfwSetWindowUserPointer(window, this);
+        window_ = glfwCreateWindow(width_, height_, title.c_str(), nullptr, nullptr);
+        glfwSetWindowPos(window_, (mode->width - width_) / 2, (mode->height - height_) / 2);
+        glfwSetWindowUserPointer(window_, this);
 
         // Get icon
         GLFWimage icons[1];
         icons[0].pixels = stbi_load("assets/icon.png", &icons[0].width, &icons[0].height, 0, 4);
-        glfwSetWindowIcon(window, 1, icons);
+        glfwSetWindowIcon(window_, 1, icons);
         stbi_image_free(icons[0].pixels);
 
         // Set window callbacks
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-        glfwSetWindowFocusCallback(window, focusCallback);
+        glfwSetFramebufferSizeCallback(window_, framebufferResizeCallback);
+        glfwSetWindowFocusCallback(window_, focusCallback);
     }
 
     void Window::init() {
@@ -76,12 +76,12 @@ namespace game {
     }
 
     void Window::show() {
-        glfwShowWindow(window);
-        glfwFocusWindow(window);
+        glfwShowWindow(window_);
+        glfwFocusWindow(window_);
     }
 
     void Window::createWindowSurface(const VkInstance instance, VkSurfaceKHR* surface) {
-        if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
+        if (glfwCreateWindowSurface(instance, window_, nullptr, surface) != VK_SUCCESS) {
             Logger::crash("Failed to create window surface.");
         }
     }
@@ -92,16 +92,16 @@ namespace game {
         Logger::logMsg(LOG_ERR, msg.str());
     }
 
-    void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-        Window* glfwWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        glfwWindow->frameBufferResized = true;
-        glfwWindow->width = width;
-        glfwWindow->height = height;
+    void Window::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height) {
+        Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+        window->frameBufferResized_ = true;
+        window->width_ = width;
+        window->height_ = height;
     }
 
-    void Window::focusCallback(GLFWwindow* window, int focused) {
-        Window* glfwWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+    void Window::focusCallback(GLFWwindow* glfwWindow, int focused) {
+        Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-        glfwWindow->focused = focused;
+        window->focused_ = focused;
     }
 }

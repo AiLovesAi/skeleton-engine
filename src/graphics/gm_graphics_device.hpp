@@ -33,13 +33,13 @@ namespace game {
             GraphicsDevice &operator=(GraphicsDevice &&) = delete;
             
             // Functions
-            VkCommandPool getCommandPool() { return commandPool; }
-            VkDevice getDevice() { return device; }
-            VkQueue getGraphicsQueue() { return graphicsQueue; }
-            VkQueue getPresentQueue() { return presentQueue; }
+            VkCommandPool commandPool() { return commandPool_; }
+            VkDevice device() { return device_; }
+            VkQueue graphicsQueue() { return graphicsQueue_; }
+            VkQueue presentQueue() { return presentQueue_; }
 
-            SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
-            QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
+            SwapChainSupportDetails swapChainSupport() { return querySwapChainSupport(physicalDevice_); }
+            QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice_); }
 
             uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
             VkFormat findSupportedFormat(
@@ -87,15 +87,15 @@ namespace game {
             SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device);
             
             // Variables
-            GraphicsInstance* instance;
+            GraphicsInstance* instance_;
 
-            VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-            VkCommandPool commandPool;
+            VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
+            VkCommandPool commandPool_;
 
-            VkDevice device;
-            VkQueue graphicsQueue;
-            VkQueue presentQueue;
+            VkDevice device_;
+            VkQueue graphicsQueue_;
+            VkQueue presentQueue_;
 
-            const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+            const std::vector<const char *> deviceExtensions_ = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     };
 }

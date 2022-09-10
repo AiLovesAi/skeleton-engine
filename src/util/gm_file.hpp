@@ -27,6 +27,7 @@ class File {
         static std::string const asAscii(const std::string& str);
         static bool const isAscii(const std::string& str);
         static std::string const getStack();
+        
     private:
         static void getOS();
         static void getCPU();

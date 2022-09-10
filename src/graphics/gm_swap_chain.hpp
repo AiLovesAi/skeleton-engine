@@ -21,17 +21,17 @@ namespace game {
             SwapChain(SwapChain&&) = default;
             SwapChain &operator=(SwapChain&&) = default;
 
-            VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
-            VkRenderPass getRenderPass() { return renderPass; }
-            VkImageView getImageView(int index) { return swapChainImageViews[index]; }
-            size_t imageCount() { return swapChainImages.size(); }
-            VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
-            VkExtent2D getSwapChainExtent() { return swapChainExtent; }
-            uint32_t width() { return swapChainExtent.width; }
-            uint32_t height() { return swapChainExtent.height; }
+            VkFramebuffer frameBuffer(int index) { return framebuffers_[index]; }
+            VkRenderPass renderPass() { return renderPass_; }
+            VkImageView imageView(int index) { return imageViews_[index]; }
+            size_t imageCount() { return images_.size(); }
+            VkFormat imageFormat() { return imageFormat_; }
+            VkExtent2D extent() { return extent_; }
+            uint32_t width() { return extent_.width; }
+            uint32_t height() { return extent_.height; }
 
             float extentAspectRatio() {
-                return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
+                return static_cast<float>(extent_.width) / static_cast<float>(extent_.height);
             }
             VkFormat findDepthFormat();
 
@@ -39,8 +39,8 @@ namespace game {
             VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
             bool compareSwapFormats(const SwapChain& swapChain) const {
-                return swapChain.swapChainDepthFormat == swapChainDepthFormat &&
-                    swapChain.swapChainImageFormat == swapChainImageFormat;
+                return swapChain.depthFormat_ == depthFormat_ &&
+                    swapChain.imageFormat_ == imageFormat_;
             }
 
         private:
@@ -58,30 +58,30 @@ namespace game {
             VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
             // Variables
-            VkFormat swapChainImageFormat;
-            VkFormat swapChainDepthFormat;
-            VkExtent2D swapChainExtent;
+            VkFormat imageFormat_;
+            VkFormat depthFormat_;
+            VkExtent2D extent_;
 
-            std::vector<VkFramebuffer> swapChainFramebuffers;
-            VkRenderPass renderPass;
+            std::vector<VkFramebuffer> framebuffers_;
+            VkRenderPass renderPass_;
 
-            std::vector<VkImage> depthImages;
-            std::vector<VkDeviceMemory> depthImageMemorys;
-            std::vector<VkImageView> depthImageViews;
-            std::vector<VkImage> swapChainImages;
-            std::vector<VkImageView> swapChainImageViews;
+            std::vector<VkImage> depthImages_;
+            std::vector<VkDeviceMemory> depthImageMemorys_;
+            std::vector<VkImageView> depthImageViews_;
+            std::vector<VkImage> images_;
+            std::vector<VkImageView> imageViews_;
 
-            GraphicsInstance* graphicsInstance;
-            GraphicsDevice* graphicsDevice;
-            VkExtent2D windowExtent;
+            GraphicsInstance* graphicsInstance_;
+            GraphicsDevice* graphicsDevice_;
+            VkExtent2D windowExtent_;
 
-            VkSwapchainKHR swapChain;
-            std::shared_ptr<SwapChain> oldSwapChain;
+            VkSwapchainKHR swapChain_;
+            std::shared_ptr<SwapChain> oldSwapChain_;
 
-            std::vector<VkSemaphore> imageAvailableSemaphores;
-            std::vector<VkSemaphore> renderFinishedSemaphores;
-            std::vector<VkFence> inFlightFences;
-            std::vector<VkFence> imagesInFlight;
-            size_t currentFrame = 0;
+            std::vector<VkSemaphore> imageAvailableSemaphores_;
+            std::vector<VkSemaphore> renderFinishedSemaphores_;
+            std::vector<VkFence> inFlightFences_;
+            std::vector<VkFence> imagesInFlight_;
+            size_t currentFrame_ = 0;
     };
 }

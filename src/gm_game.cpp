@@ -10,8 +10,8 @@
 #include <random>
 
 namespace game {
-    int Game::argc;
-    char** Game::argv;
+    int Game::argc_;
+    char** Game::argv_;
     std::atomic<bool> Game::running = false;
     bool Game::isServer = false;
 
@@ -23,8 +23,8 @@ namespace game {
     std::string Game::executableDir = "NULL";
 
     void Game::start(const int argc, char** argv) {
-        Game::argc = argc;
-        Game::argv = argv;
+        Game::argc_ = argc;
+        Game::argv_ = argv;
         init();
 
         if (isServer) {
@@ -52,7 +52,7 @@ namespace game {
 
     void Game::parseArgs() {
         // Check if server
-        if (CmdArgs::cmdOptionExists(argv, argv + argc, "--server")) {
+        if (CmdArgs::cmdOptionExists(argv_, argv_ + argc_, "--server")) {
             isServer = true;
             Logger::logMsg(LOG_INFO, "Running game as server.");
         } else {

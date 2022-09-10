@@ -27,15 +27,15 @@ namespace game {
 
             // Functions
             static Client& instance() {
-                static Client *instance = new Client();
-                return *instance;
+                static Client *instance_ = new Client();
+                return *instance_;
             }
             void start();
 
-            GraphicsInstance* getGraphicsInstance() { return graphicsInstance; }
-            GraphicsDevice* getGraphicsDevice() { return graphicsDevice; }
-            Renderer* getRenderer() { return renderer; }
-            Window* getWindow() { return window; }
+            GraphicsInstance* graphicsInstance() { return graphicsInstance_; }
+            GraphicsDevice* graphicsDevice() { return graphicsDevice_; }
+            Renderer* renderer() { return renderer_; }
+            Window* window() { return window_; }
 
         private:
             // Constructors
@@ -46,15 +46,15 @@ namespace game {
             void render();
 
             // Variables
-            GraphicsInstance* graphicsInstance = nullptr;
-            GraphicsDevice* graphicsDevice = nullptr;
-            Renderer* renderer = nullptr;
-            std::unique_ptr<DescriptorPool> globalPool;
-            Window* window = nullptr;
+            GraphicsInstance* graphicsInstance_ = nullptr;
+            GraphicsDevice* graphicsDevice_ = nullptr;
+            Renderer* renderer_ = nullptr;
+            std::unique_ptr<DescriptorPool> globalPool_;
+            Window* window_ = nullptr;
             
-            static MenuState menuState;
-            static HostState hostState;
-            static ClientState clientState;
-            GameState* gameState = &menuState;
+            static MenuState menuState_;
+            static HostState hostState_;
+            static ClientState clientState_;
+            GameState* gameState_ = &menuState_;
     };
 }

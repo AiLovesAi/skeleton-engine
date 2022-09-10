@@ -7,9 +7,9 @@
 #include <thread>
 
 namespace game {
-    MenuState Client::menuState;
-    HostState Client::hostState;
-    ClientState Client::clientState;
+    MenuState Client::menuState_;
+    HostState Client::hostState_;
+    ClientState Client::clientState_;
 
     Client::Client() {
         // Initialize graphics
@@ -19,12 +19,12 @@ namespace game {
 
         Window::init();
         
-        window = new Window(Game::TITLE);
-        graphicsInstance = new GraphicsInstance(window);
-        graphicsDevice = new GraphicsDevice(graphicsInstance);
-        renderer = new Renderer(graphicsInstance, graphicsDevice, window);
+        window_ = new Window(Game::TITLE);
+        graphicsInstance_ = new GraphicsInstance(window_);
+        graphicsDevice_ = new GraphicsDevice(graphicsInstance_);
+        renderer_ = new Renderer(graphicsInstance_, graphicsDevice_, window_);
 
-        globalPool = DescriptorPool::Builder(graphicsDevice)
+        globalPool_ = DescriptorPool::Builder(graphicsDevice_)
             .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
@@ -37,12 +37,12 @@ namespace game {
 
     Client::~Client() {
         // Free graphics
-        if (renderer) delete renderer;
-        if (window) delete window;
+        if (renderer_) delete renderer_;
+        if (window_) delete window_;
         glfwTerminate();
-        globalPool.reset();
-        if (graphicsDevice) delete graphicsDevice;
-        if (graphicsInstance) delete graphicsInstance;
+        globalPool_.reset();
+        if (graphicsDevice_) delete graphicsDevice_;
+        if (graphicsInstance_) delete graphicsInstance_;
 
         // Free sound
         // TODO
@@ -50,16 +50,16 @@ namespace game {
 
     void Client::start() {
         // Load menu
-        gameState->load();
+        gameState_->load();
 
         // Spawn threads
         std::thread gameThread(game, this);
 
         // Start game
-        window->show();
+        window_->show();
 
         // Poll events
-        while (Game::running && !window->shouldClose()) {
+        while (Game::running && !window_->shouldClose()) {
             glfwWaitEvents();
         }
 
@@ -83,18 +83,18 @@ namespace game {
 
             // Prioritize game update when behind, skip to rendering when ahead
             while (lag >= Game::MS_PER_TICK) {
-                gameState->update();
+                gameState_->update();
                 lag -= Game::MS_PER_TICK;
             }
 
             // Render object positions between ticks (input is percentage of next tick)
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
-            gameState->render(lag / Game::MS_PER_TICK);
+            gameState_->render(lag / Game::MS_PER_TICK);
         }
 
         // Wait for device to stop
-        vkDeviceWaitIdle(graphicsDevice->getDevice());
+        vkDeviceWaitIdle(graphicsDevice_->device());
 
         Game::gameThreads.erase(std::this_thread::get_id());
     }
