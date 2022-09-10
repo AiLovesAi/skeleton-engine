@@ -9,7 +9,7 @@ namespace game {
         GraphicsInstance* instance,
         GraphicsDevice* device,
         Window* window
-    ) : graphicsInstance{instance}, graphicsDevice{device}, window{window} {
+    ) : graphicsInstance_{instance}, graphicsDevice_{device}, window_{window} {
         if (instance == nullptr) Logger::crash("Graphics instance passed to Renderer is null.");
         if (device == nullptr) Logger::crash("Graphics device passed to Renderer is null.");
         if (window == nullptr) Logger::crash("Window passed to Renderer is null.");
@@ -23,50 +23,52 @@ namespace game {
     }
 
     void Renderer::recreateSwapChain() {
-        auto extent = window->getExtent();
+        auto extent = window_->extent();
         
         while (extent.width == 0 || extent.height == 0) {
             glfwWaitEvents();
-            extent = window->getExtent();
+            extent = window_->extent();
         }
 
-        vkDeviceWaitIdle(graphicsDevice->getDevice());
+        vkDeviceWaitIdle(graphicsDevice_->device());
         
-        if (swapChain == nullptr) {
-            swapChain = std::make_unique<SwapChain>(graphicsInstance, graphicsDevice, extent);
+        if (swapChain_ == nullptr) {
+            swapChain_ = std::make_unique<SwapChain>(graphicsInstance_, graphicsDevice_, extent);
         } else {
-            std::shared_ptr<SwapChain> oldSwapChain = std::move(swapChain);
-            swapChain = std::make_unique<SwapChain>(graphicsInstance, graphicsDevice, extent, oldSwapChain);
+            // TODO Edit existing swapchain without setting present mode, etc.
+            std::shared_ptr<SwapChain> oldSwapChain = std::move(swapChain_);
+            swapChain_ = std::make_unique<SwapChain>(graphicsInstance_, graphicsDevice_, extent, oldSwapChain);
 
-            if (!oldSwapChain->compareSwapFormats(*swapChain.get())) {
+            if (!oldSwapChain->compareSwapFormats(*swapChain_.get())) {
                 Logger::crash("Swap chain image or depth format has changed.");
             }
         }
     }
 
     void Renderer::createCommandBuffers() {
-        commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+        commandBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
         
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = graphicsDevice->getCommandPool();
-        allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+        allocInfo.commandPool = graphicsDevice_->commandPool();
+        allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
 
-        if (vkAllocateCommandBuffers(graphicsDevice->getDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(graphicsDevice_->device(), &allocInfo, commandBuffers_.data()) != VK_SUCCESS) {
             Logger::crash("Failed to allocate command buffers.");
         }
     }
 
     void Renderer::freeCommandBuffers() {
-        vkFreeCommandBuffers(graphicsDevice->getDevice(), graphicsDevice->getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
-        commandBuffers.clear();
+        vkFreeCommandBuffers(graphicsDevice_->device(), graphicsDevice_->commandPool(),
+            static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
+        commandBuffers_.clear();
     }
 
     VkCommandBuffer Renderer::beginFrame() {
-        if (isFrameStarted) Logger::crash("Cannot call beginFrame while already in progress.");
+        if (isFrameStarted_) Logger::crash("Cannot call beginFrame while already in progress.");
 
-        auto result = swapChain->acquireNextImage(&currentImageIndex);
+        auto result = swapChain_->acquireNextImage(&currentImageIndex_);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
@@ -77,9 +79,9 @@ namespace game {
             Logger::crash("Failed to acquire swap chain image.");
         }
 
-        isFrameStarted = true;
+        isFrameStarted_ = true;
 
-        auto commandBuffer = getCurrentCommandBuffer();
+        auto commandBuffer = currentCommandBuffer();
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -90,39 +92,41 @@ namespace game {
     }
 
     void Renderer::endFrame(Camera *camera) {
-        if (!isFrameStarted) Logger::crash("Cannot call endFrame while frame is not in progress.");
+        if (!isFrameStarted_) Logger::crash("Cannot call endFrame while frame is not in progress.");
 
-        auto commandBuffer = getCurrentCommandBuffer();
+        auto commandBuffer = currentCommandBuffer();
         if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
             Logger::crash("Failed to record command buffer.");
         }
 
-        auto result = swapChain->submitCommandBuffers(&commandBuffer, &currentImageIndex);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window->windowResized()) {
-            window->resetWindowResizedFlag();
+        auto result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_->wasResized()) {
+            window_->resetWindowResizedFlag();
+            // TODO Move to camera update, and call camera class update before render to ensure wasResized
+            // flag is used before being reset.
             if (camera) camera->updatePerspective();
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             Logger::crash("Failed to present swap chain image.");
         }
 
-        isFrameStarted = false;
-        currentFrameIndex = (currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
+        isFrameStarted_ = false;
+        currentFrameIndex_ = (currentFrameIndex_ + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
     }
     
     void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
-        if (!isFrameStarted) Logger::crash("Cannot call beginSwapChainRenderPass while frame is not in progress.");
-        if (commandBuffer != getCurrentCommandBuffer()) {
+        if (!isFrameStarted_) Logger::crash("Cannot call beginSwapChainRenderPass while frame is not in progress.");
+        if (commandBuffer != currentCommandBuffer()) {
             Logger::crash("Cannot begin render pass on command buffer from a different frame.");
         }
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = swapChain->getRenderPass();
-        renderPassInfo.framebuffer = swapChain->getFrameBuffer(currentImageIndex);
+        renderPassInfo.renderPass = swapChain_->renderPass();
+        renderPassInfo.framebuffer = swapChain_->frameBuffer(currentImageIndex_);
 
         renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = swapChain->getSwapChainExtent();
+        renderPassInfo.renderArea.extent = swapChain_->extent();
 
         std::array<VkClearValue, 2> clearValues{};
         clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
@@ -135,18 +139,18 @@ namespace game {
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = static_cast<float>(swapChain->getSwapChainExtent().width);
-        viewport.height = static_cast<float>(swapChain->getSwapChainExtent().height);
+        viewport.width = static_cast<float>(swapChain_->extent().width);
+        viewport.height = static_cast<float>(swapChain_->extent().height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        VkRect2D scissor{{0, 0}, swapChain->getSwapChainExtent()};
+        VkRect2D scissor{{0, 0}, swapChain_->extent()};
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
     void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) {
-        if (!isFrameStarted) Logger::crash("Cannot call endSwapChainRenderPass while frame is not in progress.");
-        if (commandBuffer != getCurrentCommandBuffer()) {
+        if (!isFrameStarted_) Logger::crash("Cannot call endSwapChainRenderPass while frame is not in progress.");
+        if (commandBuffer != currentCommandBuffer()) {
             Logger::crash("Cannot end render pass on command buffer from a different frame.");
         }
 

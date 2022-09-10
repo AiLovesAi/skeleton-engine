@@ -37,12 +37,12 @@ namespace game {
             DescriptorSetLayout &operator=(const DescriptorSetLayout &) = delete;
 
             // Functions
-            VkDescriptorSetLayout getDescriptorSetLayout() const { return descriptorSetLayout; }
+            VkDescriptorSetLayout descriptorSetLayout() const { return descriptorSetLayout_; }
 
         private:
-            GraphicsDevice* graphicsDevice;
-            VkDescriptorSetLayout descriptorSetLayout;
-            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
+            GraphicsDevice* graphicsDevice_;
+            VkDescriptorSetLayout descriptorSetLayout_;
+            std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
             
             friend class DescriptorWriter;
     };
@@ -87,8 +87,8 @@ namespace game {
             void resetPool();
         
         private:
-            GraphicsDevice* graphicsDevice;
-            VkDescriptorPool descriptorPool;
+            GraphicsDevice* graphicsDevice_;
+            VkDescriptorPool descriptorPool_;
             
             friend class DescriptorWriter;
     };
@@ -104,8 +104,8 @@ namespace game {
             void overwrite(VkDescriptorSet &set);
         
         private:
-            DescriptorSetLayout& setLayout;
-            DescriptorPool& pool;
-            std::vector<VkWriteDescriptorSet> writes;
+            DescriptorSetLayout& setLayout_;
+            DescriptorPool& pool_;
+            std::vector<VkWriteDescriptorSet> writes_;
     };
 }

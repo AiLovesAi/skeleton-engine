@@ -23,12 +23,12 @@ class Window {
         // Functions
         static void init();
 
-        GLFWwindow* getGLFWwindow() const { return window; }
-        bool shouldClose() { return glfwWindowShouldClose(window); }
-        VkExtent2D getExtent() { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; }
-        bool windowResized() { return frameBufferResized; }
-        bool windowFocused() { return focused; }
-        void resetWindowResizedFlag() { frameBufferResized = false; }
+        GLFWwindow* window() const { return window_; }
+        bool shouldClose() { return glfwWindowShouldClose(window_); }
+        VkExtent2D extent() { return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)}; }
+        bool wasResized() { return frameBufferResized_; }
+        bool isFocused() { return focused_; }
+        void resetWindowResizedFlag() { frameBufferResized_ = false; }
 
         void show();
         void createWindowSurface(const VkInstance instance, VkSurfaceKHR* surface);
@@ -39,15 +39,15 @@ class Window {
 
         // Callback functions
         static void errorCallback(int error, const char* description);
-        static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-        static void focusCallback(GLFWwindow* window, int focused);
+        static void framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height);
+        static void focusCallback(GLFWwindow* glfwWindow, int focused);
 
         // Variables
-        int width;
-        int height;
-        bool frameBufferResized = false;
-        bool focused = true;
+        int width_;
+        int height_;
+        bool frameBufferResized_ = false;
+        bool focused_ = true;
 
-        GLFWwindow* window;
+        GLFWwindow* window_;
 };
 }

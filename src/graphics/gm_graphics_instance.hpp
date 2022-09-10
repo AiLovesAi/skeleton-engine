@@ -19,8 +19,8 @@ namespace game {
             GraphicsInstance &operator=(GraphicsInstance &&) = delete;
 
             // Functions
-            VkInstance getInstance() { return instance; }
-            VkSurfaceKHR getSurface() { return surface; }
+            VkInstance instance() { return instance_; }
+            VkSurfaceKHR surface() { return surface_; }
 
             // Variables
             bool enableValidationLayers = false;
@@ -37,11 +37,11 @@ namespace game {
             void checkGFLWHasRequiredInstanceExtensions();
 
             // Variables
-            Window* window;
+            Window* window_;
 
-            VkInstance instance;
-            VkSurfaceKHR surface;
+            VkInstance instance_;
+            VkSurfaceKHR surface_;
             
-            VkDebugUtilsMessengerEXT debugMessenger;
+            VkDebugUtilsMessengerEXT debugMessenger_;
     };
 }

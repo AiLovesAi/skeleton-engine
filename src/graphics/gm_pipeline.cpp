@@ -12,16 +12,16 @@ namespace game {
         const std::string& vertFilepath,
         const std::string& fragFilePath,
         const PipelineConfigInfo& configInfo
-    )  : graphicsDevice{device} {
+    )  : graphicsDevice_{device} {
         if (device == nullptr) Logger::crash("Graphics device passed to Pipeline is null.");
         
         createGraphicsPipeline(vertFilepath, fragFilePath, configInfo);
     }
 
     Pipeline::~Pipeline() {
-        vkDestroyShaderModule(graphicsDevice->getDevice(), vertShaderModule, nullptr);
-        vkDestroyShaderModule(graphicsDevice->getDevice(), fragShaderModule, nullptr);
-        vkDestroyPipeline(graphicsDevice->getDevice(), graphicsPipeline, nullptr);
+        vkDestroyShaderModule(graphicsDevice_->device(), vertShaderModule_, nullptr);
+        vkDestroyShaderModule(graphicsDevice_->device(), fragShaderModule_, nullptr);
+        vkDestroyPipeline(graphicsDevice_->device(), graphicsPipeline_, nullptr);
     }
 
     std::vector<char> Pipeline::readFile(const std::string filePath) {
@@ -52,13 +52,13 @@ namespace game {
         auto vertCode = readFile(Game::executableDir + vertFilepath);
         auto fragCode = readFile(Game::executableDir + fragFilePath);
 
-        createShaderModule(vertCode, &vertShaderModule);
-        createShaderModule(fragCode, &fragShaderModule);
+        createShaderModule(vertCode, &vertShaderModule_);
+        createShaderModule(fragCode, &fragShaderModule_);
         
         VkPipelineShaderStageCreateInfo shaderStages[2];
         shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-        shaderStages[0].module = vertShaderModule;
+        shaderStages[0].module = vertShaderModule_;
         shaderStages[0].pName = "main";
         shaderStages[0].flags = 0;
         shaderStages[0].pNext = nullptr;
@@ -66,7 +66,7 @@ namespace game {
 
         shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        shaderStages[1].module = fragShaderModule;
+        shaderStages[1].module = fragShaderModule_;
         shaderStages[1].pName = "main";
         shaderStages[1].flags = 0;
         shaderStages[1].pNext = nullptr;
@@ -99,7 +99,7 @@ namespace game {
         pipelineInfo.basePipelineIndex = -1;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (vkCreateGraphicsPipelines(graphicsDevice->getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(graphicsDevice_->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_) != VK_SUCCESS) {
             Logger::crash("Failed to create graphics pipeline.");
         }
     }
@@ -110,13 +110,13 @@ namespace game {
         createInfo.codeSize = code.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-        if (vkCreateShaderModule(graphicsDevice->getDevice(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(graphicsDevice_->device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
             Logger::crash("Failed to create shader module.");
         }
     }
 
     void Pipeline::bind(VkCommandBuffer commandBuffer) {
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline_);
     }
 
     void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo) {

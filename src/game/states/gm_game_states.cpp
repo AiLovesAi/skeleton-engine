@@ -13,7 +13,7 @@ namespace game {
     }
 
     void MenuState::render(const double lag) {
-        auto renderer = Client::instance().getRenderer();
+        auto renderer = Client::instance().renderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
 
@@ -32,7 +32,7 @@ namespace game {
     }
 
     void HostState::render(const double lag) {
-        auto renderer = Client::instance().getRenderer();
+        auto renderer = Client::instance().renderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
 
@@ -51,7 +51,7 @@ namespace game {
     }
 
     void ClientState::render(const double lag) {
-        auto renderer = Client::instance().getRenderer();
+        auto renderer = Client::instance().renderer();
         auto commandBuffer = renderer->beginFrame();
         renderer->beginSwapChainRenderPass(commandBuffer);
 

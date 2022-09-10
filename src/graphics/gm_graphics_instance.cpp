@@ -66,21 +66,21 @@ namespace game {
         }
     }
 
-    GraphicsInstance::GraphicsInstance(Window* window) : window{window} {
+    GraphicsInstance::GraphicsInstance(Window* window) : window_{window} {
         if (!window) Logger::crash("Window passed to GraphicsInstance is null.");
 
         createInstance();
         setupDebugMessenger();
-        window->createWindowSurface(instance, &surface);
+        window->createWindowSurface(instance_, &surface_);
     }
     
     GraphicsInstance::~GraphicsInstance() {
         if (enableValidationLayers) {
-            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+            DestroyDebugUtilsMessengerEXT(instance_, debugMessenger_, nullptr);
         }
 
-        vkDestroySurfaceKHR(instance, surface, nullptr);
-        vkDestroyInstance(instance, nullptr);
+        vkDestroySurfaceKHR(instance_, surface_, nullptr);
+        vkDestroyInstance(instance_, nullptr);
     }
 
     void GraphicsInstance::createInstance() {
@@ -116,7 +116,7 @@ namespace game {
             createInfo.pNext = nullptr;
         }
 
-        if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
+        if (vkCreateInstance(&createInfo, nullptr, &instance_) != VK_SUCCESS) {
             Logger::crash("Failed to create Vulkan instance instance.");
         }
         
@@ -210,7 +210,7 @@ namespace game {
     if (!enableValidationLayers) return;
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
-        if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+        if (CreateDebugUtilsMessengerEXT(instance_, &createInfo, nullptr, &debugMessenger_) != VK_SUCCESS) {
             Logger::crash("Failed to set up debug messenger.");
         }
     }

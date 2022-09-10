@@ -15,18 +15,18 @@ namespace game {
             Renderer(const Renderer &) = delete;
             Renderer &operator=(const Renderer &) = delete;
 
-            VkRenderPass getSwapChainRenderPass() const { return swapChain->getRenderPass(); }
-            float getAspectRatio() const { return swapChain->extentAspectRatio(); }
-            bool isFrameInProgress() const { return isFrameStarted; }
+            VkRenderPass renderPass() const { return swapChain_->renderPass(); }
+            float aspectRatio() const { return swapChain_->extentAspectRatio(); }
+            bool isFrameInProgress() const { return isFrameStarted_; }
 
-            VkCommandBuffer getCurrentCommandBuffer() const {
-                assert(isFrameStarted && "Cannot get command buffer when frame is not in progress.");
-                return commandBuffers[currentFrameIndex];
+            VkCommandBuffer currentCommandBuffer() const {
+                assert(isFrameStarted_ && "Cannot get command buffer when frame is not in progress.");
+                return commandBuffers_[currentFrameIndex_];
             }
 
-            int getFrameIndex() const {
-                assert(isFrameStarted && "Cannot get frame index when frame is not in progress.");
-                return currentFrameIndex;
+            int frameIndex() const {
+                assert(isFrameStarted_ && "Cannot get frame index when frame is not in progress.");
+                return currentFrameIndex_;
             }
 
             VkCommandBuffer beginFrame();
@@ -39,14 +39,14 @@ namespace game {
             void freeCommandBuffers();
             void recreateSwapChain();
             
-            GraphicsInstance* graphicsInstance;
-            GraphicsDevice* graphicsDevice;
-            Window* window;
-            std::unique_ptr<SwapChain> swapChain;
-            std::vector<VkCommandBuffer> commandBuffers;
+            GraphicsInstance* graphicsInstance_;
+            GraphicsDevice* graphicsDevice_;
+            Window* window_;
+            std::unique_ptr<SwapChain> swapChain_;
+            std::vector<VkCommandBuffer> commandBuffers_;
 
-            uint32_t currentImageIndex;
-            int currentFrameIndex;
-            bool isFrameStarted = false;
+            uint32_t currentImageIndex_;
+            int currentFrameIndex_;
+            bool isFrameStarted_ = false;
     };
 }

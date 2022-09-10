@@ -54,13 +54,13 @@ namespace game {
             void createVertexBuffers(const std::vector<Vertex>& vertices);
             void createIndexBuffers(const std::vector<uint32_t>& indices);
 
-            GraphicsDevice* graphicsDevice;
+            GraphicsDevice* graphicsDevice_;
 
-            std::unique_ptr<ModelBuffer> vertexBuffer;
-            uint32_t vertexCount;
+            std::unique_ptr<ModelBuffer> vertexBuffer_;
+            uint32_t vertexCount_;
             
-            bool hasIndexBuffer = false;
-            std::unique_ptr<ModelBuffer> indexBuffer;
-            uint32_t indexCount;
+            bool hasIndexBuffer_ = false;
+            std::unique_ptr<ModelBuffer> indexBuffer_;
+            uint32_t indexCount_;
     };
 }

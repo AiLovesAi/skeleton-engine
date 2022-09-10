@@ -21,12 +21,15 @@ namespace game {
                 "FATAL"
             };
 
+            // Functions
             static void init(const std::string& logPath, const std::string& crashPath);
             static void setPaths(const std::string& logPath, const std::string& crashPath);
             static void logMsg(const int logType, const std::string& message);
             [[noreturn]] static void crash(const std::string& message);
 
-            static std::string logPath;
-            static std::string crashPath;
+        private:
+            // Variables
+            static std::string logPath_;
+            static std::string crashPath_;
     };
 }
