@@ -1,15 +1,37 @@
 #pragma once
 
+#include <string>
+
 namespace game {
     class AIComponent {
         public:
-            // Constructors
-            AIComponent();
-            ~AIComponent();
+            // Functions
+            void init();
+            bool update();
+        
+        private:
+            // Data
+    };
 
-            AIComponent(const AIComponent&) = delete;
-            AIComponent& operator=(const AIComponent&) = delete;
-            AIComponent(AIComponent&&) = default;
-            AIComponent& operator=(AIComponent&&) = default;
+    class AIComponentPool {
+        public:
+            // Constructors
+            AIComponentPool() {}
+
+            AIComponentPool(const AIComponentPool &) = delete;
+            AIComponentPool &operator=(const AIComponentPool &) = delete;
+            AIComponentPool(AIComponentPool&&) = delete;
+            AIComponentPool &operator=(AIComponentPool&&) = delete;
+
+            // Functions
+            AIComponent* createComponent();
+            void destroyComponent(const int index);
+            void updateComponents();
+        
+        private:
+            // Variables
+            static constexpr int POOL_SIZE = 1024;
+            AIComponent pool_[POOL_SIZE];
+            int numComponents_ = 0;
     };
 }

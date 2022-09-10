@@ -1,15 +1,37 @@
 #pragma once
 
+#include <string>
+
 namespace game {
     class RenderComponent {
         public:
-            // Constructors
-            RenderComponent();
-            ~RenderComponent();
+            // Functions
+            void init();
+            bool render();
+        
+        private:
+            // Data
+    };
 
-            RenderComponent(const RenderComponent&) = delete;
-            RenderComponent& operator=(const RenderComponent&) = delete;
-            RenderComponent(RenderComponent&&) = default;
-            RenderComponent& operator=(RenderComponent&&) = default;
+    class RenderComponentPool {
+        public:
+            // Constructors
+            RenderComponentPool() {}
+
+            RenderComponentPool(const RenderComponentPool &) = delete;
+            RenderComponentPool &operator=(const RenderComponentPool &) = delete;
+            RenderComponentPool(RenderComponentPool&&) = delete;
+            RenderComponentPool &operator=(RenderComponentPool&&) = delete;
+
+            // Functions
+            RenderComponent* createComponent();
+            void destroyComponent(const int index);
+            void renderComponents();
+        
+        private:
+            // Variables
+            static constexpr int POOL_SIZE = 1024;
+            RenderComponent pool_[POOL_SIZE];
+            int numComponents_ = 0;
     };
 }

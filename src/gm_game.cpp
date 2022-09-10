@@ -3,8 +3,8 @@
 #include "util/gm_cmd_args.hpp"
 #include "util/gm_file.hpp"
 #include "util/gm_logger.hpp"
-#include "game/gm_client.hpp"
-#include "game/gm_server.hpp"
+#include "game/sides/gm_client.hpp"
+#include "game/sides/gm_server.hpp"
 
 #include <ctime>
 #include <random>

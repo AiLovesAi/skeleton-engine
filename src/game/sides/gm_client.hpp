@@ -1,12 +1,12 @@
 #pragma once
 
-#include "objects/gm_game_object.hpp"
-#include "states/gm_game_states.hpp"
-#include "../graphics/gm_graphics_device.hpp"
-#include "../graphics/gm_graphics_instance.hpp"
-#include "../graphics/gm_renderer.hpp"
-#include "../graphics/gm_window.hpp"
-#include "../graphics/gm_descriptors.hpp"
+#include "../objects/gm_game_object.hpp"
+#include "../states/gm_game_states.hpp"
+#include "../../graphics/gm_graphics_device.hpp"
+#include "../../graphics/gm_graphics_instance.hpp"
+#include "../../graphics/gm_renderer.hpp"
+#include "../../graphics/gm_window.hpp"
+#include "../../graphics/gm_descriptors.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -37,6 +37,13 @@ namespace game {
             Renderer* renderer() { return renderer_; }
             Window* window() { return window_; }
 
+            void setGameState(GameState& gameState) { gameState_ = &gameState; }
+
+            // Variables
+            static MenuState menuState;
+            static HostState hostState;
+            static ClientState clientState;
+
         private:
             // Constructors
             Client();
@@ -51,10 +58,7 @@ namespace game {
             Renderer* renderer_ = nullptr;
             std::unique_ptr<DescriptorPool> globalPool_;
             Window* window_ = nullptr;
-            
-            static MenuState menuState_;
-            static HostState hostState_;
-            static ClientState clientState_;
-            GameState* gameState_ = &menuState_;
+
+            GameState* gameState_ = &menuState;
     };
 }
