@@ -1,6 +1,6 @@
 #pragma once
 
-#include "objects/gm_game_object.hpp"
+#include "../objects/gm_game_object.hpp"
 
 namespace game {
     class Command {

@@ -1,23 +1,21 @@
 #pragma once
 
 #include "../../graphics/gm_renderer.hpp"
+#include "../world/gm_world.hpp"
 
 namespace game {
     class GameState {
         public:
-            GameState() {}
-            virtual ~GameState() {}
-
             virtual void load() {}
+            virtual void unload() {}
             virtual void update() {}
             virtual void render(const double lag) {}
     };
 
     class MenuState : public GameState {
         public:
-            MenuState() {}
-
             virtual void load();
+            virtual void unload();
             virtual void update();
             virtual void render(const double lag);
 
@@ -27,18 +25,19 @@ namespace game {
 
     class HostState : public GameState {
         public:
-            HostState() {}
-
-            virtual void load();
+            virtual void load(std::string& worldName);
+            virtual void unload();
             virtual void update();
             virtual void render(const double lag);
+
+        private:
+            World* world_;
     };
 
     class ClientState : public GameState {
         public:
-            ClientState() {}
-
             virtual void load();
+            virtual void unload();
             virtual void update();
             virtual void render(const double lag);
     };

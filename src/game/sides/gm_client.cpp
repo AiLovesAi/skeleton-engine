@@ -1,15 +1,15 @@
 #include "gm_client.hpp"
 
-#include "../gm_game.hpp"
-#include "../util/gm_logger.hpp"
-#include "../graphics/gm_swap_chain.hpp"
+#include "../../gm_game.hpp"
+#include "../../util/gm_logger.hpp"
+#include "../../graphics/gm_swap_chain.hpp"
 
 #include <thread>
 
 namespace game {
-    MenuState Client::menuState_;
-    HostState Client::hostState_;
-    ClientState Client::clientState_;
+    MenuState Client::menuState;
+    HostState Client::hostState;
+    ClientState Client::clientState;
 
     Client::Client() {
         // Initialize graphics
