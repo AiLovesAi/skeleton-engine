@@ -67,7 +67,6 @@ namespace game {
         Logger::logMsg(LOG_INFO, "Game thread started.");
         
         // Load game
-        gameState_ = &menuState_;
         gameState_->load();
 
         auto previousTime = std::chrono::high_resolution_clock::now();
@@ -92,8 +91,8 @@ namespace game {
             if (nextGameState_) {
                 gameState_->unload();
                 gameState_ = nextGameState_;
-                gameState_->load();
                 nextGameState_ = nullptr;
+                gameState_->load();
                 previousTime = std::chrono::high_resolution_clock::now();
             }
         }
