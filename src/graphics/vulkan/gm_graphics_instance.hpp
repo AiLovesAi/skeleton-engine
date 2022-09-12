@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gm_window.hpp"
+#include "../window/gm_window.hpp"
 
 #include <vulkan/vulkan.hpp>
 

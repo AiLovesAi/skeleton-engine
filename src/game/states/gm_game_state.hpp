@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../graphics/gm_renderer.hpp"
+#include "../../graphics/vulkan/gm_renderer.hpp"
 #include "../world/gm_world.hpp"
 
 namespace game {

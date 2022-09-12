@@ -1,6 +1,6 @@
 #include "gm_model_buffer.hpp"
 
-#include "../util/gm_logger.hpp"
+#include "../../util/gm_logger.hpp"
 
 namespace game {
     ModelBuffer::ModelBuffer(

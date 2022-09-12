@@ -1,8 +1,8 @@
 #include "gm_pipeline.hpp"
 
-#include "gm_model.hpp"
-#include "../util/gm_logger.hpp"
-#include "../gm_game.hpp"
+#include "../game/gm_model.hpp"
+#include "../../util/gm_logger.hpp"
+#include "../../gm_game.hpp"
 
 #include <fstream>
 

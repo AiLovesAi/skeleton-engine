@@ -34,6 +34,6 @@ namespace game {
         // Render world
 
         renderer->endSwapChainRenderPass(commandBuffer);
-        renderer->endFrame(nullptr);
+        renderer->endFrame();
     }
 }

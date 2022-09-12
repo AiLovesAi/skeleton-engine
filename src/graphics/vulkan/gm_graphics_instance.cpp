@@ -1,7 +1,7 @@
 #include "gm_graphics_instance.hpp"
 
-#include "../gm_game.hpp"
-#include "../util/gm_logger.hpp"
+#include "../../gm_game.hpp"
+#include "../../util/gm_logger.hpp"
 
 #include <unordered_set>
 
