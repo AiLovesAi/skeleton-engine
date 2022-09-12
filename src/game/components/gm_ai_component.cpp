@@ -7,17 +7,15 @@ namespace game {
         // create a new one or have nothing created.
         if (numComponents_ >= POOL_SIZE) return nullptr;
 
-        AIComponent* newComponent = &pool_[numComponents_];
+        AIComponent* newComponent = &pool_[numComponents_++];
         newComponent->init();
         
-        numComponents_++;
         return newComponent;
     }
 
     void AIComponentPool::destroyComponent(const int index) {
         // Swap with last active component and deactivate
-        numComponents_--;
-        AIComponent temp = pool_[numComponents_];
+        AIComponent temp = pool_[--numComponents_];
         pool_[numComponents_] = pool_[index];
         pool_[index] = temp;
     }

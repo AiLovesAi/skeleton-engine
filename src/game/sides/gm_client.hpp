@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../objects/gm_game_object.hpp"
-#include "../states/gm_game_states.hpp"
+#include "../states/gm_menu_state.hpp"
+#include "../states/gm_host_state.hpp"
+#include "../states/gm_client_state.hpp"
 #include "../../graphics/gm_graphics_device.hpp"
 #include "../../graphics/gm_graphics_instance.hpp"
 #include "../../graphics/gm_renderer.hpp"
@@ -13,6 +15,7 @@
 
 #include <map>
 #include <memory>
+#include <string>
 
 namespace game {
     class Client {
@@ -32,17 +35,17 @@ namespace game {
             }
             void start();
 
-            GraphicsInstance* graphicsInstance() { return graphicsInstance_; }
-            GraphicsDevice* graphicsDevice() { return graphicsDevice_; }
-            Renderer* renderer() { return renderer_; }
-            Window* window() { return window_; }
+            GraphicsInstance* graphicsInstance() const { return graphicsInstance_; }
+            GraphicsDevice* graphicsDevice() const { return graphicsDevice_; }
+            Renderer* renderer() const { return renderer_; }
+            Window* window() const { return window_; }
 
-            void setGameState(GameState& gameState) { gameState_ = &gameState; }
+            GameState* menuState() { return &menuState_; }
+            GameState* hostState() { return &hostState_; }
+            GameState* clientState() { return &clientState_; }
+            std::string gameStateArgs() const { return gameStateArgs_; }
 
-            // Variables
-            static MenuState menuState;
-            static HostState hostState;
-            static ClientState clientState;
+            void setGameState(GameState*const gameState) { nextGameState_ = gameState; }
 
         private:
             // Constructors
@@ -59,6 +62,12 @@ namespace game {
             std::unique_ptr<DescriptorPool> globalPool_;
             Window* window_ = nullptr;
 
-            GameState* gameState_ = &menuState;
+            MenuState menuState_;
+            HostState hostState_;
+            ClientState clientState_;
+
+            GameState* gameState_ = nullptr;
+            GameState* nextGameState_ = nullptr;
+            std::string gameStateArgs_ = "NULL";
     };
 }
