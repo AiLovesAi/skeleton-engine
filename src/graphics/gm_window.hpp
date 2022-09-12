@@ -26,6 +26,7 @@ class Window {
         GLFWwindow* window() const { return window_; }
         bool shouldClose() { return glfwWindowShouldClose(window_); }
         VkExtent2D extent() { return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)}; }
+        float aspectRatio() { return static_cast<float>(width_) / static_cast<float>(height_); }
         bool wasResized() { return frameBufferResized_; }
         bool isFocused() { return focused_; }
         void resetWindowResizedFlag() { frameBufferResized_ = false; }
