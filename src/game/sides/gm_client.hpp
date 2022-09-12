@@ -66,7 +66,7 @@ namespace game {
             HostState hostState_;
             ClientState clientState_;
 
-            GameState* gameState_ = nullptr;
+            GameState* gameState_ = &menuState_;
             GameState* nextGameState_ = nullptr;
             std::string gameStateArgs_ = "NULL";
     };
