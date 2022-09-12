@@ -8,7 +8,7 @@ windres resources.rc -o resources.o
 
 :: Compile code and link libraries (-mwindows for no console)
 g++^
- -Wall -Wno-volatile -Ofast -Os -m64 -std=c++23^
+ -Wall -Wno-volatile -pipe -Ofast -Os -m64 -std=c++23^
  -mwindows -static-libgcc -static-libstdc++^
  -DNDEBUG^
  src/*.cpp src/util/*.cpp src/graphics/systems/*.cpp src/graphics/window/*.cpp src/graphics/vulkan/*.cpp src/graphics/game/*.cpp src/game/sides/*.cpp src/game/world/*.cpp src/game/states/*.cpp src/game/components/*.cpp src/input/*.cpp src/sound/*.cpp^
