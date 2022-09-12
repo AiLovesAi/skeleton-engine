@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../game/objects/gm_game_object.hpp"
+#include "gm_window.hpp"
+#include "../game/components/gm_physics_component.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -13,36 +14,37 @@ namespace game {
         public:
             // Constructors
             Camera(
-                GameObject& cameraObject,
+                PhysicsComponent*const physics,
+                Window*const window,
                 float fov,
-                float aspectRatio,
                 float clipNear,
                 float clipFar
-            ) : cameraObject{cameraObject}, fov{fov}, aspectRatio{aspectRatio}, clipNear{clipNear}, clipFar{clipFar} {}
+            );
         
             // Functions
-            void updateView(const glm::quat rotation) { viewMatrix = glm::mat4_cast(rotation) * viewMatrix; }
-            void updatePerspective() { projectionMatrix = glm::perspective(fov, aspectRatio, clipNear, clipFar); }
+            void update();
+            void updateView();
+            void updatePerspective();
 
-            const void setFOV(const float fov) { this->fov = fov; updatePerspective(); }
-            const void setAspectRatio(const float aspectRatio) { this->aspectRatio = aspectRatio; updatePerspective(); }
-            const glm::mat4 &getProjection() const { return projectionMatrix; }
-            const glm::mat4 &getView() const { return viewMatrix; }
+            const void setFOV(const float fov) { fov_ = fov; updatePerspective(); }
 
-            // Variables
-            GameObject& cameraObject;
+            const float fov() const { return fov_; }
+            const glm::mat4 projection() const { return projectionMatrix_; }
+            const glm::mat4 view() const { return viewMatrix_; }
             
         private:
             // Variables
-            static constexpr glm::vec3 upAxis      {0.f, 1.f, 0.f};
-            static constexpr glm::vec3 forwardAxis {0.f, 0.f, 1.f};
+            static constexpr glm::vec3 upAxis_      {0.f, 1.f, 0.f};
+            static constexpr glm::vec3 forwardAxis_ {0.f, 0.f, 1.f};
 
-            float fov;
-            float aspectRatio;
-            float clipNear;
-            float clipFar;
+            PhysicsComponent* physics_;
+            Window* window_;
 
-            glm::mat4 projectionMatrix{1.0f};
-            glm::mat4 viewMatrix{1.0f};
+            float fov_;
+            float clipNear_;
+            float clipFar_;
+
+            glm::mat4 projectionMatrix_{1.0f};
+            glm::mat4 viewMatrix_{1.0f};
     };
 }

@@ -102,9 +102,6 @@ namespace game {
         auto result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_->wasResized()) {
             window_->resetWindowResizedFlag();
-            // TODO Move to camera update, and call camera class update before render to ensure wasResized
-            // flag is used before being reset.
-            if (camera) camera->updatePerspective();
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             Logger::crash("Failed to present swap chain image.");
