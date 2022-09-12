@@ -1,6 +1,6 @@
 #include "gm_renderer.hpp"
 
-#include "../util/gm_logger.hpp"
+#include "../../util/gm_logger.hpp"
 
 #include <array>
 
@@ -91,7 +91,7 @@ namespace game {
         return commandBuffer;
     }
 
-    void Renderer::endFrame(Camera *camera) {
+    void Renderer::endFrame() {
         if (!isFrameStarted_) Logger::crash("Cannot call endFrame while frame is not in progress.");
 
         auto commandBuffer = currentCommandBuffer();

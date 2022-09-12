@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gm_graphics_device.hpp"
-#include "gm_model_buffer.hpp"
+#include "../vulkan/gm_graphics_device.hpp"
+#include "../vulkan/gm_model_buffer.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

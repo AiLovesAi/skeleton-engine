@@ -1,11 +1,10 @@
 #pragma once
 
-#include "gm_camera.hpp"
 #include "gm_graphics_device.hpp"
 #include "gm_graphics_instance.hpp"
 #include "gm_swap_chain.hpp"
-#include "gm_window.hpp"
-#include "../util/gm_logger.hpp"
+#include "../window/gm_window.hpp"
+#include "../../util/gm_logger.hpp"
 
 namespace game {
     class Renderer {
@@ -31,7 +30,7 @@ namespace game {
             }
 
             VkCommandBuffer beginFrame();
-            void endFrame(Camera *camera);
+            void endFrame();
             void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
             void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 

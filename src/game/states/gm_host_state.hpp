@@ -2,8 +2,8 @@
 
 #include "gm_game_state.hpp"
 #include "../world/gm_world.hpp"
-#include "../../graphics/gm_renderer.hpp"
-#include "../../graphics/gm_camera.hpp"
+#include "../../graphics/vulkan/gm_renderer.hpp"
+#include "../../graphics/game/gm_camera.hpp"
 
 namespace game {
     class HostState : public GameState {

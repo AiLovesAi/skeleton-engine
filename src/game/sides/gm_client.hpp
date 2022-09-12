@@ -4,11 +4,11 @@
 #include "../states/gm_menu_state.hpp"
 #include "../states/gm_host_state.hpp"
 #include "../states/gm_client_state.hpp"
-#include "../../graphics/gm_graphics_device.hpp"
-#include "../../graphics/gm_graphics_instance.hpp"
-#include "../../graphics/gm_renderer.hpp"
-#include "../../graphics/gm_window.hpp"
-#include "../../graphics/gm_descriptors.hpp"
+#include "../../graphics/vulkan/gm_graphics_device.hpp"
+#include "../../graphics/vulkan/gm_graphics_instance.hpp"
+#include "../../graphics/vulkan/gm_renderer.hpp"
+#include "../../graphics/window/gm_window.hpp"
+#include "../../graphics/vulkan/gm_descriptors.hpp"
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>

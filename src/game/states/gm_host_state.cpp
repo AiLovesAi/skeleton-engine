@@ -2,7 +2,6 @@
 
 #include "../sides/gm_client.hpp"
 #include "../sides/gm_server.hpp"
-#include "../../util/gm_logger.hpp"
 
 #include <limits>
 
@@ -37,6 +36,6 @@ namespace game {
         // Render world
 
         renderer->endSwapChainRenderPass(commandBuffer);
-        renderer->endFrame(nullptr);
+        renderer->endFrame();
     }
 }

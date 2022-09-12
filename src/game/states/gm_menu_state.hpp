@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gm_game_state.hpp"
-#include "../../graphics/gm_renderer.hpp"
+#include "../../graphics/vulkan/gm_renderer.hpp"
 
 namespace game {
     class MenuState : public GameState {

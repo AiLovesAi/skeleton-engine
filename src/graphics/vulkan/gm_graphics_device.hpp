@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gm_graphics_instance.hpp"
-#include "gm_window.hpp"
+#include "../window/gm_window.hpp"
 
 #include <vector>
 

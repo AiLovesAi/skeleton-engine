@@ -2,7 +2,7 @@
 
 #include "../../gm_game.hpp"
 #include "../../util/gm_logger.hpp"
-#include "../../graphics/gm_swap_chain.hpp"
+#include "../../graphics/vulkan/gm_swap_chain.hpp"
 
 #include <thread>
 

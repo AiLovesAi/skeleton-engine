@@ -1,6 +1,6 @@
 #include "gm_camera.hpp"
 
-#include "../util/gm_logger.hpp"
+#include "../../util/gm_logger.hpp"
 
 namespace game {
     Camera::Camera(

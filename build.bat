@@ -11,7 +11,7 @@ g++^
  -Wall -Wno-volatile -Ofast -Os -m64 -std=c++23^
  -mwindows -static-libgcc -static-libstdc++^
  -DNDEBUG^
- src/*.cpp src/util/*.cpp src/graphics/*.cpp src/graphics/systems/*.cpp src/game/sides/*.cpp src/game/world/*.cpp src/game/states/*.cpp src/game/components/*.cpp src/input/*.cpp src/sound/*.cpp^
+ src/*.cpp src/util/*.cpp src/graphics/systems/*.cpp src/graphics/window/*.cpp src/graphics/vulkan/*.cpp src/graphics/game/*.cpp src/game/sides/*.cpp src/game/world/*.cpp src/game/states/*.cpp src/game/components/*.cpp src/input/*.cpp src/sound/*.cpp^
  -o out.exe resources.o^
  -I lib/include -L lib/^
  -Wl,--export-all-symbol^

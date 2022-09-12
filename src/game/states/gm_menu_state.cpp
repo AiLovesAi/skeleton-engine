@@ -26,6 +26,6 @@ namespace game {
         // Render GUI
 
         renderer->endSwapChainRenderPass(commandBuffer);
-        renderer->endFrame(nullptr);
+        renderer->endFrame();
     }
 }

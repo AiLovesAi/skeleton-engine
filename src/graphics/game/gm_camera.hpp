@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gm_window.hpp"
-#include "../game/components/gm_physics_component.hpp"
+#include "../window/gm_window.hpp"
+#include "../../game/components/gm_physics_component.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
