@@ -5,6 +5,7 @@
 #include "gm_graphics_instance.hpp"
 #include "gm_swap_chain.hpp"
 #include "gm_window.hpp"
+#include "../util/gm_logger.hpp"
 
 namespace game {
     class Renderer {
@@ -20,12 +21,12 @@ namespace game {
             bool isFrameInProgress() const { return isFrameStarted_; }
 
             VkCommandBuffer currentCommandBuffer() const {
-                assert(isFrameStarted_ && "Cannot get command buffer when frame is not in progress.");
+                if(!isFrameStarted_) Logger::crash("Cannot get command buffer when frame is not in progress.");
                 return commandBuffers_[currentFrameIndex_];
             }
 
             int frameIndex() const {
-                assert(isFrameStarted_ && "Cannot get frame index when frame is not in progress.");
+                if(!isFrameStarted_) Logger::crash("Cannot get frame index when frame is not in progress.");
                 return currentFrameIndex_;
             }
 
