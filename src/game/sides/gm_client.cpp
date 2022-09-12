@@ -7,11 +7,10 @@
 #include <thread>
 
 namespace game {
-    MenuState Client::menuState;
-    HostState Client::hostState;
-    ClientState Client::clientState;
-
     Client::Client() {
+        // Initialize sound
+        // TODO
+
         // Initialize graphics
         if (glfwInit() != GLFW_TRUE) {
             Logger::crash("Failed to initialize GLFW.");
@@ -29,13 +28,13 @@ namespace game {
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
 
-        // Initialize sound
-        // TODO
-
         Game::running = true;
     }
 
     Client::~Client() {
+        // Free sound
+        // TODO
+
         // Free graphics
         if (renderer_) delete renderer_;
         if (window_) delete window_;
@@ -43,15 +42,9 @@ namespace game {
         globalPool_.reset();
         if (graphicsDevice_) delete graphicsDevice_;
         if (graphicsInstance_) delete graphicsInstance_;
-
-        // Free sound
-        // TODO
     }
 
     void Client::start() {
-        // Load menu
-        gameState_->load();
-
         // Spawn threads
         std::thread gameThread(game, this);
 
@@ -72,6 +65,10 @@ namespace game {
     void Client::game() {
         Game::gameThreads.emplace(std::this_thread::get_id(), "Game");
         Logger::logMsg(LOG_INFO, "Game thread started.");
+        
+        // Load game
+        gameState_ = &menuState_;
+        gameState_->load();
 
         auto previousTime = std::chrono::high_resolution_clock::now();
         double lag = 0.0f;
@@ -91,7 +88,18 @@ namespace game {
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
             gameState_->render(lag / Game::MS_PER_TICK);
+
+            if (nextGameState_) {
+                gameState_->unload();
+                gameState_ = nextGameState_;
+                gameState_->load();
+                nextGameState_ = nullptr;
+                previousTime = std::chrono::high_resolution_clock::now();
+            }
         }
+        
+        // Unload game
+        gameState_->unload();
 
         // Wait for device to stop
         vkDeviceWaitIdle(graphicsDevice_->device());

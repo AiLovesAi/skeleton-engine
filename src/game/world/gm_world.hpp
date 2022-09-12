@@ -17,6 +17,8 @@ namespace game {
             World &operator=(World&&) = delete;
 
             void update();
+            PhysicsComponent* createPhysicsComponent();
+            AIComponent* createAIComponent();
 
         private:
             AIComponentPool aiPool_;
