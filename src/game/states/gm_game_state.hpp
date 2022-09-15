@@ -7,7 +7,7 @@ namespace game {
     class GameState {
         public:
             // Constructors
-            virtual ~GameState() = 0;
+            virtual ~GameState() {};
             
             // Functions
             virtual void load() = 0;
