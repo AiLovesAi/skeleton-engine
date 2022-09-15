@@ -51,10 +51,6 @@ namespace game {
             // Constructors
             Client();
 
-            // Functions
-            void game();
-            void render();
-
             // Variables
             GraphicsInstance* graphicsInstance_ = nullptr;
             GraphicsDevice* graphicsDevice_ = nullptr;

@@ -46,32 +46,20 @@ namespace game {
 
     void Client::start() {
         // Spawn threads
-        std::thread gameThread(game, this);
+        //std::thread soundThread(sound, this);
+
+        // Load game
+        gameState_->load();
 
         // Start game
         window_->show();
 
-        // Poll events
-        while (Game::running && !window_->shouldClose()) {
-            glfwWaitEvents();
-        }
-
-        Game::running = false;
-
-        // Wait for threads to finish
-        if (gameThread.joinable()) gameThread.join();
-    }
-
-    void Client::game() {
-        Game::gameThreads.emplace(std::this_thread::get_id(), "Game");
-        Logger::logMsg(LOG_INFO, "Game thread started.");
-        
-        // Load game
-        gameState_->load();
-
+        // Main game loop
         auto previousTime = std::chrono::high_resolution_clock::now();
         double lag = 0.0f;
-        while (Game::running) {
+        while (Game::running && !window_->shouldClose()) {
+            glfwPollEvents();
+
             auto currentTime = std::chrono::high_resolution_clock::now();
             double elapsedTime = std::chrono::duration<double, std::chrono::milliseconds::period>(currentTime - previousTime).count();
             previousTime = currentTime;
@@ -96,13 +84,15 @@ namespace game {
                 previousTime = std::chrono::high_resolution_clock::now();
             }
         }
-        
+
         // Unload game
+        Game::running = false;
         gameState_->unload();
 
         // Wait for device to stop
         vkDeviceWaitIdle(graphicsDevice_->device());
 
-        Game::gameThreads.erase(std::this_thread::get_id());
+        // Wait for threads to finish
+        //if (soundThread.joinable()) soundThread.join();
     }
 }
