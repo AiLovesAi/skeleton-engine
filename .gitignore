@@ -1,6 +1,7 @@
 # Custom
 CMakeFiles/
 lib/
+assets/
 *.cmake
 *.bak
 Makefile
