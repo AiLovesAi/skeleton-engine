@@ -7,12 +7,12 @@ namespace game {
     class GameState {
         public:
             // Constructors
-            virtual ~GameState() {}
+            virtual ~GameState() = 0;
             
             // Functions
-            virtual void load() {}
-            virtual void unload() {}
-            virtual void update() {}
-            virtual void render(const double lag) {}
+            virtual void load() = 0;
+            virtual void unload() = 0;
+            virtual void update() = 0;
+            virtual void render(const double lag) = 0;
     };
 }

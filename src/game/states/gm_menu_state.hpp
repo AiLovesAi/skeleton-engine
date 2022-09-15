@@ -7,13 +7,13 @@ namespace game {
     class MenuState : public GameState {
         public:
             // Constructors
-            virtual ~MenuState() {}
+            virtual ~MenuState() override {}
             
             // Functions
-            virtual void load();
-            virtual void unload();
-            virtual void update();
-            virtual void render(const double lag);
+            virtual void load() override;
+            virtual void unload() override;
+            virtual void update() override;
+            virtual void render(const double lag) override;
 
         private:
             // Variables
