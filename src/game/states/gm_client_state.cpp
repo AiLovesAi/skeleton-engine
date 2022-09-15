@@ -11,7 +11,7 @@ namespace game {
         window_ = client.window();
 
         // Connect and load shaders
-        camera_ = new Camera(physicsPool_.createComponent(), window_, 45.f, std::numeric_limits<float>::min(), 100.0f);
+        camera_ = new Camera(physicsPool_.createObject(), window_, 45.f, std::numeric_limits<float>::min(), 100.0f);
     }
 
     void ClientState::unload() {

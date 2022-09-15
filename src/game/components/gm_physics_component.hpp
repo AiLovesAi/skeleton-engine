@@ -78,8 +78,8 @@ namespace game {
             PhysicsComponentPool &operator=(PhysicsComponentPool&&) = delete;
 
             // Functions
-            PhysicsComponent* createComponent();
-            void destroyComponent(const int index);
+            PhysicsComponent* createObject();
+            void destroyObject(const int index);
             void updateComponents();
         
         private:

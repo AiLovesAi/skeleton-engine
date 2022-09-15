@@ -24,8 +24,8 @@ namespace game {
             RenderComponentPool &operator=(RenderComponentPool&&) = delete;
 
             // Functions
-            RenderComponent* createComponent();
-            void destroyComponent(const int index);
+            RenderComponent* createObject();
+            void destroyObject(const int index);
             void renderComponents();
         
         private:

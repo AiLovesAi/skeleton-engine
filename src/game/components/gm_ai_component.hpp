@@ -24,8 +24,8 @@ namespace game {
             AIComponentPool &operator=(AIComponentPool&&) = delete;
 
             // Functions
-            AIComponent* createComponent();
-            void destroyComponent(const int index);
+            AIComponent* createObject();
+            void destroyObject(const int index);
             void updateComponents();
         
         private:
