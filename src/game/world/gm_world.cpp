@@ -20,13 +20,13 @@ namespace game {
     }
     
     PhysicsComponent* World::createPhysicsComponent() {
-        PhysicsComponent* newComponent = physicsPool_.createComponent();
+        PhysicsComponent* newComponent = physicsPool_.createObject();
         if (newComponent == nullptr) Logger::crash("Tried to create a new physics component, but the physics pool was full.");
         return newComponent;
     }
 
     AIComponent* World::createAIComponent() {
-        AIComponent* newComponent = aiPool_.createComponent();
+        AIComponent* newComponent = aiPool_.createObject();
         if (newComponent == nullptr) Logger::crash("Tried to create a new AI component, but the AI pool was full.");
         return newComponent;
     }

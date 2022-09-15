@@ -2,7 +2,7 @@
 
 namespace game {
     // AIComponentPool //
-    AIComponent* AIComponentPool::createComponent() {
+    AIComponent* AIComponentPool::createObject() {
         // If there is no room in the pool, the caller will have to either
         // create a new one or have nothing created.
         if (numComponents_ >= POOL_SIZE) return nullptr;
@@ -13,8 +13,8 @@ namespace game {
         return newComponent;
     }
 
-    void AIComponentPool::destroyComponent(const int index) {
-        // Swap with last active component and deactivate
+    void AIComponentPool::destroyObject(const int index) {
+        // Swap with last active object and deactivate
         AIComponent temp = pool_[--numComponents_];
         pool_[numComponents_] = pool_[index];
         pool_[index] = temp;
@@ -22,7 +22,7 @@ namespace game {
 
     void AIComponentPool::updateComponents() {
         for (int i = 0; i < numComponents_; i++) {
-            if (pool_[i].update()) destroyComponent(i);
+            if (pool_[i].update()) destroyObject(i);
         }
     }
 
