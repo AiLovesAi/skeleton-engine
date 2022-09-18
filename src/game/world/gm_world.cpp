@@ -2,6 +2,10 @@
 
 #include "../../util/gm_logger.hpp"
 
+#include <functional>
+#include <thread>
+#include <vector>
+
 namespace game {
     World::World() {
         
@@ -16,11 +20,30 @@ namespace game {
     }
 
     void World::update() {
+        std::vector<std::thread> tasks;
+
         // Update entities
-        aiPool_.updateComponents();
-        physicsPool_.updateComponents();
-        
+        tasks.push_back(
+            std::thread([&] (AIComponentPool& pool) {
+                pool.updateComponents();
+            }, std::ref(aiPool_))
+        );
+        tasks.push_back(
+            std::thread([&] (PhysicsComponentPool& pool) {
+                pool.updateComponents();
+            }, std::ref(physicsPool_))
+        );
+
         // Update world
+
+        // Wait for threads
+        std::for_each(
+            tasks.begin(),
+            tasks.end(),
+            [](std::thread& t) {
+                t.join();
+            }
+        );
     }
 
     void World::save() {
