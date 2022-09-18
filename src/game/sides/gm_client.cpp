@@ -53,7 +53,6 @@ namespace game {
         //std::thread soundThread(sound, this);
 
         // Load game
-        GameState& gameState = *gameState_;
 
         // Start game
         window_.show();
@@ -71,20 +70,19 @@ namespace game {
 
             // Prioritize game update when behind, skip to rendering when ahead
             while (lag >= Game::MS_PER_TICK) {
-                gameState.update();
+                gameState_->update();
                 lag -= Game::MS_PER_TICK;
             }
 
             // Render object positions between ticks (input is percentage of next tick)
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
-            gameState.render(lag / Game::MS_PER_TICK);
+            gameState_->render(lag / Game::MS_PER_TICK);
 
             if (nextGameState_) {
                 delete gameState_;
                 gameState_ = nextGameState_;
                 nextGameState_ = nullptr;
-                gameState = *gameState_;
                 previousTime = std::chrono::high_resolution_clock::now();
             }
         }
