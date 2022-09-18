@@ -3,7 +3,6 @@
 #include "../gm_game.hpp"
 #include "gm_logger.hpp"
 
-#include <chrono>
 #include <filesystem>
 #include <sstream>
 #include <bit>
@@ -91,26 +90,6 @@ namespace game {
         OSStr += nameData.release;
 #endif
         Game::OSStr = OSStr;
-    }
-
-    void const File::getTime(int& days, int& hours, int& minutes, int& seconds, int& nanos) {
-        auto now = std::chrono::system_clock::now();
-        auto duration = now.time_since_epoch();
-        auto days_ = std::chrono::duration_cast<std::chrono::duration<int, std::chrono::hours::period>>(duration);
-        duration -= days_;
-        auto hours_ = std::chrono::duration_cast<std::chrono::hours>(duration);
-        duration -= hours_;
-        auto minutes_ = std::chrono::duration_cast<std::chrono::minutes>(duration);
-        duration -= minutes_;
-        auto seconds_ = std::chrono::duration_cast<std::chrono::seconds>(duration);
-        duration -= seconds_;
-        auto nanoseconds_ = std::chrono::duration_cast<std::chrono::nanoseconds>(duration);
-
-        days = days_.count();
-        hours = hours_.count();
-        minutes = minutes_.count();
-        seconds = seconds_.count();
-        nanos = nanoseconds_.count();
     }
 
     void const File::ensureParentDir(const std::string& path) {

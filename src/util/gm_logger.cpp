@@ -12,6 +12,7 @@
 #include <mutex>
 #include <random>
 #include <sstream>
+#include <sys/time.h>
 
 namespace game {
     static std::mutex mtx_;
@@ -78,9 +79,14 @@ namespace game {
     }
 
     void Logger::logSync(const int logType, const std::string& message, const std::thread::id& threadId) {
-        int days, hours, mins, secs, nanos, millis;
-        File::getTime(days, hours, mins, secs, nanos);
-        millis = nanos / 1000000;
+        struct timeval tv;
+        gettimeofday(&tv, nullptr);
+        time_t time = static_cast<time_t>(tv.tv_sec);
+        std::tm* now = std::localtime(&time);
+
+        char fmt[64], timeBuffer[64];
+        strftime(fmt, sizeof(fmt), "[%H:%M:%S+%%06u]", now);
+        snprintf(timeBuffer, sizeof(timeBuffer), fmt, tv.tv_usec);
 
         std::string threadName = Game::gameThreads.contains(threadId) ? Game::gameThreads.find(threadId)->second : "Async";
 
@@ -88,11 +94,8 @@ namespace game {
 
         std::stringstream msg;
         // [HH::MM:SS+UUU] [THREAD/TYPE]: MESSAGE
-        msg << ((hours < 10) ? "[0" : "[") << hours
-            << ((mins < 10) ? ":0" : ":") << mins
-            << ((secs < 10) ? ":0" : ":") << secs
-            << ((millis < 100) ? ((millis < 10) ? "+00" : "+0") : "+") << millis
-            << "] ["
+        msg << timeBuffer
+            << " ["
             << threadName << "/" << LOG_TYPE_STRINGS[logType] << "]: "
             << message << "\n";
 
