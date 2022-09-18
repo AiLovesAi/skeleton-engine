@@ -24,17 +24,15 @@ namespace game {
     }
     
     std::unique_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::build() const {
-        return std::make_unique<DescriptorSetLayout>(graphicsDevice, bindings);
+        return std::make_unique<DescriptorSetLayout>(graphicsDevice_, bindings);
     }
 
     /* Descriptor Set Layout */
 
     DescriptorSetLayout::DescriptorSetLayout(
-        GraphicsDevice* device, std::unordered_map<uint32_t,
+        GraphicsDevice& graphicsDevice, std::unordered_map<uint32_t,
         VkDescriptorSetLayoutBinding> bindings
-    ) : graphicsDevice_{device}, bindings_{bindings} {
-        if (device == nullptr) Logger::crash("Graphics device passed to DescriptorSetLayout is null.");
-
+    ) : graphicsDevice_{graphicsDevice}, bindings_{bindings} {
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
         for (auto kv : bindings) {
             setLayoutBindings.push_back(kv.second);
@@ -46,7 +44,7 @@ namespace game {
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
         
         if (vkCreateDescriptorSetLayout(
-                graphicsDevice_->device(),
+                graphicsDevice_.device(),
                 &descriptorSetLayoutInfo,
                 nullptr,
                 &descriptorSetLayout_
@@ -57,7 +55,7 @@ namespace game {
     }
     
     DescriptorSetLayout::~DescriptorSetLayout() {
-        vkDestroyDescriptorSetLayout(graphicsDevice_->device(), descriptorSetLayout_, nullptr);
+        vkDestroyDescriptorSetLayout(graphicsDevice_.device(), descriptorSetLayout_, nullptr);
     }
 
     /* Descriptor Pool Builder */
@@ -80,19 +78,17 @@ namespace game {
     }
     
     std::unique_ptr<DescriptorPool> DescriptorPool::Builder::build() const {
-        return std::make_unique<DescriptorPool>(graphicsDevice, maxSets, poolFlags, poolSizes);
+        return std::make_unique<DescriptorPool>(graphicsDevice_, maxSets, poolFlags, poolSizes);
     }
 
     /* Descriptor Pool */
 
     DescriptorPool::DescriptorPool(
-        GraphicsDevice* device,
+        GraphicsDevice& graphicsDevice,
         uint32_t maxSets,
         VkDescriptorPoolCreateFlags poolFlags,
         const std::vector<VkDescriptorPoolSize> &poolSizes
-    ) : graphicsDevice_{device} {
-        if (device == nullptr) Logger::crash("Graphics device passed to DescriptorPool is null.");
-
+    ) : graphicsDevice_{graphicsDevice} {
         VkDescriptorPoolCreateInfo descriptorPoolInfo{};
         descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
@@ -100,13 +96,13 @@ namespace game {
         descriptorPoolInfo.maxSets = maxSets;
         descriptorPoolInfo.flags = poolFlags;
         
-        if (vkCreateDescriptorPool(graphicsDevice_->device(), &descriptorPoolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
+        if (vkCreateDescriptorPool(graphicsDevice_.device(), &descriptorPoolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
             Logger::crash("Failed to create descriptor pool!");
         }
     }
     
     DescriptorPool::~DescriptorPool() {
-        vkDestroyDescriptorPool(graphicsDevice_->device(), descriptorPool_, nullptr);
+        vkDestroyDescriptorPool(graphicsDevice_.device(), descriptorPool_, nullptr);
     }
     
     bool DescriptorPool::allocateDescriptor(
@@ -121,7 +117,7 @@ namespace game {
         
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
-        if (vkAllocateDescriptorSets(graphicsDevice_->device(), &allocInfo, &descriptor) != VK_SUCCESS) {
+        if (vkAllocateDescriptorSets(graphicsDevice_.device(), &allocInfo, &descriptor) != VK_SUCCESS) {
             return false;
         }
         return true;
@@ -129,7 +125,7 @@ namespace game {
     
     void DescriptorPool::freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const {
         vkFreeDescriptorSets(
-            graphicsDevice_->device(),
+            graphicsDevice_.device(),
             descriptorPool_,
             static_cast<uint32_t>(descriptors.size()),
             descriptors.data()
@@ -137,7 +133,7 @@ namespace game {
     }
     
     void DescriptorPool::resetPool() {
-        vkResetDescriptorPool(graphicsDevice_->device(), descriptorPool_, 0);
+        vkResetDescriptorPool(graphicsDevice_.device(), descriptorPool_, 0);
     }
 
     /* Descriptor Writer */
@@ -200,6 +196,6 @@ namespace game {
             write.dstSet = set;
         }
 
-        vkUpdateDescriptorSets(pool_.graphicsDevice_->device(), writes_.size(), writes_.data(), 0, nullptr);
+        vkUpdateDescriptorSets(pool_.graphicsDevice_.device(), writes_.size(), writes_.data(), 0, nullptr);
     }
 }

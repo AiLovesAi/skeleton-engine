@@ -7,7 +7,7 @@ namespace game {
         public:
             // Constructors
             ModelBuffer(
-                GraphicsDevice* device,
+                GraphicsDevice& graphicsDevice,
                 VkDeviceSize instanceSize,
                 uint32_t instanceCount,
                 VkBufferUsageFlags usageFlags,
@@ -49,7 +49,7 @@ namespace game {
             static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
             
             // Variables
-            GraphicsDevice* graphicsDevice_;
+            GraphicsDevice& graphicsDevice_;
             void* mapped_ = nullptr;
             VkBuffer buffer_ = VK_NULL_HANDLE;
             VkDeviceMemory memory_ = VK_NULL_HANDLE;

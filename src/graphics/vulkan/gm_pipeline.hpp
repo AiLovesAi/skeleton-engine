@@ -31,7 +31,7 @@ namespace game {
         public:
             // Constructors
             Pipeline(
-                GraphicsDevice* device,
+                GraphicsDevice& graphicsDevice,
                 const std::string& vertFilepath,
                 const std::string& fragFilePath,
                 const PipelineConfigInfo& configInfo
@@ -62,7 +62,7 @@ namespace game {
             static std::vector<char> readFile(const std::string filePath);
 
             // Variables
-            GraphicsDevice* graphicsDevice_;
+            GraphicsDevice& graphicsDevice_;
             VkPipeline graphicsPipeline_;
             VkShaderModule vertShaderModule_;
             VkShaderModule fragShaderModule_;

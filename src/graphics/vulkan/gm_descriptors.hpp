@@ -11,7 +11,7 @@ namespace game {
         public:
             class Builder {
                 public:
-                    Builder(GraphicsDevice* device) : graphicsDevice{device} {}
+                    Builder(GraphicsDevice& graphicsDevice) : graphicsDevice_{graphicsDevice} {}
  
                     Builder& addBinding(
                         uint32_t binding,
@@ -22,13 +22,13 @@ namespace game {
                     std::unique_ptr<DescriptorSetLayout> build() const;
                 
                 private:
-                    GraphicsDevice* graphicsDevice;
+                    GraphicsDevice& graphicsDevice_;
                     std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
             };
 
             // Constructors
             DescriptorSetLayout(
-                GraphicsDevice* mcpGraphicsDevice,
+                GraphicsDevice& graphicsDevice,
                 std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings
             );
             ~DescriptorSetLayout();
@@ -40,7 +40,7 @@ namespace game {
             VkDescriptorSetLayout descriptorSetLayout() const { return descriptorSetLayout_; }
 
         private:
-            GraphicsDevice* graphicsDevice_;
+            GraphicsDevice& graphicsDevice_;
             VkDescriptorSetLayout descriptorSetLayout_;
             std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings_;
             
@@ -51,7 +51,7 @@ namespace game {
         public:
             class Builder {
             public:
-                Builder(GraphicsDevice* device) : graphicsDevice{device} {}
+                Builder(GraphicsDevice& graphicsDevice) : graphicsDevice_{graphicsDevice} {}
             
                 Builder& addPoolSize(VkDescriptorType descriptorType, uint32_t count);
                 Builder& setPoolFlags(VkDescriptorPoolCreateFlags flags);
@@ -59,7 +59,7 @@ namespace game {
                 std::unique_ptr<DescriptorPool> build() const;
             
             private:
-                GraphicsDevice* graphicsDevice;
+                GraphicsDevice& graphicsDevice_;
                 std::vector<VkDescriptorPoolSize> poolSizes{};
                 uint32_t maxSets = 1000;
                 VkDescriptorPoolCreateFlags poolFlags = 0;
@@ -67,7 +67,7 @@ namespace game {
     
             // Constructors
             DescriptorPool(
-                GraphicsDevice* mcpGraphicsDevice,
+                GraphicsDevice& graphicsDevice,
                 uint32_t maxSets,
                 VkDescriptorPoolCreateFlags poolFlags,
                 const std::vector<VkDescriptorPoolSize> &poolSizes);
@@ -87,7 +87,7 @@ namespace game {
             void resetPool();
         
         private:
-            GraphicsDevice* graphicsDevice_;
+            GraphicsDevice& graphicsDevice_;
             VkDescriptorPool descriptorPool_;
             
             friend class DescriptorWriter;

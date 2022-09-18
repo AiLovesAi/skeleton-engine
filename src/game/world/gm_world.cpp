@@ -3,12 +3,16 @@
 #include "../../util/gm_logger.hpp"
 
 namespace game {
-    World::World(const std::string& name) {
-        // Load
+    World::World() {
+        
     }
     
     World::~World() {
         // Save & quit
+    }
+
+    void World::load(const std::string& world) {
+        // Load
     }
 
     void World::update() {
@@ -17,6 +21,10 @@ namespace game {
         physicsPool_.updateComponents();
         
         // Update world
+    }
+
+    void World::save() {
+        // Save
     }
     
     PhysicsComponent* World::createPhysicsComponent() {

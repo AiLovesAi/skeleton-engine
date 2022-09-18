@@ -12,8 +12,8 @@ namespace game {
         public:
             static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-            SwapChain(GraphicsInstance* instance, GraphicsDevice* device, VkExtent2D windowExtent);
-            SwapChain(GraphicsInstance* instance, GraphicsDevice* device, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
+            SwapChain(GraphicsInstance& instance, GraphicsDevice& device, VkExtent2D windowExtent);
+            SwapChain(GraphicsInstance& instance, GraphicsDevice& device, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
             ~SwapChain();
 
             SwapChain(const SwapChain &) = delete;
@@ -71,8 +71,8 @@ namespace game {
             std::vector<VkImage> images_;
             std::vector<VkImageView> imageViews_;
 
-            GraphicsInstance* graphicsInstance_;
-            GraphicsDevice* graphicsDevice_;
+            GraphicsInstance& graphicsInstance_;
+            GraphicsDevice& graphicsDevice_;
             VkExtent2D windowExtent_;
 
             VkSwapchainKHR swapChain_;

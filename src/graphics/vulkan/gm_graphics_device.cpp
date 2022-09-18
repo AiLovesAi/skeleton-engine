@@ -6,9 +6,7 @@
 #include <set>
 
 namespace game {
-    GraphicsDevice::GraphicsDevice(GraphicsInstance* graphicsInstance) : instance_{graphicsInstance} {
-        if (!graphicsInstance) Logger::crash("Graphics instance passed to GraphicsDevice is null.");
-
+    GraphicsDevice::GraphicsDevice(GraphicsInstance& graphicsInstance) : graphicsInstance_{graphicsInstance} {
         pickPhysicalDevice();
         createLogicalDevice();
         createCommandPool();
@@ -21,7 +19,7 @@ namespace game {
 
     void GraphicsDevice::pickPhysicalDevice() {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(instance_->instance(), &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(graphicsInstance_.instance(), &deviceCount, nullptr);
 
         if (deviceCount == 0) {
             Logger::crash("Failed to find GPUs with Vulkan support.");
@@ -30,7 +28,7 @@ namespace game {
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
         std::multimap<int, VkPhysicalDevice> candidates;
-        vkEnumeratePhysicalDevices(instance_->instance(), &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(graphicsInstance_.instance(), &deviceCount, devices.data());
 
         for (const auto &device : devices) {
             int score = rateDeviceSuitability(device);
@@ -120,7 +118,7 @@ namespace game {
                 indices.graphicsFamilyHasValue = true;
             }
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, instance_->surface(), &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, graphicsInstance_.surface(), &presentSupport);
             if (queueFamily.queueCount > 0 && presentSupport) {
                 indices.presentFamily = i;
                 indices.presentFamilyHasValue = true;
@@ -156,24 +154,24 @@ namespace game {
 
     SwapChainSupportDetails GraphicsDevice::querySwapChainSupport(const VkPhysicalDevice& device) {
         SwapChainSupportDetails details;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, instance_->surface(), &details.capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, graphicsInstance_.surface(), &details.capabilities);
 
         uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, instance_->surface(), &formatCount, nullptr);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, graphicsInstance_.surface(), &formatCount, nullptr);
 
         if (formatCount != 0) {
             details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, instance_->surface(), &formatCount, details.formats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, graphicsInstance_.surface(), &formatCount, details.formats.data());
         }
 
         uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, instance_->surface(), &presentModeCount, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, graphicsInstance_.surface(), &presentModeCount, nullptr);
 
         if (presentModeCount != 0) {
             details.presentModes.resize(presentModeCount);
             vkGetPhysicalDeviceSurfacePresentModesKHR(
                 device,
-                instance_->surface(),
+                graphicsInstance_.surface(),
                 &presentModeCount,
                 details.presentModes.data());
         }

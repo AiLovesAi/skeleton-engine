@@ -1,17 +1,17 @@
 #pragma once
 
 #include "gm_game_state.hpp"
+#include "../sides/gm_client.hpp"
 #include "../../graphics/vulkan/gm_renderer.hpp"
 
 namespace game {
     class MenuState : public GameState {
         public:
             // Constructors
-            virtual ~MenuState() override {}
+            MenuState();
+            ~MenuState();
             
             // Functions
-            virtual void load() override;
-            virtual void unload() override;
             virtual void update() override;
             virtual void render(const double lag) override;
 

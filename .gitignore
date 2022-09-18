@@ -10,7 +10,7 @@ CMakeCache.txt
 logs/
 *.exe
 *.zip
-
+*.ico
 
 
 # Prerequisites

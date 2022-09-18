@@ -1,31 +1,32 @@
 #include "gm_menu_state.hpp"
 
-#include "../sides/gm_client.hpp"
+#include "gm_client_state.hpp"
+#include "gm_host_state.hpp"
 #include "../sides/gm_server.hpp"
 
 namespace game {
-    void MenuState::load() {
+    MenuState::MenuState() {
         // Load menu
     }
 
-    void MenuState::unload() {
+    MenuState::~MenuState() {
         // Unload menu
     }
 
     void MenuState::update() {
         // Traverse menu
         Client& client = Client::instance();
-        client.setGameState(client.hostState());
+        client.setGameState(new HostState("world"));
     }
 
     void MenuState::render(const double lag) {
-        auto renderer = Client::instance().renderer();
-        auto commandBuffer = renderer->beginFrame();
-        renderer->beginSwapChainRenderPass(commandBuffer);
+        auto& renderer = Client::instance().renderer();
+        auto commandBuffer = renderer.beginFrame();
+        renderer.beginSwapChainRenderPass(commandBuffer);
 
         // Render GUI
 
-        renderer->endSwapChainRenderPass(commandBuffer);
-        renderer->endFrame();
+        renderer.endSwapChainRenderPass(commandBuffer);
+        renderer.endFrame();
     }
 }

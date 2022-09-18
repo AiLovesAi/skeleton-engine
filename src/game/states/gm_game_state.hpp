@@ -10,8 +10,6 @@ namespace game {
             virtual ~GameState() {};
             
             // Functions
-            virtual void load() = 0;
-            virtual void unload() = 0;
             virtual void update() = 0;
             virtual void render(const double lag) = 0;
     };

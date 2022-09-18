@@ -4,29 +4,27 @@
 
 namespace game {
     ModelBuffer::ModelBuffer(
-        GraphicsDevice* device,
+        GraphicsDevice& graphicsDevice,
         VkDeviceSize instanceSize,
         uint32_t instanceCount,
         VkBufferUsageFlags usageFlags,
         VkMemoryPropertyFlags memoryPropertyFlags,
         VkDeviceSize minOffsetAlignment
-    ) : graphicsDevice_{device},
+    ) : graphicsDevice_{graphicsDevice},
         instanceSize_{instanceSize},
         instanceCount_{instanceCount},
         usageFlags_{usageFlags},
         memoryPropertyFlags_{memoryPropertyFlags}
     {
-        if (device == nullptr) Logger::crash("Graphics device passed to ModelBuffer is null.");
-
         alignmentSize_ = getAlignment(instanceSize, minOffsetAlignment);
         bufferSize_ = alignmentSize_ * instanceCount;
-        device->createBuffer(bufferSize_, usageFlags, memoryPropertyFlags, buffer_, memory_);
+        graphicsDevice_.createBuffer(bufferSize_, usageFlags, memoryPropertyFlags, buffer_, memory_);
     }
 
     ModelBuffer::~ModelBuffer() {
         unmap();
-        vkDestroyBuffer(graphicsDevice_->device(), buffer_, nullptr);
-        vkFreeMemory(graphicsDevice_->device(), memory_, nullptr);
+        vkDestroyBuffer(graphicsDevice_.device(), buffer_, nullptr);
+        vkFreeMemory(graphicsDevice_.device(), memory_, nullptr);
     }
 
     VkDeviceSize ModelBuffer::getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment) {
@@ -38,12 +36,12 @@ namespace game {
 
     VkResult ModelBuffer::map(VkDeviceSize size, VkDeviceSize offset) {
         if(!(buffer_ && memory_)) Logger::crash("Called map on buffer before create.");
-        return vkMapMemory(graphicsDevice_->device(), memory_, offset, size, 0, &mapped_);
+        return vkMapMemory(graphicsDevice_.device(), memory_, offset, size, 0, &mapped_);
     }
 
     void ModelBuffer::unmap() {
         if (mapped_) {
-            vkUnmapMemory(graphicsDevice_->device(), memory_);
+            vkUnmapMemory(graphicsDevice_.device(), memory_);
             mapped_ = nullptr;
         }
     }
@@ -66,7 +64,7 @@ namespace game {
         mappedRange.memory = memory_;
         mappedRange.offset = offset;
         mappedRange.size = size;
-        return vkFlushMappedMemoryRanges(graphicsDevice_->device(), 1, &mappedRange);
+        return vkFlushMappedMemoryRanges(graphicsDevice_.device(), 1, &mappedRange);
     }
 
     VkResult ModelBuffer::invalidate(VkDeviceSize size, VkDeviceSize offset) {
@@ -75,7 +73,7 @@ namespace game {
         mappedRange.memory = memory_;
         mappedRange.offset = offset;
         mappedRange.size = size;
-        return vkInvalidateMappedMemoryRanges(graphicsDevice_->device(), 1, &mappedRange);
+        return vkInvalidateMappedMemoryRanges(graphicsDevice_.device(), 1, &mappedRange);
     }
 
     VkDescriptorBufferInfo ModelBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset) {

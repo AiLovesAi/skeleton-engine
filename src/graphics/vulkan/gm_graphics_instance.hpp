@@ -10,7 +10,7 @@ namespace game {
     class GraphicsInstance {
         public:
             // Constructors
-            GraphicsInstance(Window* window);
+            GraphicsInstance(Window& window);
             ~GraphicsInstance();
 
             GraphicsInstance(const GraphicsInstance &) = delete;
@@ -37,7 +37,7 @@ namespace game {
             void checkGFLWHasRequiredInstanceExtensions();
 
             // Variables
-            Window* window_;
+            Window& window_;
 
             VkInstance instance_;
             VkSurfaceKHR surface_;

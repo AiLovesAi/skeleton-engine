@@ -15,7 +15,7 @@ namespace game {
             // Constructors
             Camera(
                 PhysicsComponent*const physics,
-                Window*const window,
+                Window& window,
                 float fov,
                 float clipNear,
                 float clipFar
@@ -38,7 +38,7 @@ namespace game {
             static constexpr glm::vec3 forwardAxis_ {0.f, 0.f, 1.f};
 
             PhysicsComponent* physics_;
-            Window* window_;
+            Window& window_;
 
             float fov_;
             float clipNear_;

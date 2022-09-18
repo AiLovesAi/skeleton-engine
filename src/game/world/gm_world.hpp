@@ -8,7 +8,8 @@
 namespace game {
     class World {
         public:
-            World(const std::string& world);
+            // Constructors
+            World();
             ~World();
 
             World(const World &) = delete;
@@ -16,7 +17,11 @@ namespace game {
             World(World&&) = delete;
             World &operator=(World&&) = delete;
 
+            // Functions
+            void load(const std::string& world);
             void update();
+            void save();
+            
             PhysicsComponent* createPhysicsComponent();
             AIComponent* createAIComponent();
 

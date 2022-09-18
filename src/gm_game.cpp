@@ -33,6 +33,7 @@ namespace game {
             Server& server = Server::instance();
             server.start();
         } else {
+            Client::init();
             Client& client = Client::instance();
             client.start();
         }

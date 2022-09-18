@@ -1,5 +1,8 @@
 #include "gm_client.hpp"
 
+#include "../states/gm_menu_state.hpp"
+#include "../states/gm_host_state.hpp"
+#include "../states/gm_client_state.hpp"
 #include "../../gm_game.hpp"
 #include "../../util/gm_logger.hpp"
 #include "../../graphics/vulkan/gm_swap_chain.hpp"
@@ -11,22 +14,12 @@ namespace game {
         // Initialize sound
         // TODO
 
-        // Initialize graphics
-        if (glfwInit() != GLFW_TRUE) {
-            Logger::crash("Failed to initialize GLFW.");
-        }
-
-        Window::init();
-        
-        window_ = new Window(Game::TITLE);
-        graphicsInstance_ = new GraphicsInstance(window_);
-        graphicsDevice_ = new GraphicsDevice(graphicsInstance_);
-        renderer_ = new Renderer(graphicsInstance_, graphicsDevice_, window_);
-
         globalPool_ = DescriptorPool::Builder(graphicsDevice_)
             .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
+        
+        gameState_ = new MenuState();
 
         Game::running = true;
     }
@@ -36,12 +29,23 @@ namespace game {
         // TODO
 
         // Free graphics
-        if (renderer_) delete renderer_;
-        if (window_) delete window_;
         glfwTerminate();
         globalPool_.reset();
-        if (graphicsDevice_) delete graphicsDevice_;
-        if (graphicsInstance_) delete graphicsInstance_;
+    }
+
+    void Client::init() {
+        static bool initialized_ = false;
+
+        if (!initialized_) {
+            // Initialize graphics
+            if (glfwInit() != GLFW_TRUE) {
+                Logger::crash("Failed to initialize GLFW.");
+            }
+
+            Window::init();
+
+            initialized_ = true;
+        }
     }
 
     void Client::start() {
@@ -49,15 +53,15 @@ namespace game {
         //std::thread soundThread(sound, this);
 
         // Load game
-        gameState_->load();
+        GameState& gameState = *gameState_;
 
         // Start game
-        window_->show();
+        window_.show();
 
         // Main game loop
         auto previousTime = std::chrono::high_resolution_clock::now();
         double lag = 0.0f;
-        while (Game::running && !window_->shouldClose()) {
+        while (Game::running && !window_.shouldClose()) {
             glfwPollEvents();
 
             auto currentTime = std::chrono::high_resolution_clock::now();
@@ -67,30 +71,30 @@ namespace game {
 
             // Prioritize game update when behind, skip to rendering when ahead
             while (lag >= Game::MS_PER_TICK) {
-                gameState_->update();
+                gameState.update();
                 lag -= Game::MS_PER_TICK;
             }
 
             // Render object positions between ticks (input is percentage of next tick)
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
-            gameState_->render(lag / Game::MS_PER_TICK);
+            gameState.render(lag / Game::MS_PER_TICK);
 
             if (nextGameState_) {
-                gameState_->unload();
+                delete gameState_;
                 gameState_ = nextGameState_;
                 nextGameState_ = nullptr;
-                gameState_->load();
+                gameState = *gameState_;
                 previousTime = std::chrono::high_resolution_clock::now();
             }
         }
 
         // Unload game
         Game::running = false;
-        gameState_->unload();
+        delete gameState_;
 
         // Wait for device to stop
-        vkDeviceWaitIdle(graphicsDevice_->device());
+        vkDeviceWaitIdle(graphicsDevice_.device());
 
         // Wait for threads to finish
         //if (soundThread.joinable()) soundThread.join();

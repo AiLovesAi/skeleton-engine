@@ -8,20 +8,18 @@
 
 namespace game {
     Pipeline::Pipeline(
-        GraphicsDevice* device,
+        GraphicsDevice& graphicsDevice,
         const std::string& vertFilepath,
         const std::string& fragFilePath,
         const PipelineConfigInfo& configInfo
-    )  : graphicsDevice_{device} {
-        if (device == nullptr) Logger::crash("Graphics device passed to Pipeline is null.");
-        
+    )  : graphicsDevice_{graphicsDevice} {
         createGraphicsPipeline(vertFilepath, fragFilePath, configInfo);
     }
 
     Pipeline::~Pipeline() {
-        vkDestroyShaderModule(graphicsDevice_->device(), vertShaderModule_, nullptr);
-        vkDestroyShaderModule(graphicsDevice_->device(), fragShaderModule_, nullptr);
-        vkDestroyPipeline(graphicsDevice_->device(), graphicsPipeline_, nullptr);
+        vkDestroyShaderModule(graphicsDevice_.device(), vertShaderModule_, nullptr);
+        vkDestroyShaderModule(graphicsDevice_.device(), fragShaderModule_, nullptr);
+        vkDestroyPipeline(graphicsDevice_.device(), graphicsPipeline_, nullptr);
     }
 
     std::vector<char> Pipeline::readFile(const std::string filePath) {
@@ -99,7 +97,7 @@ namespace game {
         pipelineInfo.basePipelineIndex = -1;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (vkCreateGraphicsPipelines(graphicsDevice_->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(graphicsDevice_.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline_) != VK_SUCCESS) {
             Logger::crash("Failed to create graphics pipeline.");
         }
     }
@@ -110,7 +108,7 @@ namespace game {
         createInfo.codeSize = code.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-        if (vkCreateShaderModule(graphicsDevice_->device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(graphicsDevice_.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
             Logger::crash("Failed to create shader module.");
         }
     }

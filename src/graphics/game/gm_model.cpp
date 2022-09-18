@@ -29,18 +29,16 @@ namespace std {
 }
 
 namespace game {
-    Model::Model(GraphicsDevice* device, const Model::Builder& builder) : graphicsDevice_{device} {
-        if (device == nullptr) Logger::crash("Graphics device passed to Model is null.");
-
+    Model::Model(GraphicsDevice& graphicsDevice, const Model::Builder& builder) : graphicsDevice_{graphicsDevice} {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
     }
 
-    std::unique_ptr<Model> Model::createModelFromFile(GraphicsDevice* device, const std::string filePath) {
+    std::unique_ptr<Model> Model::createModelFromFile(GraphicsDevice& graphicsDevice, const std::string filePath) {
         Builder builder{};
         builder.loadModel(filePath);
 
-        return std::make_unique<Model>(device, builder);
+        return std::make_unique<Model>(graphicsDevice, builder);
     }
 
     void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
@@ -67,7 +65,7 @@ namespace game {
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
 
-        graphicsDevice_->copyBuffer(stagingBuffer.buffer(), vertexBuffer_->buffer(), bufferSize);
+        graphicsDevice_.copyBuffer(stagingBuffer.buffer(), vertexBuffer_->buffer(), bufferSize);
     }
 
     void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
@@ -97,7 +95,7 @@ namespace game {
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
 
-        graphicsDevice_->copyBuffer(stagingBuffer.buffer(), indexBuffer_->buffer(), bufferSize);
+        graphicsDevice_.copyBuffer(stagingBuffer.buffer(), indexBuffer_->buffer(), bufferSize);
     }
 
     void Model::bind(VkCommandBuffer commandBuffer) {

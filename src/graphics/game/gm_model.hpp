@@ -37,7 +37,7 @@ namespace game {
             };
 
             // Constructors
-            Model(GraphicsDevice* device, const Model::Builder& builder);
+            Model(GraphicsDevice& device, const Model::Builder& builder);
             ~Model();
 
             Model(const Model &) = delete;
@@ -45,7 +45,7 @@ namespace game {
             Model(Model&&) = default;
             Model &operator=(Model&&) = default;
 
-            static std::unique_ptr<Model> createModelFromFile(GraphicsDevice* device, const std::string filePath);
+            static std::unique_ptr<Model> createModelFromFile(GraphicsDevice& device, const std::string filePath);
 
             void bind(VkCommandBuffer commandBuffer);
             void draw(VkCommandBuffer commandBuffer);
@@ -54,7 +54,7 @@ namespace game {
             void createVertexBuffers(const std::vector<Vertex>& vertices);
             void createIndexBuffers(const std::vector<uint32_t>& indices);
 
-            GraphicsDevice* graphicsDevice_;
+            GraphicsDevice& graphicsDevice_;
 
             std::unique_ptr<ModelBuffer> vertexBuffer_;
             uint32_t vertexCount_;

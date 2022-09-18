@@ -9,27 +9,24 @@
 
 namespace game {
     SwapChain::SwapChain(
-        GraphicsInstance* instance,
-        GraphicsDevice* device,
+        GraphicsInstance& graphicsInstance,
+        GraphicsDevice& graphicsDevice,
         VkExtent2D windowExtent
-    ) : graphicsInstance_{instance}, graphicsDevice_{device}, windowExtent_{windowExtent} {
+    ) : graphicsInstance_{graphicsInstance}, graphicsDevice_{graphicsDevice}, windowExtent_{windowExtent} {
         init();
     }
 
     SwapChain::SwapChain(
-        GraphicsInstance* instance,
-        GraphicsDevice* device,
+        GraphicsInstance& graphicsInstance,
+        GraphicsDevice& graphicsDevice,
         VkExtent2D windowExtent,
         std::shared_ptr<SwapChain> previous
-    ) : graphicsInstance_{instance}, graphicsDevice_{device}, windowExtent_{windowExtent}, oldSwapChain_{previous} {
+    ) : graphicsInstance_{graphicsInstance}, graphicsDevice_{graphicsDevice}, windowExtent_{windowExtent}, oldSwapChain_{previous} {
         init();
         oldSwapChain_ = nullptr;
     }
 
     void SwapChain::init() {
-        if (graphicsInstance_ == nullptr) Logger::crash("Graphics instance passed to SwapChain is null.");
-        if (graphicsDevice_ == nullptr) Logger::crash("Graphics device passed to SwapChain is null.");
-
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -40,38 +37,38 @@ namespace game {
 
     SwapChain::~SwapChain() {
         for (auto imageView : imageViews_) {
-            vkDestroyImageView(graphicsDevice_->device(), imageView, nullptr);
+            vkDestroyImageView(graphicsDevice_.device(), imageView, nullptr);
         }
         imageViews_.clear();
 
         if (swapChain_ != nullptr) {
-            vkDestroySwapchainKHR(graphicsDevice_->device(), swapChain_, nullptr);
+            vkDestroySwapchainKHR(graphicsDevice_.device(), swapChain_, nullptr);
             swapChain_ = nullptr;
         }
 
         for (size_t i = 0; i < depthImages_.size(); i++) {
-            vkDestroyImageView(graphicsDevice_->device(), depthImageViews_[i], nullptr);
-            vkDestroyImage(graphicsDevice_->device(), depthImages_[i], nullptr);
-            vkFreeMemory(graphicsDevice_->device(), depthImageMemorys_[i], nullptr);
+            vkDestroyImageView(graphicsDevice_.device(), depthImageViews_[i], nullptr);
+            vkDestroyImage(graphicsDevice_.device(), depthImages_[i], nullptr);
+            vkFreeMemory(graphicsDevice_.device(), depthImageMemorys_[i], nullptr);
         }
 
         for (auto framebuffer : framebuffers_) {
-            vkDestroyFramebuffer(graphicsDevice_->device(), framebuffer, nullptr);
+            vkDestroyFramebuffer(graphicsDevice_.device(), framebuffer, nullptr);
         }
 
-        vkDestroyRenderPass(graphicsDevice_->device(), renderPass_, nullptr);
+        vkDestroyRenderPass(graphicsDevice_.device(), renderPass_, nullptr);
 
         // Cleanup synchronization objects
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(graphicsDevice_->device(), renderFinishedSemaphores_[i], nullptr);
-            vkDestroySemaphore(graphicsDevice_->device(), imageAvailableSemaphores_[i], nullptr);
-            vkDestroyFence(graphicsDevice_->device(), inFlightFences_[i], nullptr);
+            vkDestroySemaphore(graphicsDevice_.device(), renderFinishedSemaphores_[i], nullptr);
+            vkDestroySemaphore(graphicsDevice_.device(), imageAvailableSemaphores_[i], nullptr);
+            vkDestroyFence(graphicsDevice_.device(), inFlightFences_[i], nullptr);
         }
     }
 
     VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
         vkWaitForFences(
-            graphicsDevice_->device(),
+            graphicsDevice_.device(),
             1,
             &inFlightFences_[currentFrame_],
             VK_TRUE,
@@ -79,7 +76,7 @@ namespace game {
         );
 
         VkResult result = vkAcquireNextImageKHR(
-            graphicsDevice_->device(),
+            graphicsDevice_.device(),
             swapChain_,
             std::numeric_limits<uint64_t>::max(),
             imageAvailableSemaphores_[currentFrame_],  // must be a not signaled semaphore
@@ -92,7 +89,7 @@ namespace game {
 
     VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
         if (imagesInFlight_[*imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(graphicsDevice_->device(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
+            vkWaitForFences(graphicsDevice_.device(), 1, &imagesInFlight_[*imageIndex], VK_TRUE, UINT64_MAX);
         }
         imagesInFlight_[*imageIndex] = inFlightFences_[currentFrame_];
 
@@ -112,8 +109,8 @@ namespace game {
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        vkResetFences(graphicsDevice_->device(), 1, &inFlightFences_[currentFrame_]);
-        if (vkQueueSubmit(graphicsDevice_->graphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_]) != VK_SUCCESS) {
+        vkResetFences(graphicsDevice_.device(), 1, &inFlightFences_[currentFrame_]);
+        if (vkQueueSubmit(graphicsDevice_.graphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_]) != VK_SUCCESS) {
             Logger::crash("Failed to submit draw command buffer.");
         }
 
@@ -129,7 +126,7 @@ namespace game {
 
         presentInfo.pImageIndices = imageIndex;
 
-        auto result = vkQueuePresentKHR(graphicsDevice_->presentQueue(), &presentInfo);
+        auto result = vkQueuePresentKHR(graphicsDevice_.presentQueue(), &presentInfo);
 
         currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
 
@@ -137,7 +134,7 @@ namespace game {
     }
 
     void SwapChain::createSwapChain() {
-        SwapChainSupportDetails swapChainSupport = graphicsDevice_->swapChainSupport();
+        SwapChainSupportDetails swapChainSupport = graphicsDevice_.swapChainSupport();
 
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -151,7 +148,7 @@ namespace game {
 
         VkSwapchainCreateInfoKHR createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = graphicsInstance_->surface();
+        createInfo.surface = graphicsInstance_.surface();
 
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
@@ -160,7 +157,7 @@ namespace game {
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = graphicsDevice_->findPhysicalQueueFamilies();
+        QueueFamilyIndices indices = graphicsDevice_.findPhysicalQueueFamilies();
         uint32_t queueFamilyIndices[] = {indices.graphicsFamily, indices.presentFamily};
 
         if (indices.graphicsFamily != indices.presentFamily) {
@@ -179,7 +176,7 @@ namespace game {
 
         createInfo.oldSwapchain = oldSwapChain_ == nullptr ? VK_NULL_HANDLE : oldSwapChain_->swapChain_;
 
-        if (vkCreateSwapchainKHR(graphicsDevice_->device(), &createInfo, nullptr, &swapChain_) != VK_SUCCESS) {
+        if (vkCreateSwapchainKHR(graphicsDevice_.device(), &createInfo, nullptr, &swapChain_) != VK_SUCCESS) {
             Logger::crash("Failed to create swap chain.");
         }
 
@@ -187,9 +184,9 @@ namespace game {
         // allowed to create a swap chain with more. That's why we'll first query the final number of
         // images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
         // retrieve the handles.
-        vkGetSwapchainImagesKHR(graphicsDevice_->device(), swapChain_, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(graphicsDevice_.device(), swapChain_, &imageCount, nullptr);
         images_.resize(imageCount);
-        vkGetSwapchainImagesKHR(graphicsDevice_->device(), swapChain_, &imageCount, images_.data());
+        vkGetSwapchainImagesKHR(graphicsDevice_.device(), swapChain_, &imageCount, images_.data());
 
         imageFormat_ = surfaceFormat.format;
         extent_ = extent;
@@ -210,7 +207,7 @@ namespace game {
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
 
-            if (vkCreateImageView(graphicsDevice_->device(), &viewInfo, nullptr, &imageViews_[i]) != VK_SUCCESS) {
+            if (vkCreateImageView(graphicsDevice_.device(), &viewInfo, nullptr, &imageViews_[i]) != VK_SUCCESS) {
                 Logger::crash("Failed to create texture image view.");
             }
         }
@@ -269,7 +266,7 @@ namespace game {
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(graphicsDevice_->device(), &renderPassInfo, nullptr, &renderPass_) != VK_SUCCESS) {
+        if (vkCreateRenderPass(graphicsDevice_.device(), &renderPassInfo, nullptr, &renderPass_) != VK_SUCCESS) {
             Logger::crash("Failed to create render pass.");
         }
     }
@@ -290,7 +287,7 @@ namespace game {
             framebufferInfo.layers = 1;
 
             if (vkCreateFramebuffer(
-                    graphicsDevice_->device(),
+                    graphicsDevice_.device(),
                     &framebufferInfo,
                     nullptr,
                     &framebuffers_[i]
@@ -327,7 +324,7 @@ namespace game {
             imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
             imageInfo.flags = 0;
 
-            graphicsDevice_->createImageWithInfo(
+            graphicsDevice_.createImageWithInfo(
                 imageInfo,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                 depthImages_[i],
@@ -345,7 +342,7 @@ namespace game {
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount = 1;
 
-            if (vkCreateImageView(graphicsDevice_->device(), &viewInfo, nullptr, &depthImageViews_[i]) != VK_SUCCESS) {
+            if (vkCreateImageView(graphicsDevice_.device(), &viewInfo, nullptr, &depthImageViews_[i]) != VK_SUCCESS) {
                 Logger::crash("Failed to create texture image view.");
             }
         }
@@ -365,9 +362,9 @@ namespace game {
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            if (vkCreateSemaphore(graphicsDevice_->device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
-                vkCreateSemaphore(graphicsDevice_->device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
-                vkCreateFence(graphicsDevice_->device(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS
+            if (vkCreateSemaphore(graphicsDevice_.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(graphicsDevice_.device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]) != VK_SUCCESS ||
+                vkCreateFence(graphicsDevice_.device(), &fenceInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS
             ) {
                 Logger::crash("Failed to create synchronization objects for a frame.");
             }
@@ -420,7 +417,7 @@ namespace game {
     }
 
     VkFormat SwapChain::findDepthFormat() {
-        return graphicsDevice_->findSupportedFormat(
+        return graphicsDevice_.findSupportedFormat(
             {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
             VK_IMAGE_TILING_OPTIMAL,
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT

@@ -24,7 +24,7 @@ namespace game {
     class GraphicsDevice {
         public:
             // Constructors
-            GraphicsDevice(GraphicsInstance* graphicsInstance);
+            GraphicsDevice(GraphicsInstance& graphicsInstance);
             ~GraphicsDevice();
 
             GraphicsDevice(const GraphicsDevice &) = delete;
@@ -87,7 +87,7 @@ namespace game {
             SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device);
             
             // Variables
-            GraphicsInstance* instance_;
+            GraphicsInstance& graphicsInstance_;
 
             VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
             VkCommandPool commandPool_;

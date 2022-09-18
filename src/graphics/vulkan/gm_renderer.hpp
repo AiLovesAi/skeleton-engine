@@ -9,11 +9,13 @@
 namespace game {
     class Renderer {
         public:
-            Renderer(GraphicsInstance* instance, GraphicsDevice* device, Window* window);
+            Renderer(GraphicsInstance& instance, GraphicsDevice& device, Window& window);
             ~Renderer();
 
             Renderer(const Renderer &) = delete;
             Renderer &operator=(const Renderer &) = delete;
+            Renderer(const Renderer &&) = delete;
+            Renderer &operator=(const Renderer &&) = delete;
 
             VkRenderPass renderPass() const { return swapChain_->renderPass(); }
             float aspectRatio() const { return swapChain_->extentAspectRatio(); }
@@ -39,9 +41,9 @@ namespace game {
             void freeCommandBuffers();
             void recreateSwapChain();
             
-            GraphicsInstance* graphicsInstance_;
-            GraphicsDevice* graphicsDevice_;
-            Window* window_;
+            GraphicsInstance& graphicsInstance_;
+            GraphicsDevice& graphicsDevice_;
+            Window& window_;
             std::unique_ptr<SwapChain> swapChain_;
             std::vector<VkCommandBuffer> commandBuffers_;
 

@@ -6,14 +6,10 @@
 
 namespace game {
      Renderer::Renderer(
-        GraphicsInstance* instance,
-        GraphicsDevice* device,
-        Window* window
+        GraphicsInstance& instance,
+        GraphicsDevice& device,
+        Window& window
     ) : graphicsInstance_{instance}, graphicsDevice_{device}, window_{window} {
-        if (instance == nullptr) Logger::crash("Graphics instance passed to Renderer is null.");
-        if (device == nullptr) Logger::crash("Graphics device passed to Renderer is null.");
-        if (window == nullptr) Logger::crash("Window passed to Renderer is null.");
-
         recreateSwapChain();
         createCommandBuffers();
     }
@@ -23,14 +19,14 @@ namespace game {
     }
 
     void Renderer::recreateSwapChain() {
-        auto extent = window_->extent();
+        auto extent = window_.extent();
         
         while (extent.width == 0 || extent.height == 0) {
             glfwWaitEvents();
-            extent = window_->extent();
+            extent = window_.extent();
         }
 
-        vkDeviceWaitIdle(graphicsDevice_->device());
+        vkDeviceWaitIdle(graphicsDevice_.device());
         
         if (swapChain_ == nullptr) {
             swapChain_ = std::make_unique<SwapChain>(graphicsInstance_, graphicsDevice_, extent);
@@ -51,16 +47,16 @@ namespace game {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = graphicsDevice_->commandPool();
+        allocInfo.commandPool = graphicsDevice_.commandPool();
         allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
 
-        if (vkAllocateCommandBuffers(graphicsDevice_->device(), &allocInfo, commandBuffers_.data()) != VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(graphicsDevice_.device(), &allocInfo, commandBuffers_.data()) != VK_SUCCESS) {
             Logger::crash("Failed to allocate command buffers.");
         }
     }
 
     void Renderer::freeCommandBuffers() {
-        vkFreeCommandBuffers(graphicsDevice_->device(), graphicsDevice_->commandPool(),
+        vkFreeCommandBuffers(graphicsDevice_.device(), graphicsDevice_.commandPool(),
             static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
         commandBuffers_.clear();
     }
@@ -100,8 +96,8 @@ namespace game {
         }
 
         auto result = swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_->wasResized()) {
-            window_->resetWindowResizedFlag();
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window_.wasResized()) {
+            window_.resetWindowResizedFlag();
             recreateSwapChain();
         } else if (result != VK_SUCCESS) {
             Logger::crash("Failed to present swap chain image.");

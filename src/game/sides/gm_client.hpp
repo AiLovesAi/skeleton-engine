@@ -1,9 +1,8 @@
 #pragma once
 
 #include "../objects/gm_game_object.hpp"
-#include "../states/gm_menu_state.hpp"
-#include "../states/gm_host_state.hpp"
-#include "../states/gm_client_state.hpp"
+#include "../states/gm_game_state.hpp"
+#include "../../gm_game.hpp"
 #include "../../graphics/vulkan/gm_graphics_device.hpp"
 #include "../../graphics/vulkan/gm_graphics_instance.hpp"
 #include "../../graphics/vulkan/gm_renderer.hpp"
@@ -15,7 +14,6 @@
 
 #include <map>
 #include <memory>
-#include <string>
 
 namespace game {
     class Client {
@@ -33,17 +31,13 @@ namespace game {
                 static Client *instance_ = new Client();
                 return *instance_;
             }
+            static void init();
             void start();
 
-            GraphicsInstance* graphicsInstance() const { return graphicsInstance_; }
-            GraphicsDevice* graphicsDevice() const { return graphicsDevice_; }
-            Renderer* renderer() const { return renderer_; }
-            Window* window() const { return window_; }
-
-            GameState* menuState() { return &menuState_; }
-            GameState* hostState() { return &hostState_; }
-            GameState* clientState() { return &clientState_; }
-            std::string gameStateArgs() const { return gameStateArgs_; }
+            GraphicsInstance& graphicsInstance() { return graphicsInstance_; }
+            GraphicsDevice& graphicsDevice() { return graphicsDevice_; }
+            Renderer& renderer() { return renderer_; }
+            Window& window() { return window_; }
 
             void setGameState(GameState*const gameState) { nextGameState_ = gameState; }
 
@@ -52,18 +46,13 @@ namespace game {
             Client();
 
             // Variables
-            GraphicsInstance* graphicsInstance_ = nullptr;
-            GraphicsDevice* graphicsDevice_ = nullptr;
-            Renderer* renderer_ = nullptr;
+            Window window_{Game::TITLE};
+            GraphicsInstance graphicsInstance_{window_};
+            GraphicsDevice graphicsDevice_{graphicsInstance_};
+            Renderer renderer_{graphicsInstance_, graphicsDevice_, window_};
             std::unique_ptr<DescriptorPool> globalPool_;
-            Window* window_ = nullptr;
 
-            MenuState menuState_;
-            HostState hostState_;
-            ClientState clientState_;
-
-            GameState* gameState_ = &menuState_;
+            GameState* gameState_ = nullptr;
             GameState* nextGameState_ = nullptr;
-            std::string gameStateArgs_ = "NULL";
     };
 }

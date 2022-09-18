@@ -66,12 +66,10 @@ namespace game {
         }
     }
 
-    GraphicsInstance::GraphicsInstance(Window* window) : window_{window} {
-        if (!window) Logger::crash("Window passed to GraphicsInstance is null.");
-
+    GraphicsInstance::GraphicsInstance(Window& window) : window_{window} {
         createInstance();
         setupDebugMessenger();
-        window->createWindowSurface(instance_, &surface_);
+        window.createWindowSurface(instance_, &surface_);
     }
     
     GraphicsInstance::~GraphicsInstance() {
