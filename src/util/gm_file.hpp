@@ -24,6 +24,7 @@ namespace game {
         public:
             static void init();
 
+            static void const getTime(int& days, int& hours, int& minutes, int& seconds, int& nanos);
             static void const ensureParentDir(const std::string& path);
             static std::string const asAscii(const std::string& str);
             static bool const isAscii(const std::string& str);

@@ -7,6 +7,8 @@
 #include <future>
 #include <fstream>
 #include <iostream>
+#include <ctime>
+#include <chrono>
 #include <mutex>
 #include <random>
 #include <sstream>
@@ -76,15 +78,23 @@ namespace game {
     }
 
     void Logger::logSync(const int logType, const std::string& message, const std::thread::id& threadId) {
-        std::time_t t = std::time(0);
-        std::tm* now = std::localtime(&t);
+        int days, hours, mins, secs, nanos, millis;
+        File::getTime(days, hours, mins, secs, nanos);
+        millis = nanos / 1000000;
+
+        std::string threadName = Game::gameThreads.contains(threadId) ? Game::gameThreads.find(threadId)->second : "Async";
 
         mtx_.lock();
 
         std::stringstream msg;
-        msg << ((now->tm_hour < 10) ? "[0" : "[") << now->tm_hour << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << ((now->tm_sec < 10) ? ":0" : ":") << now->tm_sec << "] ["
-         << Game::gameThreads.find(threadId)->second << "/" << LOG_TYPE_STRINGS[logType] << "]: "
-         << message << "\n";
+        // [HH::MM:SS+UUU] [THREAD/TYPE]: MESSAGE
+        msg << ((hours < 10) ? "[0" : "[") << hours
+            << ((mins < 10) ? ":0" : ":") << mins
+            << ((secs < 10) ? ":0" : ":") << secs
+            << ((millis < 100) ? ((millis < 10) ? "+00" : "+0") : "+") << millis
+            << "] ["
+            << threadName << "/" << LOG_TYPE_STRINGS[logType] << "]: "
+            << message << "\n";
 
         std::ofstream file;
         file.open(logPath_, std::ios::out | std::ios::binary | std::ios::app);
@@ -99,9 +109,6 @@ namespace game {
     [[noreturn]] void Logger::crash(const std::string& message) {
         std::time_t t = std::time(0);
         std::tm* now = std::localtime(&t);
-
-        int hour = now->tm_hour % 12;
-        if (hour == 0) hour = 12;
 
         std::stringstream msg;
         msg << "---- Crash Report ----\n";
