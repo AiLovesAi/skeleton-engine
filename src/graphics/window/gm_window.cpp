@@ -20,7 +20,7 @@ namespace game {
             const char* monitorName = glfwGetMonitorName(monitor);
             std::stringstream msg;
             msg << "Using monitor: " << monitorName;
-            Logger::logMsg(LOG_INFO, msg.str());
+            Logger::log(LOG_INFO, msg.str());
         }
 
         // Set window width & height
@@ -39,7 +39,7 @@ namespace game {
             const char* monitorName = glfwGetMonitorName(monitor);
             std::stringstream msg;
             msg << "Using monitor: " << monitorName;
-            Logger::logMsg(LOG_INFO, msg.str());
+            Logger::log(LOG_INFO, msg.str());
         }
 
         createWindow(title, mode);
@@ -89,7 +89,7 @@ namespace game {
     void Window::errorCallback(int error, const char* description) {
         std::stringstream msg;
         msg << "GLFW error code " << error << ": " << description;
-        Logger::logMsg(LOG_ERR, msg.str());
+        Logger::log(LOG_ERR, msg.str());
     }
 
     void Window::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height) {

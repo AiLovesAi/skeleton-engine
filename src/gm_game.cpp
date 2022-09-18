@@ -45,19 +45,19 @@ namespace game {
         
         File::init();
         Logger::init("logs/latest.log", "logs/crash.txt");
-        Logger::logMsg(LOG_INFO, "Initializing game.");
+        Logger::log(LOG_INFO, "Initializing game.");
         parseArgs();
 
-        Logger::logMsg(LOG_INFO, "Using CPU: " + CPUStr);
+        Logger::log(LOG_INFO, "Using CPU: " + CPUStr);
     }
 
     void Game::parseArgs() {
         // Check if server
         if (CmdArgs::cmdOptionExists(argv_, argv_ + argc_, "--server")) {
             isServer = true;
-            Logger::logMsg(LOG_INFO, "Running game as server.");
+            Logger::log(LOG_INFO, "Running game as server.");
         } else {
-            Logger::logMsg(LOG_INFO, "Running game as client.");
+            Logger::log(LOG_INFO, "Running game as client.");
         }
     }
 }

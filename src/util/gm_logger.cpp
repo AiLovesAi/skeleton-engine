@@ -4,8 +4,8 @@
 #include "gm_file.hpp"
 
 #include <csignal>
+#include <future>
 #include <fstream>
-#include <thread>
 #include <iostream>
 #include <mutex>
 #include <random>
@@ -62,7 +62,7 @@ namespace game {
                 Logger::crash("(SIGABRT) Abort signal was raised.");
                 break;
             case SIGTERM:
-                Logger::logMsg(LOG_INFO, "(SIGTERM) Received termination signal. Closing.");
+                Logger::log(LOG_INFO, "(SIGTERM) Received termination signal. Closing.");
                 exit(EXIT_SUCCESS);
                 break;
             default:
@@ -71,7 +71,11 @@ namespace game {
         }
     }
 
-    void Logger::logMsg(const int logType, const std::string& message) {
+    void Logger::log(const int logType, const std::string& message) {
+        auto task = std::async(std::launch::async, logSync, logType, message, std::this_thread::get_id());
+    }
+
+    void Logger::logSync(const int logType, const std::string& message, const std::thread::id& threadId) {
         std::time_t t = std::time(0);
         std::tm* now = std::localtime(&t);
 
@@ -79,7 +83,7 @@ namespace game {
 
         std::stringstream msg;
         msg << ((now->tm_hour < 10) ? "[0" : "[") << now->tm_hour << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << ((now->tm_sec < 10) ? ":0" : ":") << now->tm_sec << "] ["
-         << Game::gameThreads.find(std::this_thread::get_id())->second << "/" << LOG_TYPE_STRINGS[logType] << "]: "
+         << Game::gameThreads.find(threadId)->second << "/" << LOG_TYPE_STRINGS[logType] << "]: "
          << message << "\n";
 
         std::ofstream file;

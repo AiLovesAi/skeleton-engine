@@ -387,16 +387,16 @@ namespace game {
         /*for (const auto &availablePresentMode : availablePresentModes) {
             switch (availablePresentMode) {
             case VK_PRESENT_MODE_MAILBOX_KHR:
-                Logger::logMsg(LOG_INFO, "Present mode: Mailbox");
+                Logger::log(LOG_INFO, "Present mode: Mailbox");
                 return availablePresentMode;
             case VK_PRESENT_MODE_IMMEDIATE_KHR:
-                Logger::logMsg(LOG_INFO, "Present mode: Immediate");
+                Logger::log(LOG_INFO, "Present mode: Immediate");
                 return availablePresentMode;
             }
         }
         */
 
-        Logger::logMsg(LOG_INFO, "Present mode: V-Sync");
+        Logger::log(LOG_INFO, "Present mode: V-Sync");
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 

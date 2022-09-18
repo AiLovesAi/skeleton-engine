@@ -15,7 +15,7 @@ int main (int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    Logger::logMsg(LOG_INFO, "Game exited successfully.");
+    Logger::log(LOG_INFO, "Game exited successfully.");
 
     return EXIT_SUCCESS;
 }

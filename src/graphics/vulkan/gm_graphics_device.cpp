@@ -24,7 +24,7 @@ namespace game {
         if (deviceCount == 0) {
             Logger::crash("Failed to find GPUs with Vulkan support.");
         }
-        Logger::logMsg(LOG_INFO, "Graphics device count: " + std::to_string(deviceCount));
+        Logger::log(LOG_INFO, "Graphics device count: " + std::to_string(deviceCount));
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
         std::multimap<int, VkPhysicalDevice> candidates;
@@ -43,7 +43,7 @@ namespace game {
 
         vkGetPhysicalDeviceProperties(physicalDevice_, &properties);
         Game::graphicsDeviceName = properties.deviceName;
-        Logger::logMsg(LOG_INFO,  "Using physical device: " + std::string(properties.deviceName));
+        Logger::log(LOG_INFO,  "Using physical device: " + std::string(properties.deviceName));
     }
 
     int GraphicsDevice::rateDeviceSuitability(const VkPhysicalDevice& device) {

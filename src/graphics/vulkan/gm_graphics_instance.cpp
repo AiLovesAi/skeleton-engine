@@ -17,15 +17,15 @@ namespace game {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
                 msg << "Validation layer info: " << pCallbackData->pMessage;
-                Logger::logMsg(LOG_INFO, msg.str());
+                Logger::log(LOG_INFO, msg.str());
                 break;
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
                 msg << "Validation layer caught error: " << pCallbackData->pMessage;
-                Logger::logMsg(LOG_ERR, msg.str());
+                Logger::log(LOG_ERR, msg.str());
                 break;
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
                 msg << "Validation layer caught warning: " << pCallbackData->pMessage;
-                Logger::logMsg(LOG_WARN, msg.str());
+                Logger::log(LOG_WARN, msg.str());
                 break;
             default:
                 break;
@@ -83,7 +83,7 @@ namespace game {
 
     void GraphicsInstance::createInstance() {
         if (checkValidationLayerSupport()) {
-            Logger::logMsg(LOG_INFO, "Validation layers enabled.");
+            Logger::log(LOG_INFO, "Validation layers enabled.");
         }
 
         VkApplicationInfo appInfo = {};
@@ -189,7 +189,7 @@ namespace game {
             msg << "\n\t" << std::string(extension.extensionName);
             available.insert(extension.extensionName);
         }
-        Logger::logMsg(LOG_INFO, msg.str());
+        Logger::log(LOG_INFO, msg.str());
         msg.str("");
         msg.clear();
 
@@ -201,7 +201,7 @@ namespace game {
                 Logger::crash("Missing required GLFW extension.");
             }
         }
-        Logger::logMsg(LOG_INFO, msg.str());
+        Logger::log(LOG_INFO, msg.str());
     }
 
     void GraphicsInstance::setupDebugMessenger() {

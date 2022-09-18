@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ctime>
+#include <thread>
 #include <string>
 
 namespace game {
@@ -24,7 +25,8 @@ namespace game {
             // Functions
             static void init(const std::string& logPath, const std::string& crashPath);
             static void setPaths(const std::string& logPath, const std::string& crashPath);
-            static void logMsg(const int logType, const std::string& message);
+            static void log(const int logType, const std::string& message);
+            static void logSync(const int logType, const std::string& message, const std::thread::id& threadId);
             [[noreturn]] static void crash(const std::string& message);
 
         private:
