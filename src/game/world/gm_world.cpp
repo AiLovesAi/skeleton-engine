@@ -4,7 +4,6 @@
 
 #include <functional>
 #include <thread>
-#include <vector>
 
 namespace game {
     World::World() {
@@ -23,27 +22,18 @@ namespace game {
         std::vector<std::thread> tasks;
 
         // Update entities
-        tasks.push_back(
-            std::thread([&] (AIComponentPool& pool) {
-                pool.updateComponents();
-            }, std::ref(aiPool_))
-        );
-        tasks.push_back(
-            std::thread([&] (PhysicsComponentPool& pool) {
-                pool.updateComponents();
-            }, std::ref(physicsPool_))
-        );
+        std::thread aiTask([&] (AIComponentPool& pool) {
+            pool.updateComponents();
+        }, std::ref(aiPool_));
+        std::thread physicsTask([&] (PhysicsComponentPool& pool) {
+            pool.updateComponents();
+        }, std::ref(physicsPool_));
 
         // Update world
 
         // Wait for threads
-        std::for_each(
-            tasks.begin(),
-            tasks.end(),
-            [](std::thread& t) {
-                t.join();
-            }
-        );
+        aiTask.join();
+        physicsTask.join();
     }
 
     void World::save() {
