@@ -21,12 +21,12 @@ VS_VERSION_INFO VERSIONINFO
         {
             VALUE "Comments",         ""
             VALUE "CompanyName",      ""
-            VALUE "FileDescription",  "Skeleton Engine\0"
+            VALUE "FileDescription",  "Minecraft\0"
             VALUE "FileVersion",      "\0"
-            VALUE "InternalName",     "skele\0"
+            VALUE "InternalName",     "minecraft\0"
             VALUE "LegalCopyright",   ""
-            VALUE "OriginalFilename", "Skele.exe\0"
-            VALUE "ProductName",      "Skele Engine\0"
+            VALUE "OriginalFilename", "Minecraft.exe\0"
+            VALUE "ProductName",      "Minecraft\0"
             VALUE "ProductVersion",   "\0"
         } 
     }
