@@ -15,8 +15,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # set compiler flags
-set(CMAKE_CXX_FLAGS "")
-set(CMAKE_EXE_LINKER_FLAGS "")
 set(CMAKE_C_FLAGS
 	-std=c++23
 	-Wall -Werror -Wno-volatile
