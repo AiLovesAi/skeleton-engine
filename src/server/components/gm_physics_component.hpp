@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../commands/gm_command.hpp"
 #include "../entities/gm_entity.hpp"
 
 #define GLM_FORCE_RADIANS
@@ -98,12 +97,5 @@ namespace game {
             std::unordered_map<Entity, size_t> indexMap_;
             std::vector<PhysicsComponent> pool_{64};
             size_t size_ = 0;
-    };
-
-    class CmdPhysicsComponentMove : Command {
-        public:
-            virtual void execute(PhysicsComponent& actor, const glm::dvec3& amount) {
-                actor.setPosition(actor.transform().position + amount);
-            }
     };
 }
