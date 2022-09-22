@@ -177,29 +177,4 @@ namespace game {
 #endif
         Game::executableDir = path;
     }
-
-    std::string const File::getStack() {
-#ifdef __WIN32__
-        return "   EMPTY   "; // TODO
-#else
-        std::ostringstream buffer;
-        void* stack[32];
-        std::size_t depth = backtrace(stack, 32);
-        if (!depth)
-                buffer << "   EMPTY   ");
-        else {
-                char** symbols = backtrace_symbols(stack, depth);
-                for (std::size_t i = 1; i < depth; i++) {
-                std::string symbol = symbols[i];
-                std::istringstream iss(symbol);
-                std::vector<std::string> strs{std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>{}};
-                for (auto const &x : strs) buffer << " " << demangle(x);
-                buffer);
-                }
-                free(symbols);
-        }
-        return buffer.str();
-#endif
-    }
-    
 }

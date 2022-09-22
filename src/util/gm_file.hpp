@@ -27,7 +27,6 @@ namespace game {
             static void const ensureParentDir(const std::string& path);
             static std::string const asAscii(const std::string& str);
             static bool const isAscii(const std::string& str);
-            static std::string const getStack();
             
         private:
             static void getOS();
