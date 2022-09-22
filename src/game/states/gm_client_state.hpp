@@ -2,7 +2,7 @@
 
 #include "gm_game_state.hpp"
 #include "../entities/gm_entity.hpp"
-#include "../components/gm_render_component.hpp"
+#include "../components/gm_client_components.hpp"
 #include "../world/gm_world.hpp"
 #include "../sides/gm_client.hpp"
 #include "../../graphics/vulkan/gm_renderer.hpp"
@@ -22,7 +22,7 @@ namespace game {
         private:
             // Variables
             EntityPool entityPool_;
-            RenderPool renderPool_{entityPool_};
+            ClientComponents clientComponents_{entityPool_};
 
             World world_{entityPool_};
 

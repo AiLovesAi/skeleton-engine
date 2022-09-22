@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../components/gm_ai_component.hpp"
-#include "../components/gm_physics_component.hpp"
+#include "../components/gm_server_components.hpp"
 
 #include <string>
 
@@ -22,12 +21,9 @@ namespace game {
             void update();
             void save();
 
-            PhysicsPool& physicsPool() { return physicsPool_; }
-            AIPool& aiPool() { return aiPool_; }
-
         private:
+            // Variables
             EntityPool& entityPool_;
-            AIPool aiPool_{entityPool_};
-            PhysicsPool physicsPool_{entityPool_};
+            ServerComponents serverComponents_{entityPool_};
     };
 }

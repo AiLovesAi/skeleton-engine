@@ -26,7 +26,8 @@ namespace game {
     class RenderPool {
         public:
             // Constructors
-            RenderPool(EntityPool& entityPool) : entityPool_{entityPool} {}
+            RenderPool(EntityPool& entityPool, size_t initialCapacity)
+                : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
 
             // Functions
             void create(RenderComponent& component);
@@ -39,8 +40,9 @@ namespace game {
         private:
             // Variables
             EntityPool& entityPool_;
+            size_t initialCapacity_;
             std::unordered_map<Entity, size_t> indexMap_;
-            std::vector<RenderComponent> pool_{64};
+            std::vector<RenderComponent> pool_{initialCapacity_};
             size_t size_ = 0;
     };
 }
