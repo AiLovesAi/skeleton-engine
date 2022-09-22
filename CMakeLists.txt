@@ -15,17 +15,33 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # set compiler flags
+if(CMAKE_BUILD_TYPE EQUAL DEBUG)
+
 set(CMAKE_C_FLAGS
 	-std=c++23
 	-Wall -Werror -Wno-volatile
-	-Ofast -Os -pipe -m64 -march=native
+	-O0 -pipe -m64 -march=native
 	-g -DDEBUG
 )
 set(CMAKE_L_FLAGS
 	-Wl,--export-all-symbol
 	-static-libgcc -static-libstdc++
+)
+
+else()
+
+set(CMAKE_C_FLAGS
+	-std=c++23
+	-Wall -Werror -Wno-volatile
+	-Ofast -Os -pipe -m64 -march=native
+)
+set(CMAKE_L_FLAGS
+	-static-libgcc -static-libstdc++
 	-mwindows
 )
+
+endif()
+
 target_compile_options(Minecraft PRIVATE ${CMAKE_C_FLAGS})
 target_link_options(Minecraft PRIVATE ${CMAKE_L_FLAGS})
 
