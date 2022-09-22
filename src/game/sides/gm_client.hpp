@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../objects/gm_game_object.hpp"
 #include "../states/gm_game_state.hpp"
 #include "../../gm_game.hpp"
 #include "../../graphics/vulkan/gm_graphics_device.hpp"

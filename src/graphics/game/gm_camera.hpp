@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../window/gm_window.hpp"
-#include "../../game/components/gm_physics_component.hpp"
+#include "../../game/entities/gm_entity.hpp"
+#include "../../game/world/gm_world.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -14,7 +15,8 @@ namespace game {
         public:
             // Constructors
             Camera(
-                PhysicsComponent*const physics,
+                const Entity entity,
+                World& world,
                 Window& window,
                 float fov,
                 float clipNear,
@@ -37,7 +39,9 @@ namespace game {
             static constexpr glm::vec3 upAxis_      {0.f, 1.f, 0.f};
             static constexpr glm::vec3 forwardAxis_ {0.f, 0.f, 1.f};
 
-            PhysicsComponent* physics_;
+            Entity entity_;
+            World& world_;
+
             Window& window_;
 
             float fov_;

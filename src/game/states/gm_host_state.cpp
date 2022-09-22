@@ -27,6 +27,7 @@ namespace game {
         renderer.beginSwapChainRenderPass(commandBuffer);
 
         // Render world
+        renderPool_.render();
 
         renderer.endSwapChainRenderPass(commandBuffer);
         renderer.endFrame();

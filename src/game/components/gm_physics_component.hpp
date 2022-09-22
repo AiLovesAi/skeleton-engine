@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../commands/gm_command.hpp"
+#include "../entities/gm_entity.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -10,20 +11,23 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace game {
+    // Types
+    struct WorldTransform {
+        glm::dvec3 position{};
+        glm::dvec3 scale{1., 1., 1.};
+        glm::dquat rotation{0., 0., 0., 1.};
+        bool dirty; // True if the transform has changed this frame and must be recalculated for rendering
+    };
+
     class PhysicsComponent {
         public:
-            // Types
-            struct WorldTransformComponent {
-                glm::dvec3 position{};
-                glm::dvec3 scale{1., 1., 1.};
-                glm::dquat rotation{0., 0., 0., 1.};
-                bool dirty; // True if the transform has changed this frame and must be recalculated for rendering
-            };
+            // Constructors
+            PhysicsComponent(const Entity entity);
 
             // Functions
-            void init();
             bool update();
 
             void setParent(PhysicsComponent*const parent) { parent_ = parent; }
@@ -32,62 +36,68 @@ namespace game {
             void removeFirstChild(PhysicsComponent*const child) { children_.erase(children_.begin()); }
             void removeLastChild(PhysicsComponent*const child) { children_.erase(children_.end()); }
 
-            void setTransform(const WorldTransformComponent& transform) { transform_ = transform; transform_.dirty = true; }
+            void setTransform(const WorldTransform& transform) { transform_ = transform; transform_.dirty = true; }
             void setPosition(const glm::dvec3& position) { transform_.position = position; transform_.dirty = true; }
             void setScale(const glm::dvec3& scale) { transform_.scale = scale; transform_.dirty = true; }
             void setRotation(const glm::dquat& rotation) { transform_.rotation = rotation; transform_.dirty = true; }
 
-            void setSpeed(const WorldTransformComponent& speedTransform) {
+            void setSpeed(const WorldTransform& speedTransform) {
                 speedTransform_ = speedTransform;
                 speedTransform_.dirty = true;
             }
-            void setAcceleration(const WorldTransformComponent& accelerationTransform) {
+            void setAcceleration(const WorldTransform& accelerationTransform) {
                 accelerationTransform_ = accelerationTransform;
                 accelerationTransform_.dirty = true;
             }
 
+            Entity entity() const { return entity_; }
+
             PhysicsComponent* parent() const { return parent_; }
             std::vector<PhysicsComponent*> children() const { return children_; }
 
-            WorldTransformComponent transform() const { return transform_; }
+            WorldTransform transform() const { return transform_; }
             glm::dvec3 position() const { return transform_.position; }
             glm::dvec3 scale() const { return transform_.scale; }
             glm::dquat rotation() const { return transform_.rotation; }
             bool dirty() const { return transform_.dirty; }
 
-            WorldTransformComponent speedTransform() const { return speedTransform_; }
-            WorldTransformComponent accelerationTransform() const { return accelerationTransform_; }
+            WorldTransform speedTransform() const { return speedTransform_; }
+            WorldTransform accelerationTransform() const { return accelerationTransform_; }
+
+            // Variables
+            static constexpr WorldTransform origin{};
         
         private:
             // Variables
+            Entity entity_;
+
             PhysicsComponent* parent_;
             std::vector<PhysicsComponent*> children_;
             
-            WorldTransformComponent transform_{};
-            WorldTransformComponent speedTransform_{};
-            WorldTransformComponent accelerationTransform_{};
+            WorldTransform transform_{};
+            WorldTransform speedTransform_{};
+            WorldTransform accelerationTransform_{};
     };
 
-    class PhysicsComponentPool {
+    class PhysicsPool {
         public:
             // Constructors
-            PhysicsComponentPool() {}
-
-            PhysicsComponentPool(const PhysicsComponentPool &) = delete;
-            PhysicsComponentPool &operator=(const PhysicsComponentPool &) = delete;
-            PhysicsComponentPool(PhysicsComponentPool&&) = delete;
-            PhysicsComponentPool &operator=(PhysicsComponentPool&&) = delete;
+            PhysicsPool(EntityPool& entityPool) : entityPool_{entityPool} {}
 
             // Functions
-            PhysicsComponent* createObject();
-            void destroyObject(const int index);
-            void updateComponents();
-        
+            void create(PhysicsComponent& component);
+            void destroy(const size_t index);
+            PhysicsComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
+            size_t size() const { return size_; };
+
+            void update();
+
         private:
             // Variables
-            static constexpr int POOL_SIZE = 1024;
-            PhysicsComponent pool_[POOL_SIZE];
-            int numComponents_ = 0;
+            EntityPool& entityPool_;
+            std::unordered_map<Entity, size_t> indexMap_;
+            std::vector<PhysicsComponent> pool_{64};
+            size_t size_ = 0;
     };
 
     class CmdPhysicsComponentMove : Command {

@@ -9,7 +9,7 @@ namespace game {
     class World {
         public:
             // Constructors
-            World();
+            World(EntityPool& entityPool);
             ~World();
 
             World(const World &) = delete;
@@ -21,12 +21,13 @@ namespace game {
             void load(const std::string& world);
             void update();
             void save();
-            
-            PhysicsComponent* createPhysicsComponent();
-            AIComponent* createAIComponent();
+
+            PhysicsPool& physicsPool() { return physicsPool_; }
+            AIPool& aiPool() { return aiPool_; }
 
         private:
-            AIComponentPool aiPool_;
-            PhysicsComponentPool physicsPool_;
+            EntityPool& entityPool_;
+            AIPool aiPool_{entityPool_};
+            PhysicsPool physicsPool_{entityPool_};
     };
 }

@@ -1,37 +1,46 @@
 #pragma once
 
+#include "gm_physics_component.hpp"
+#include "../entities/gm_entity.hpp"
+
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace game {
     class RenderComponent {
         public:
-            // Functions
-            void init();
-            bool render();
-        
-        private:
-            // Data
-    };
-
-    class RenderComponentPool {
-        public:
             // Constructors
-            RenderComponentPool() {}
-
-            RenderComponentPool(const RenderComponentPool &) = delete;
-            RenderComponentPool &operator=(const RenderComponentPool &) = delete;
-            RenderComponentPool(RenderComponentPool&&) = delete;
-            RenderComponentPool &operator=(RenderComponentPool&&) = delete;
+            RenderComponent(const Entity entity);
 
             // Functions
-            RenderComponent* createObject();
-            void destroyObject(const int index);
-            void renderComponents();
+            void render(const WorldTransform& parentTransform, bool dirty);
+
+            Entity entity() const { return entity_; }
         
         private:
             // Variables
-            static constexpr int POOL_SIZE = 1024;
-            RenderComponent pool_[POOL_SIZE];
-            int numComponents_ = 0;
+            Entity entity_;
+    };
+    
+    class RenderPool {
+        public:
+            // Constructors
+            RenderPool(EntityPool& entityPool) : entityPool_{entityPool} {}
+
+            // Functions
+            void create(RenderComponent& component);
+            void destroy(const size_t index);
+            RenderComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
+            size_t size() const { return size_; };
+
+            void render();
+
+        private:
+            // Variables
+            EntityPool& entityPool_;
+            std::unordered_map<Entity, size_t> indexMap_;
+            std::vector<RenderComponent> pool_{64};
+            size_t size_ = 0;
     };
 }

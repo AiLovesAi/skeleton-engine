@@ -4,19 +4,19 @@
 
 namespace game {
     Camera::Camera(
-        PhysicsComponent*const physics,
+        const Entity entity,
+        World& world,
         Window& window,
         float fov,
         float clipNear,
         float clipFar
-    ) : physics_{physics}, window_{window}, fov_{fov}, clipNear_{clipNear}, clipFar_{clipFar} {
-        if (physics == nullptr) Logger::crash("Physics component passed to camera was null.");
+    ) : entity_{entity}, world_{world}, window_{window}, fov_{fov}, clipNear_{clipNear}, clipFar_{clipFar} {
         updatePerspective();
     }
 
     void Camera::update() {
         if (window_.wasResized()) updatePerspective();
-        if (physics_->dirty()) updateView();
+        if (world_.physicsPool().get(entity_).dirty()) updateView();
     }
 
     void Camera::updatePerspective() {

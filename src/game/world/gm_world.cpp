@@ -6,7 +6,7 @@
 #include <thread>
 
 namespace game {
-    World::World() {
+    World::World(EntityPool& entityPool) : entityPool_{entityPool} {
         
     }
     
@@ -22,11 +22,11 @@ namespace game {
         std::vector<std::thread> tasks;
 
         // Update entities
-        std::thread aiTask([&] (AIComponentPool& pool) {
-            pool.updateComponents();
+        std::thread aiTask([&] (AIPool& pool) {
+            pool.update();
         }, std::ref(aiPool_));
-        std::thread physicsTask([&] (PhysicsComponentPool& pool) {
-            pool.updateComponents();
+        std::thread physicsTask([&] (PhysicsPool& pool) {
+            pool.update();
         }, std::ref(physicsPool_));
 
         // Update world
@@ -38,17 +38,5 @@ namespace game {
 
     void World::save() {
         // Save
-    }
-    
-    PhysicsComponent* World::createPhysicsComponent() {
-        PhysicsComponent* newComponent = physicsPool_.createObject();
-        if (newComponent == nullptr) Logger::crash("Tried to create a new physics component, but the physics pool was full.");
-        return newComponent;
-    }
-
-    AIComponent* World::createAIComponent() {
-        AIComponent* newComponent = aiPool_.createObject();
-        if (newComponent == nullptr) Logger::crash("Tried to create a new AI component, but the AI pool was full.");
-        return newComponent;
     }
 }

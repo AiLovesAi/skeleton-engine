@@ -1,37 +1,45 @@
 #pragma once
 
+#include "../entities/gm_entity.hpp"
+
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace game {
     class AIComponent {
         public:
+            // Constructors
+            AIComponent(const Entity entity);
+
             // Functions
-            void init();
             bool update();
+
+            Entity entity() const { return entity_; }
         
         private:
             // Data
+            Entity entity_;
     };
 
-    class AIComponentPool {
+    class AIPool {
         public:
             // Constructors
-            AIComponentPool() {}
-
-            AIComponentPool(const AIComponentPool &) = delete;
-            AIComponentPool &operator=(const AIComponentPool &) = delete;
-            AIComponentPool(AIComponentPool&&) = delete;
-            AIComponentPool &operator=(AIComponentPool&&) = delete;
+            AIPool(EntityPool& entityPool) : entityPool_{entityPool} {}
 
             // Functions
-            AIComponent* createObject();
-            void destroyObject(const int index);
-            void updateComponents();
-        
+            void create(AIComponent& component);
+            void destroy(const size_t index);
+            AIComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
+            size_t size() const { return size_; };
+
+            void update();
+
         private:
             // Variables
-            static constexpr int POOL_SIZE = 1024;
-            AIComponent pool_[POOL_SIZE];
-            int numComponents_ = 0;
+            EntityPool& entityPool_;
+            std::unordered_map<Entity, size_t> indexMap_;
+            std::vector<AIComponent> pool_{64};
+            size_t size_ = 0;
     };
 }
