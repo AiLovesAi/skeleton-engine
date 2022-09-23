@@ -14,13 +14,13 @@ namespace game {
             // Functions
             void update();
             
-            AiPool& ai() { return ai_; }
+            AIPool& ai() { return ai_; }
             TransformPool& transform() { return transform_; }
             
         private:
             // Variables
             EntityPool& entityPool_;
-            AiPool ai_{entityPool_, 256};
+            AIPool ai_{entityPool_, 256};
             TransformPool transform_{entityPool_, 256};
     };
 }

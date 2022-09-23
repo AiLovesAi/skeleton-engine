@@ -1,7 +1,5 @@
 #include "gm_host_state.hpp"
 
-#include "../sides/gm_server.hpp"
-
 #include <limits>
 
 namespace game {

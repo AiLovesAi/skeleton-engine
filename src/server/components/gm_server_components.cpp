@@ -1,6 +1,6 @@
 #include "gm_server_components.hpp"
 
-#include <threads>
+#include <thread>
 #include <vector>
 
 namespace game {
@@ -11,12 +11,13 @@ namespace game {
         std::thread aiTask([&] (AIPool& pool) {
             pool.update();
         }, std::ref(ai_));
-        std::thread physicsTask([&] (PhysicsPool& pool) {
+        /*std::thread physicsTask([&] (PhysicsPool& pool) {
             pool.update();
         }, std::ref(physics_));
+        */
 
         // Wait for threads
         aiTask.join();
-        physicsTask.join();
+        //physicsTask.join();
     }
 }

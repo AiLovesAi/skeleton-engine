@@ -25,7 +25,7 @@ namespace game {
     class AIPool {
         public:
             // Constructors
-            AIPool(EntityPool& entityPool, size_t initialCapacity)
+            AIPool(EntityPool& entityPool, const size_t initialCapacity)
                 : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
 
             // Functions

@@ -19,21 +19,11 @@ namespace game {
     }
 
     void World::update() {
-        std::vector<std::thread> tasks;
-
         // Update entities
-        std::thread aiTask([&] (AIPool& pool) {
-            pool.update();
-        }, std::ref(aiPool_));
-        std::thread physicsTask([&] (PhysicsPool& pool) {
-            pool.update();
-        }, std::ref(physicsPool_));
+        serverComponents_.update();
 
         // Update world
-
-        // Wait for threads
-        aiTask.join();
-        physicsTask.join();
+        // TODO
     }
 
     void World::save() {

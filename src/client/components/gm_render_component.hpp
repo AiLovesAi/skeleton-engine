@@ -26,7 +26,7 @@ namespace game {
     class RenderPool {
         public:
             // Constructors
-            RenderPool(EntityPool& entityPool, size_t initialCapacity)
+            RenderPool(EntityPool& entityPool, const size_t initialCapacity)
                 : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
 
             // Functions
