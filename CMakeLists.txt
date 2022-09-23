@@ -10,8 +10,8 @@ file(GLOB EXE_FILES "src/*.cpp")
 file(GLOB RESOURCE_FILE "resources.rc")
 
 # add the executable
-#add_library(Client "${CLIENT_FILES}")
-add_library(Server "${SERVER_FILES}")
+#add_library(Client SHARED "${CLIENT_FILES}")
+add_library(Server SHARED "${SERVER_FILES}")
 #add_executable(Minecraft "${EXE_FILES}")
 
 # specify the C++ standard
