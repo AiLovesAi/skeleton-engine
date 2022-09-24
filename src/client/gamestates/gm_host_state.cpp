@@ -1,7 +1,5 @@
 #include "gm_host_state.hpp"
 
-#include <limits>
-
 namespace game {
     HostState::HostState(const std::string& world) {
         // Load world and shaders
