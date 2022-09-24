@@ -15,7 +15,7 @@ add_library(server SHARED "${SERVER_FILES}")
 add_library(client SHARED "${CLIENT_FILES}")
 add_executable(game "src/game.cpp")
 add_executable(host "src/host.cpp")
-add_executable(Minecraft "src/launcher.cpp")
+add_executable(Minecraft "src/launcher.c")
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 23)
@@ -25,10 +25,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 if(CMAKE_BUILD_TYPE EQUAL DEBUG)
 
 set(CMAKE_C_FLAGS
-	-std=c++23
 	-Wall -Werror -Wno-volatile
 	-O0 -pipe -m64 -march=native
 	-g -DDEBUG
+)
+set(CMAKE_CPP_FLAGS
+	${CMAKE_C_FLAGS}
+	-std=c++23
 )
 set(CMAKE_L_FLAGS
 	-Wl,--export-all-symbol
@@ -38,9 +41,13 @@ set(CMAKE_L_FLAGS
 else()
 
 set(CMAKE_C_FLAGS
-	-std=c++23
 	-Wall -Werror -Wno-volatile
-	-Ofast -Os -pipe -m64 -march=native
+	-O0 -pipe -m64 -march=native
+	-g -DDEBUG
+)
+set(CMAKE_CPP_FLAGS
+	${CMAKE_C_FLAGS}
+	-std=c++23
 )
 set(CMAKE_L_FLAGS
 	-mwindows
@@ -48,15 +55,15 @@ set(CMAKE_L_FLAGS
 
 endif()
 
-target_compile_options(client PRIVATE ${CMAKE_C_FLAGS})
+target_compile_options(client PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(client PRIVATE ${CMAKE_L_FLAGS})
-target_compile_options(server PRIVATE ${CMAKE_C_FLAGS})
+target_compile_options(server PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(server PRIVATE ${CMAKE_L_FLAGS})
-target_compile_options(core PRIVATE ${CMAKE_C_FLAGS})
+target_compile_options(core PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(core PRIVATE ${CMAKE_L_FLAGS})
-target_compile_options(game PRIVATE ${CMAKE_C_FLAGS})
+target_compile_options(game PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(game PRIVATE ${CMAKE_L_FLAGS})
-target_compile_options(host PRIVATE ${CMAKE_C_FLAGS})
+target_compile_options(host PRIVATE ${CMAKE_CPP_FLAGS})
 target_compile_options(Minecraft PRIVATE ${CMAKE_C_FLAGS})
 target_link_options(Minecraft PRIVATE ${CMAKE_L_FLAGS})
 
