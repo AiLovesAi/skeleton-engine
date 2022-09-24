@@ -5,7 +5,7 @@
 namespace game {
     HostState::HostState(const std::string& world) {
         // Load world and shaders
-        world_.load(world);
+        server_.world().load(world);
     }
 
     HostState::~HostState() {
@@ -13,19 +13,19 @@ namespace game {
     }
 
     void HostState::update() {
-        // Update world
-        world_.update();
+        // Update server
+        server_.update();
     }
 
     void HostState::render(const double lag) {
-        camera_.update();
+        camera_.update(lag);
 
         auto& renderer = Client::instance().renderer();
         auto commandBuffer = renderer.beginFrame();
         renderer.beginSwapChainRenderPass(commandBuffer);
 
         // Render world
-        clientComponents_.render();
+        clientComponents_.render(lag);
 
         renderer.endSwapChainRenderPass(commandBuffer);
         renderer.endFrame();

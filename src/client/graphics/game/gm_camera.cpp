@@ -14,7 +14,7 @@ namespace game {
         updatePerspective();
     }
 
-    void Camera::update() {
+    void Camera::update(const double lag) {
         if (window_.wasResized()) updatePerspective();
         if (world_.serverComponents().transform().get(entity_).dirty()) updateView();
     }

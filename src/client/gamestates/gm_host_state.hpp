@@ -6,7 +6,7 @@
 #include "../graphics/vulkan/gm_renderer.hpp"
 #include "../graphics/game/gm_camera.hpp"
 
-#include <server/world/gm_world.hpp>
+#include <server/gm_server.hpp>
 
 #include <string>
 #include <vector>
@@ -22,18 +22,14 @@ namespace game {
             virtual void update() override;
             virtual void render(const double lag) override;
 
-            World& world() { return world_; }
-
         private:
             // Variables
-            EntityPool entityPool_;
-            ClientComponents clientComponents_{entityPool_};
-
-            World world_{entityPool_};
+            Server server_;
+            ClientComponents clientComponents_{server_.entityPool()};
 
             Camera camera_{
-                entityPool_.create(),
-                world_,
+                server_.entityPool().create(),
+                server_.world(),
                 Client::instance().window(),
                 45.f,
                 std::numeric_limits<float>::min(),

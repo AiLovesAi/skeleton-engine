@@ -1,6 +1,6 @@
 #include <core/gm_core.hpp>
 #include <core/logger/gm_logger.hpp>
-#include <server/gm_server.hpp>
+#include <server/gm_server_instance.hpp>
 
 using namespace game;
 

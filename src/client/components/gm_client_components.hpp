@@ -10,7 +10,7 @@ namespace game {
             ClientComponents(EntityPool entityPool) : entityPool_{entityPool} {}
         
             // Functions
-            void render();
+            void render(const double lag);
             
             RenderPool& ai() { return render_; }
             

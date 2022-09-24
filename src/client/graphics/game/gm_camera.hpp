@@ -25,7 +25,7 @@ namespace game {
             );
         
             // Functions
-            void update();
+            void update(const double lag);
             void updateView();
             void updatePerspective();
 
