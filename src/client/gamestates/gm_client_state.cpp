@@ -1,7 +1,5 @@
 #include "gm_client_state.hpp"
 
-#include <server/gm_server.hpp>
-
 #include <limits>
 
 namespace game {
