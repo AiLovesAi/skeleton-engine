@@ -64,6 +64,7 @@ target_link_options(core PRIVATE ${CMAKE_L_FLAGS})
 target_compile_options(game PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(game PRIVATE ${CMAKE_L_FLAGS})
 target_compile_options(host PRIVATE ${CMAKE_CPP_FLAGS})
+target_link_options(host PRIVATE ${CMAKE_L_FLAGS})
 target_compile_options(Minecraft PRIVATE ${CMAKE_C_FLAGS})
 target_link_options(Minecraft PRIVATE ${CMAKE_L_FLAGS})
 
