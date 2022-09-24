@@ -8,7 +8,7 @@ namespace game {
 
     }
 
-    void RenderComponent::render(const WorldTransform& parentTransform, bool dirty) {
+    void RenderComponent::render(const double lag, const WorldTransform& parentTransform, bool dirty) {
 
     }
 
@@ -28,10 +28,10 @@ namespace game {
         entityPool_.destroy(entity); // Kill the entity
     }
 
-    void RenderPool::render() {
+    void RenderPool::render(const double lag) {
         for (size_t i = 0; i < pool_.size(); i++) {
             // if (pool_[i].parent == nullptr)
-            pool_[i].render(PhysicsComponent::origin, false);
+            pool_[i].render(lag, PhysicsComponent::origin, false);
             // TODO Send dirty components to the end of the pool ([clean] [dirty parents] [dirty children])
             // http://bitsquid.blogspot.com/2014/10/building-data-oriented-entity-system.html
         }

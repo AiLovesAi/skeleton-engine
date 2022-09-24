@@ -16,14 +16,14 @@ namespace game {
     }
 
     void ClientState::render(const double lag) {
-        camera_.update();
+        camera_.update(lag);
 
         auto& renderer = Client::instance().renderer();
         auto commandBuffer = renderer.beginFrame();
         renderer.beginSwapChainRenderPass(commandBuffer);
 
         // Render world
-        clientComponents_.render();
+        clientComponents_.render(lag);
 
         renderer.endSwapChainRenderPass(commandBuffer);
         renderer.endFrame();

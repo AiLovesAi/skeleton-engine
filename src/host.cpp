@@ -8,7 +8,7 @@ int main (int argc, char** argv)
 {
     Core::init("../logs/server_latest.log", "../logs/server_crash.txt");
     
-    Server& server = Server::instance();
+    ServerInstance& server = ServerInstance::instance();
     server.start();
 
     Logger::log(LOG_INFO, "Server closed successfully.");

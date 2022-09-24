@@ -14,7 +14,7 @@ namespace game {
             RenderComponent(const Entity entity);
 
             // Functions
-            void render(const WorldTransform& parentTransform, bool dirty);
+            void render(const double lag, const WorldTransform& parentTransform, bool dirty);
 
             Entity entity() const { return entity_; }
         
@@ -35,7 +35,7 @@ namespace game {
             RenderComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
             size_t size() const { return size_; };
 
-            void render();
+            void render(const double lag);
 
         private:
             // Variables
