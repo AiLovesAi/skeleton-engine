@@ -1,7 +1,7 @@
 #include "gm_graphics_device.hpp"
 
-#include "../../gm_game.hpp"
-#include "../../util/gm_logger.hpp"
+#include <util/system/gm_system.hpp>
+#include <util/logger/gm_logger.hpp>
 
 #include <set>
 
@@ -42,7 +42,7 @@ namespace game {
         }
 
         vkGetPhysicalDeviceProperties(physicalDevice_, &properties);
-        Game::graphicsDeviceName = properties.deviceName;
+        System::setGPU(properties.deviceName);
         Logger::log(LOG_INFO,  "Using physical device: " + std::string(properties.deviceName));
     }
 

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../../graphics/vulkan/gm_renderer.hpp"
-#include "../world/gm_world.hpp"
+#include "../graphics/vulkan/gm_renderer.hpp"
+
+#include <server/world/gm_world.hpp>
 
 namespace game {
     class GameState {

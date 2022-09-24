@@ -1,12 +1,13 @@
 #pragma once
 
 #include "gm_game_state.hpp"
-#include "../entities/gm_entity.hpp"
+#include "../gm_client.hpp"
 #include "../components/gm_client_components.hpp"
-#include "../world/gm_world.hpp"
-#include "../sides/gm_client.hpp"
-#include "../../graphics/vulkan/gm_renderer.hpp"
-#include "../../graphics/game/gm_camera.hpp"
+#include "../graphics/vulkan/gm_renderer.hpp"
+#include "../graphics/game/gm_camera.hpp"
+
+#include <server/entities/gm_entity.hpp>
+#include <server/world/gm_world.hpp>
 
 namespace game {
     class ClientState : public GameState {

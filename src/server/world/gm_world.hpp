@@ -21,6 +21,8 @@ namespace game {
             void update();
             void save();
 
+            ServerComponents& serverComponents() { return serverComponents_; }
+
         private:
             // Variables
             EntityPool& entityPool_;

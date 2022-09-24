@@ -1,8 +1,9 @@
 #include "gm_pipeline.hpp"
 
 #include "../game/gm_model.hpp"
-#include "../../util/gm_logger.hpp"
-#include "../../gm_game.hpp"
+
+#include <util/file/gm_file.hpp>
+#include <util/logger/gm_logger.hpp>
 
 #include <fstream>
 
@@ -47,8 +48,8 @@ namespace game {
         if (configInfo.pipelineLayout == VK_NULL_HANDLE) Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
         if (configInfo.renderPass == VK_NULL_HANDLE) Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
 
-        auto vertCode = readFile(Game::executableDir + vertFilepath);
-        auto fragCode = readFile(Game::executableDir + fragFilePath);
+        auto vertCode = readFile(File::executableDir() + vertFilepath);
+        auto fragCode = readFile(File::executableDir() + fragFilePath);
 
         createShaderModule(vertCode, &vertShaderModule_);
         createShaderModule(fragCode, &fragShaderModule_);

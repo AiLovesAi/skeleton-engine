@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../window/gm_window.hpp"
-#include "../../game/entities/gm_entity.hpp"
-#include "../../game/world/gm_world.hpp"
+
+#include <server/entities/gm_entity.hpp>
+#include <server/world/gm_world.hpp>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

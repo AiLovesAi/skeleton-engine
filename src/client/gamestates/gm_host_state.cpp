@@ -25,7 +25,7 @@ namespace game {
         renderer.beginSwapChainRenderPass(commandBuffer);
 
         // Render world
-        clientComponents.render();
+        clientComponents_.render();
 
         renderer.endSwapChainRenderPass(commandBuffer);
         renderer.endFrame();

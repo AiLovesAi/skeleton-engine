@@ -2,7 +2,8 @@
 
 #include "gm_client_state.hpp"
 #include "gm_host_state.hpp"
-#include "../sides/gm_server.hpp"
+
+#include <server/gm_server.hpp>
 
 namespace game {
     MenuState::MenuState() {

@@ -1,14 +1,10 @@
 # Custom
-CMakeFiles/
-lib/
-assets/
-*.cmake
-*.bak
-Makefile
-CMakeCache.txt
 .vscode/
-logs/
-*.exe
+.git/
+CMakeFiles/
+build/
+lib/
+products/
 *.zip
 *.ico
 

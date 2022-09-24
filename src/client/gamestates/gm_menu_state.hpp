@@ -1,8 +1,8 @@
 #pragma once
 
 #include "gm_game_state.hpp"
-#include "../sides/gm_client.hpp"
-#include "../../graphics/vulkan/gm_renderer.hpp"
+#include "../gm_client.hpp"
+#include "../graphics/vulkan/gm_renderer.hpp"
 
 namespace game {
     class MenuState : public GameState {

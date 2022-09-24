@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 namespace game {
@@ -19,18 +20,26 @@ namespace game {
         const uint32_t &RCX() const {return regs[2];}
         const uint32_t &RDX() const {return regs[3];}
     };
-    
-    class File {
+
+    class System {
         public:
+            // Functions
             static void init();
 
-            static void const ensureParentDir(const std::string& path);
-            static std::string const asAscii(const std::string& str);
-            static bool const isAscii(const std::string& str);
-            
+            static void setGPU(const std::string& GPU) { GPU_ = GPU; }
+
+            static std::string OS() { return OS_; }
+            static std::string CPU() { return CPU_; }
+            static std::string GPU() { return GPU_; }
+        
         private:
-            static void getOS();
-            static void getCPU();
-            static void getExecutableDir();
+            // Functions
+            static void findOS();
+            static void findCPU();
+
+            // Variables
+            static std::string OS_;
+            static std::string CPU_;
+            static std::string GPU_;
     };
 }

@@ -2,7 +2,7 @@
 
 #include "gm_ai_component.hpp"
 #include "gm_transform_component.hpp"
-#include "../entities/gm_entity.hpp"
+#include <server/entities/gm_entity.hpp>
 
 namespace game {
     class ServerComponents{

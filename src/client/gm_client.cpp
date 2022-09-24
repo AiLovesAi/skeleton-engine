@@ -1,11 +1,11 @@
 #include "gm_client.hpp"
 
-#include "../states/gm_menu_state.hpp"
-#include "../states/gm_host_state.hpp"
-#include "../states/gm_client_state.hpp"
-#include "../../gm_game.hpp"
-#include "../../util/gm_logger.hpp"
-#include "../../graphics/vulkan/gm_swap_chain.hpp"
+#include "gamestates/gm_menu_state.hpp"
+#include "gamestates/gm_host_state.hpp"
+#include "gamestates/gm_client_state.hpp"
+#include "graphics/vulkan/gm_swap_chain.hpp"
+
+#include <util/logger/gm_logger.hpp>
 
 #include <thread>
 
@@ -20,8 +20,6 @@ namespace game {
             .build();
         
         gameState_ = new MenuState();
-
-        Game::running = true;
     }
 
     Client::~Client() {
@@ -55,12 +53,13 @@ namespace game {
         // Load game
 
         // Start game
+        Core::running = true;
         window_.show();
 
         // Main game loop
         auto previousTime = std::chrono::high_resolution_clock::now();
         double lag = 0.0f;
-        while (Game::running && !window_.shouldClose()) {
+        while (Core::running && !window_.shouldClose()) {
             glfwPollEvents();
 
             auto currentTime = std::chrono::high_resolution_clock::now();
@@ -69,17 +68,18 @@ namespace game {
             lag += elapsedTime;
 
             // Prioritize game update when behind, skip to rendering when ahead
-            while (lag >= Game::MS_PER_TICK) {
+            while (lag >= Core::MS_PER_TICK) {
                 gameState_->update();
-                lag -= Game::MS_PER_TICK;
+                lag -= Core::MS_PER_TICK;
             }
 
             // Render object positions between ticks (input is percentage of next tick)
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
-            gameState_->render(lag / Game::MS_PER_TICK);
+            gameState_->render(lag / Core::MS_PER_TICK);
 
             if (nextGameState_) {
+                Logger::log(LOG_INFO, "Changing state.");
                 delete gameState_;
                 gameState_ = nextGameState_;
                 nextGameState_ = nullptr;
@@ -88,7 +88,7 @@ namespace game {
         }
 
         // Unload game
-        Game::running = false;
+        Core::running = false;
         delete gameState_;
 
         // Wait for device to stop

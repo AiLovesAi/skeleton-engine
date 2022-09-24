@@ -1,6 +1,6 @@
 #include "gm_camera.hpp"
 
-#include "../../util/gm_logger.hpp"
+#include <util/logger/gm_logger.hpp>
 
 namespace game {
     Camera::Camera(
@@ -16,7 +16,7 @@ namespace game {
 
     void Camera::update() {
         if (window_.wasResized()) updatePerspective();
-        if (world_.physicsPool().get(entity_).dirty()) updateView();
+        if (world_.serverComponents().transform().get(entity_).dirty()) updateView();
     }
 
     void Camera::updatePerspective() {

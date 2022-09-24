@@ -1,7 +1,9 @@
 #include "gm_logger.hpp"
 
-#include "../gm_game.hpp"
-#include "gm_file.hpp"
+#include "../gm_core.hpp"
+#include "../file/gm_file.hpp"
+#include "../system/gm_system.hpp"
+#include "../system/gm_threads.hpp"
 
 #include <csignal>
 #include <future>
@@ -35,8 +37,8 @@ namespace game {
     void Logger::setPaths(const std::string& logPath, const std::string& crashPath) {
         mtx_.lock();
 
-        Logger::logPath_ = Game::executableDir + logPath;
-        Logger::crashPath_ = Game::executableDir + crashPath;
+        Logger::logPath_ = File::executableDir() + logPath;
+        Logger::crashPath_ = File::executableDir() + crashPath;
         File::ensureParentDir(Logger::logPath_);
         File::ensureParentDir(Logger::crashPath_);
 
@@ -88,15 +90,13 @@ namespace game {
         strftime(fmt, sizeof(fmt), "[%H:%M:%S+%%06u]", now);
         snprintf(timeBuffer, sizeof(timeBuffer), fmt, tv.tv_usec);
 
-        std::string threadName = Game::gameThreads.contains(threadId) ? Game::gameThreads.find(threadId)->second : "Async";
-
         mtx_.lock();
 
         std::stringstream msg;
         // [HH::MM:SS+UUU] [THREAD/TYPE]: MESSAGE
         msg << timeBuffer
             << " ["
-            << threadName << "/" << LOG_TYPE_STRINGS[logType] << "]: "
+            << Threads::threadName(threadId) << "/" << LOG_TYPE_STRINGS[logType] << "]: "
             << message << "\n";
 
         std::ofstream file;
@@ -119,10 +119,10 @@ namespace game {
             << (now->tm_hour % 12) << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << " " << ((now->tm_hour < 12) ? "AM\n" : "PM\n");
         msg << "Description: " << message << "\n\n";
         msg << "-- System Details --\nDetails:\n";
-        msg << "Operating System: " << Game::OSStr << "\n";
-        msg << "CPU: " << Game::CPUStr << "\n";
-        msg << "Graphics device: " << Game::graphicsDeviceName << "\n";
-        msg << "Thread: " << Game::gameThreads.find(std::this_thread::get_id())->second << "\n";
+        msg << "Operating System: " << System::OS() << "\n";
+        msg << "CPU: " << System::CPU() << "\n";
+        msg << "Graphics device: " << System::GPU() << "\n";
+        msg << "Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
         std::cerr << msg.str();
 
         mtx_.lock();
@@ -132,7 +132,7 @@ namespace game {
         file.close();
         mtx_.unlock();
 
-        Game::running = false;
+        Core::running = false;
         throw std::runtime_error(message);
     }
 }

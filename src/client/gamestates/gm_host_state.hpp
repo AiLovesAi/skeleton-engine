@@ -3,9 +3,10 @@
 #include "gm_game_state.hpp"
 #include "../gm_client.hpp"
 #include "../components/gm_client_components.hpp"
-#include "../world/gm_world.hpp"
 #include "../graphics/vulkan/gm_renderer.hpp"
 #include "../graphics/game/gm_camera.hpp"
+
+#include <server/world/gm_world.hpp>
 
 #include <string>
 #include <vector>

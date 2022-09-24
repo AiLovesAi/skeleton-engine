@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../entities/gm_entity.hpp"
+#include <server/entities/gm_entity.hpp>
 
 #include <string>
 #include <unordered_map>

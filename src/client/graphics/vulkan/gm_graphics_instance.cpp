@@ -1,7 +1,7 @@
 #include "gm_graphics_instance.hpp"
 
-#include "../../gm_game.hpp"
-#include "../../util/gm_logger.hpp"
+#include <util/gm_core.hpp>
+#include <util/logger/gm_logger.hpp>
 
 #include <unordered_set>
 
@@ -88,7 +88,7 @@ namespace game {
 
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = Game::TITLE;
+        appInfo.pApplicationName = Core::TITLE.c_str();
         appInfo.applicationVersion = 0;
         appInfo.pEngineName = "Vulkan";
         appInfo.engineVersion = 0;

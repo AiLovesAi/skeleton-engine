@@ -1,12 +1,13 @@
 #pragma once
 
-#include "../states/gm_game_state.hpp"
-#include "../../gm_game.hpp"
-#include "../../graphics/vulkan/gm_graphics_device.hpp"
-#include "../../graphics/vulkan/gm_graphics_instance.hpp"
-#include "../../graphics/vulkan/gm_renderer.hpp"
-#include "../../graphics/window/gm_window.hpp"
-#include "../../graphics/vulkan/gm_descriptors.hpp"
+#include "gamestates/gm_game_state.hpp"
+#include "graphics/vulkan/gm_graphics_device.hpp"
+#include "graphics/vulkan/gm_graphics_instance.hpp"
+#include "graphics/vulkan/gm_renderer.hpp"
+#include "graphics/window/gm_window.hpp"
+#include "graphics/vulkan/gm_descriptors.hpp"
+
+#include <util/gm_core.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -45,7 +46,7 @@ namespace game {
             Client();
 
             // Variables
-            Window window_{Game::TITLE};
+            Window window_{Core::TITLE};
             GraphicsInstance graphicsInstance_{window_};
             GraphicsDevice graphicsDevice_{graphicsInstance_};
             Renderer renderer_{graphicsInstance_, graphicsDevice_, window_};

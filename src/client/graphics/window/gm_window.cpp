@@ -1,7 +1,7 @@
 #include "gm_window.hpp"
 
-#include "../../gm_game.hpp"
-#include "../../util/gm_logger.hpp"
+#include <util/file/gm_file.hpp>
+#include <util/logger/gm_logger.hpp>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -62,7 +62,7 @@ namespace game {
 
         // Get icon
         GLFWimage icons[1];
-        icons[0].pixels = stbi_load("assets/icon.png", &icons[0].width, &icons[0].height, 0, 4);
+        icons[0].pixels = stbi_load(File::executableDir().append("../assets/icon.png").c_str(), &icons[0].width, &icons[0].height, 0, 4);
         glfwSetWindowIcon(window_, 1, icons);
         stbi_image_free(icons[0].pixels);
 

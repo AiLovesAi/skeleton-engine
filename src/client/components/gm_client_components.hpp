@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gm_render_component.hpp"
-#include "../entities/gm_entity.hpp"
+#include <server/entities/gm_entity.hpp>
 
 namespace game {
     class ClientComponents {

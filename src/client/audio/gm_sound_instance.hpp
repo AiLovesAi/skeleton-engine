@@ -1,16 +1,21 @@
 #pragma once
 
 #include "gm_sound.hpp"
-#include "../game/components/gm_physics_component.hpp"
+
+#include <server/entities/gm_entity.hpp>
+
+#include <unordered_map>
+#include <vector>
 
 namespace game {
     class SoundInstance {
         public:
-            // Functions
-            void init();
+            // Constructors
+            SoundInstance(const Entity entity);
 
+            // Functions
             Sound* sound() const { return sound_; }
-            PhysicsComponent* physics() const { return physics_; }
+            Entity entity() const { return entity_; }
             float pitch() const { return pitch_; }
             float volume() const { return volume_; }
             float position() const { return position_; }
@@ -18,20 +23,31 @@ namespace game {
         private:
             // Variables
             Sound* sound_ = nullptr;
-            PhysicsComponent* physics_ = nullptr;
+            Entity entity_;
 
             float pitch_ = 1.f;
             float volume_ = 1.f;
             size_t position_ = 0; // Position in sound data
     };
-
-    class SoundInstancePool {
+    
+    class SoundPool {
         public:
-            SoundInstance* createObject();
-            void destroyObject(const int index);
+            // Constructors
+            SoundPool(EntityPool& entityPool, const size_t initialCapacity)
+                : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
+
+            // Functions
+            void create(SoundInstance& instance);
+            void destroy(const size_t index);
+            SoundInstance& get(const Entity entity) { return pool_[indexMap_[entity]]; }
+            size_t size() const { return size_; };
+
         private:
-            static constexpr int POOL_SIZE = 1024;
-            SoundInstance pool_[POOL_SIZE];
-            int numSounds_ = 0;
+            // Variables
+            EntityPool& entityPool_;
+            size_t initialCapacity_;
+            std::unordered_map<Entity, size_t> indexMap_;
+            std::vector<SoundInstance> pool_{initialCapacity_};
+            size_t size_ = 0;
     };
 }

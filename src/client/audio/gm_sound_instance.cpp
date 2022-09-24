@@ -1,27 +1,24 @@
 #include "gm_sound_instance.hpp"
 
 namespace game {
-    // SoundInstancePool //
-    SoundInstance* SoundInstancePool::createObject() {
-        // If there is no room in the pool, the caller will have to either
-        // create a new one or have nothing created.
-        if (numSounds_ >= POOL_SIZE) return nullptr;
-
-        SoundInstance* newComponent = &pool_[numSounds_++];
-        newComponent->init();
-        
-        return newComponent;
-    }
-
-    void SoundInstancePool::destroyObject(const int index) {
-        // Swap with last active object and deactivate
-        SoundInstance temp = pool_[--numSounds_];
-        pool_[numSounds_] = pool_[index];
-        pool_[index] = temp;
-    }
-    
     // SoundInstance //
-    void SoundInstance::init() {
+    SoundInstance::SoundInstance(const Entity entity) : entity_{entity} {
 
+    }
+
+    // SoundPool //
+    void SoundPool::create(SoundInstance& instance) {
+        pool_.push_back(instance);
+        indexMap_[instance.entity()] = size_++;
+    }
+
+    void SoundPool::destroy(const size_t index) {
+        Entity entity = pool_[index].entity();
+        Entity last = pool_[--size_].entity();
+        std::swap(pool_[index], pool_[size_]); // Swap last entity to index
+        indexMap_[last] = index; // Update the index of the moved entity
+        indexMap_.erase(entity); // Release the index held by the index map
+        pool_.erase(pool_.end() - 1); // Free the destroyed instance's data from the pool
+        entityPool_.destroy(entity); // Kill the entity
     }
 }

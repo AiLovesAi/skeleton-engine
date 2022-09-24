@@ -1,6 +1,6 @@
 #include "gm_client_state.hpp"
 
-#include "../sides/gm_server.hpp"
+#include <server/gm_server.hpp>
 
 #include <limits>
 

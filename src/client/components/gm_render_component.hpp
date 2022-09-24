@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gm_physics_component.hpp"
-#include "../entities/gm_entity.hpp"
+#include <server/components/gm_physics_component.hpp>
+#include <server/entities/gm_entity.hpp>
 
 #include <string>
 #include <unordered_map>
