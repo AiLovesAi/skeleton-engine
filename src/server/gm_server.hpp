@@ -12,10 +12,7 @@ namespace game {
             Server &operator=(Server&&) = default;
 
             // Functions
-            static Server& instance() {
-                static Server* instance = new Server();
-                return *instance;
-            }
+            static Server& instance();
             void start();
         
         private:

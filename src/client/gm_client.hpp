@@ -27,10 +27,7 @@ namespace game {
             Client &operator=(Client&&) = default;
 
             // Functions
-            static Client& instance() {
-                static Client *instance_ = new Client();
-                return *instance_;
-            }
+            static Client& instance();
             static void init();
             void start();
 

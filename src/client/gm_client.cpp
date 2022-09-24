@@ -10,6 +10,11 @@
 #include <thread>
 
 namespace game {
+    Client& Client::instance() {
+        static Client *instance_ = new Client();
+        return *instance_;
+    }
+    
     Client::Client() {
         // Initialize sound
         // TODO
