@@ -5,7 +5,7 @@
 #include "gm_swap_chain.hpp"
 #include "../window/gm_window.hpp"
 
-#include <util/logger/gm_logger.hpp>
+#include <core/logger/gm_logger.hpp>
 
 namespace game {
     class Renderer {

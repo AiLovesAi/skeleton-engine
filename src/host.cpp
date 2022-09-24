@@ -1,12 +1,12 @@
-#include <util/gm_core.hpp>
-#include <util/logger/gm_logger.hpp>
+#include <core/gm_core.hpp>
+#include <core/logger/gm_logger.hpp>
 #include <server/gm_server.hpp>
 
 using namespace game;
 
 int main (int argc, char** argv)
 {
-    Core::init();
+    Core::init("../logs/server_latest.log", "../logs/server_crash.txt");
     
     Server& server = Server::instance();
     server.start();

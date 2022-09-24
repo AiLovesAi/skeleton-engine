@@ -2,8 +2,8 @@
 
 #include "../game/gm_model.hpp"
 
-#include <util/file/gm_file.hpp>
-#include <util/logger/gm_logger.hpp>
+#include <core/file/gm_file.hpp>
+#include <core/logger/gm_logger.hpp>
 
 #include <fstream>
 

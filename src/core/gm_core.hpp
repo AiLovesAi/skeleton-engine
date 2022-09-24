@@ -6,7 +6,7 @@ namespace game {
     class Core{
         public:
             // Functions
-            static void init();
+            static void init(const std::string& logFile, const std::string& crashFile);
 
             // Variables
             static constexpr char EMPTYSTR[] = "NULL";

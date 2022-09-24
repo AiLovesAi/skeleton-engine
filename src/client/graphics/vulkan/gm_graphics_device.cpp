@@ -1,7 +1,7 @@
 #include "gm_graphics_device.hpp"
 
-#include <util/system/gm_system.hpp>
-#include <util/logger/gm_logger.hpp>
+#include <core/system/gm_system.hpp>
+#include <core/logger/gm_logger.hpp>
 
 #include <set>
 

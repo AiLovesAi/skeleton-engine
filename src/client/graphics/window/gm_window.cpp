@@ -1,7 +1,7 @@
 #include "gm_window.hpp"
 
-#include <util/file/gm_file.hpp>
-#include <util/logger/gm_logger.hpp>
+#include <core/file/gm_file.hpp>
+#include <core/logger/gm_logger.hpp>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION

@@ -5,7 +5,7 @@
 #include "gamestates/gm_client_state.hpp"
 #include "graphics/vulkan/gm_swap_chain.hpp"
 
-#include <util/logger/gm_logger.hpp>
+#include <core/logger/gm_logger.hpp>
 
 #include <thread>
 
@@ -14,7 +14,7 @@ namespace game {
         static Client *instance_ = new Client();
         return *instance_;
     }
-    
+
     Client::Client() {
         // Initialize sound
         // TODO

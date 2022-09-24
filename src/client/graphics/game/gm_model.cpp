@@ -1,6 +1,6 @@
 #include "gm_model.hpp"
 
-#include <util/logger/gm_logger.hpp>
+#include <core/logger/gm_logger.hpp>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>

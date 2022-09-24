@@ -1,6 +1,6 @@
 #include "gm_swap_chain.hpp"
 
-#include <util/logger/gm_logger.hpp>
+#include <core/logger/gm_logger.hpp>
 
 #include <array>
 #include <cstring>

@@ -19,5 +19,7 @@ namespace game {
             // Constructors
             Server();
             ~Server();
+
+            // Variables
     };
 }

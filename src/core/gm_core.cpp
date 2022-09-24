@@ -13,13 +13,13 @@ namespace game {
     std::string Core::VERSION = Core::EMPTYSTR;
     std::atomic<bool> Core::running = false;
 
-    void Core::init() {
+    void Core::init(const std::string& logFile, const std::string& crashFile) {
         Threads::registerThread(std::this_thread::get_id(), "Main");
         std::srand(std::time(0));
 
         System::init();
         File::init();
-        Logger::init("../logs/latest.log", "../logs/crash.txt");
+        Logger::init(logFile, crashFile);
 
         Logger::log(LOG_INFO, "Using CPU: " + System::CPU());
     }
