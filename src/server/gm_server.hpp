@@ -1,5 +1,8 @@
 #pragma once
 
+#include "entities/gm_entity.hpp"
+#include "world/gm_world.hpp"
+
 #include <map>
 
 namespace game {
@@ -21,5 +24,8 @@ namespace game {
             ~Server();
 
             // Variables
+            EntityPool entityPool_;
+
+            World world_{entityPool_};
     };
 }
