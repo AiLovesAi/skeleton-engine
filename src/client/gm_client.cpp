@@ -52,6 +52,8 @@ namespace game {
     }
 
     void Client::start() {
+        Logger::log(LOG_INFO, "Starting client...");
+
         // Spawn threads
         //std::thread soundThread(sound, this);
 
@@ -74,6 +76,13 @@ namespace game {
 
             // Prioritize game update when behind, skip to rendering when ahead
             while (lag >= Core::MS_PER_TICK) {
+                if (nextGameState_) {
+                    delete gameState_;
+                    gameState_ = nextGameState_;
+                    nextGameState_ = nullptr;
+                    previousTime = std::chrono::high_resolution_clock::now();
+                }
+
                 gameState_->update();
                 lag -= Core::MS_PER_TICK;
             }
@@ -82,14 +91,6 @@ namespace game {
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
             gameState_->render(lag / Core::MS_PER_TICK);
-
-            if (nextGameState_) {
-                Logger::log(LOG_INFO, "Changing state.");
-                delete gameState_;
-                gameState_ = nextGameState_;
-                nextGameState_ = nullptr;
-                previousTime = std::chrono::high_resolution_clock::now();
-            }
         }
 
         // Unload game
