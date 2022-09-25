@@ -42,8 +42,7 @@ else()
 
 set(CMAKE_C_FLAGS
 	-Wall -Werror -Wno-volatile
-	-O0 -pipe -m64 -march=native
-	-g -DDEBUG
+	-Ofast -Os -pipe -m64 -march=native
 )
 set(CMAKE_CPP_FLAGS
 	${CMAKE_C_FLAGS}
