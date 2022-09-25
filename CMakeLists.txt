@@ -26,7 +26,7 @@ if(CMAKE_BUILD_TYPE EQUAL DEBUG)
 
 set(CMAKE_C_FLAGS
 	-Wall -Werror -Wno-volatile
-	-O0 -pipe -m64 -march=native
+	-O0 -pipe -m64
 	-g -DDEBUG
 )
 set(CMAKE_CPP_FLAGS
@@ -42,7 +42,7 @@ else()
 
 set(CMAKE_C_FLAGS
 	-Wall -Werror -Wno-volatile
-	-Ofast -Os -pipe -m64 -march=native
+	-Ofast -Os -pipe -m64
 )
 set(CMAKE_CPP_FLAGS
 	${CMAKE_C_FLAGS}
