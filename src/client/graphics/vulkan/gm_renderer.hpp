@@ -5,8 +5,6 @@
 #include "gm_swap_chain.hpp"
 #include "../window/gm_window.hpp"
 
-#include <core/logger/gm_logger.hpp>
-
 namespace game {
     class Renderer {
         public:
@@ -20,22 +18,13 @@ namespace game {
 
             VkRenderPass renderPass() const { return swapChain_->renderPass(); }
             float aspectRatio() const { return swapChain_->extentAspectRatio(); }
-            bool isFrameInProgress() const { return isFrameStarted_; }
-
-            VkCommandBuffer currentCommandBuffer() const {
-                if(!isFrameStarted_) Logger::crash("Cannot get command buffer when frame is not in progress.");
-                return commandBuffers_[currentFrameIndex_];
-            }
-
-            int frameIndex() const {
-                if(!isFrameStarted_) Logger::crash("Cannot get frame index when frame is not in progress.");
-                return currentFrameIndex_;
-            }
+            VkCommandBuffer currentCommandBuffer() const { return commandBuffers_[currentFrameIndex_]; }
+            int frameIndex() const { return currentFrameIndex_; }
 
             VkCommandBuffer beginFrame();
             void endFrame();
             void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-            void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+            void endSwapChainRenderPass(VkCommandBuffer commandBuffer) { vkCmdEndRenderPass(commandBuffer); }
 
         private:
             void createCommandBuffers();
@@ -45,11 +34,16 @@ namespace game {
             GraphicsInstance& graphicsInstance_;
             GraphicsDevice& graphicsDevice_;
             Window& window_;
+
             std::unique_ptr<SwapChain> swapChain_;
             std::vector<VkCommandBuffer> commandBuffers_;
+            VkViewport viewport_{};
+            VkRect2D scissor_{};
+            std::array<VkClearValue, 2> clearValues_{};
+            VkCommandBufferBeginInfo commandBufferInfo_{};
+            VkRenderPassBeginInfo renderPassInfo_{};
 
             uint32_t currentImageIndex_;
             int currentFrameIndex_;
-            bool isFrameStarted_ = false;
     };
 }
