@@ -12,9 +12,11 @@ extern "C" {
     #endif
     
     inline int lastIndexOfString(const char* str, const char c) {
-        for (int i = strlen(str) - 1; i > 0; i--) {
+        int i;
+        for (i = strlen(str) - 1; i > 0; i--) {
             if (str[i] == c) return i;
         }
+        return i;
     }
 
     int cmdOptionExists(char** argv, const int argc, const char* option) {
@@ -28,7 +30,7 @@ extern "C" {
     {
     #ifdef _WIN32
         char buffer[MAX_PATH];
-        GetModuleFileName(NULL, buffer, sizeof(buffer));
+        GetModuleFileNameA(NULL, buffer, sizeof(buffer));
         int index = lastIndexOfString(buffer, '\\');
         buffer[index + 1] = '\0';
     #else
