@@ -27,7 +27,7 @@ if(CMAKE_BUILD_TYPE EQUAL DEBUG)
 set(CMAKE_CPP_FLAGS
 	-Wall -Werror -Wno-volatile
 	-O0 -pipe -m64
-	-g -DDEBUG
+	-Og -g -DDEBUG
 	-std=c++23
 )
 set(CMAKE_L_FLAGS
@@ -39,12 +39,22 @@ else()
 
 set(CMAKE_CPP_FLAGS
 	-Wall -Werror -Wno-volatile
-	-Ofast -Os -pipe -m64
+	-Ofast -pipe -m64
+	-Os -fdata-sections -ffunction-sections
 	-std=c++23
 )
 set(CMAKE_L_FLAGS
-	-mwindows
+    -s -Wl,--gc-sections
 )
+
+if(WIN32)
+
+set(CMAKE_L_FLAGS
+    ${CMAKE_L_FLAGS}
+	-mwindows
+)	
+
+endif()
 
 endif()
 
