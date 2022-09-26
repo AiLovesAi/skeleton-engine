@@ -69,7 +69,7 @@ namespace game {
             TransformPool(EntityPool& entityPool, size_t initialCapacity) : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
 
             // Functions
-            void create(TransformComponent& component);
+            void create(const Entity entity);
             void destroy(const size_t index);
             TransformComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
             size_t size() const { return size_; };

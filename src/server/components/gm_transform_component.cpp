@@ -1,9 +1,9 @@
 #include "gm_transform_component.hpp"
 
 namespace game {
-    void TransformPool::create(TransformComponent& component) {
-        pool_.push_back(component);
-        indexMap_[component.entity()] = size_++;
+    void TransformPool::create(const Entity entity) {
+        pool_.emplace_back(entity);
+        indexMap_[entity] = size_++;
     }
 
     void TransformPool::destroy(const size_t index) {

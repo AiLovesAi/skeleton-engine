@@ -29,7 +29,7 @@ namespace game {
                 : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
 
             // Functions
-            void create(AIComponent& component);
+            void create(const Entity entity);
             void destroy(const size_t index);
             AIComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
             size_t size() const { return size_; };

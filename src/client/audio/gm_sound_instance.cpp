@@ -7,9 +7,9 @@ namespace game {
     }
 
     // SoundPool //
-    void SoundPool::create(SoundInstance& instance) {
-        pool_.push_back(instance);
-        indexMap_[instance.entity()] = size_++;
+    void SoundPool::create(const Entity entity) {
+        pool_.emplace_back(entity);
+        indexMap_[entity] = size_++;
     }
 
     void SoundPool::destroy(const size_t index) {

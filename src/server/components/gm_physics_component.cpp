@@ -11,9 +11,9 @@ namespace game {
     }
 
     // PhysicsPool //
-    void PhysicsPool::create(PhysicsComponent& component) {
-        pool_.push_back(component);
-        indexMap_[component.entity()] = size_++;
+    void PhysicsPool::create(const Entity entity) {
+        pool_.emplace_back(entity);
+        indexMap_[entity] = size_++;
     }
 
     void PhysicsPool::destroy(const size_t index) {

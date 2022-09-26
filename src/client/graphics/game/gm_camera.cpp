@@ -11,6 +11,7 @@ namespace game {
         float clipNear,
         float clipFar
     ) : entity_{entity}, world_{world}, window_{window}, fov_{fov}, clipNear_{clipNear}, clipFar_{clipFar} {
+        world_.serverComponents().transform().create(entity);
         updatePerspective();
     }
 

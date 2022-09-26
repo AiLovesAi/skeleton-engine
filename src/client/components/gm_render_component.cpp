@@ -13,9 +13,9 @@ namespace game {
     }
 
     // RenderPool //
-    void RenderPool::create(RenderComponent& component) {
-        pool_.push_back(component);
-        indexMap_[component.entity()] = size_++;
+    void RenderPool::create(const Entity entity) {
+        pool_.emplace_back(entity);
+        indexMap_[entity] = size_++;
     }
 
     void RenderPool::destroy(const size_t index) {
