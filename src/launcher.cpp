@@ -6,7 +6,16 @@ extern "C" {
 
     #ifdef _WIN32
     #include <windows.h>
+    #else
+    #include <unistd.h>
+    #include <limits.h>
     #endif
+    
+    inline int lastIndexOfString(const char* str, const char c) {
+        for (int i = strlen(str) - 1; i > 0; i--) {
+            if (str[i] == c) return i;
+        }
+    }
 
     int cmdOptionExists(char** argv, const int argc, const char* option) {
         for (int i = 1; i < argc && argv[i][0] == '-'; i++) {
@@ -17,27 +26,47 @@ extern "C" {
 
     int main (int argc, char** argv)
     {
-        // TODO Use absolute directory and ensure files exist
+    #ifdef _WIN32
+        char buffer[MAX_PATH];
+        GetModuleFileName(NULL, buffer, sizeof(buffer));
+        int index = lastIndexOfString(buffer, '\\');
+        buffer[index + 1] = '\0';
+    #else
+        char buffer[PATH_MAX];
+        if (argv[0] == '/') {
+            strncpy(buffer, sizeof(buffer), argv[0]);
+        } else {
+            getcwd(buffer, sizeof(buffer));
+            int len = strlen(buffer);
+            if (buffer[len - 1] != '/') {
+                buffer[len] = '/';
+            }
+            strcat(buffer, argv[0]);
+        }
+        
+        int index = lastIndexOfString(buffer, '/');
+        buffer[index + 1] = '\0';
+    #endif
         // Check if server
         if (cmdOptionExists(argv, argc, "--server")) {
             // Launch Server
-            printf("Launching server.\n");
     #ifdef _WIN32
-            WinExec("./bin/host.exe", SW_SHOW);
+            strcat(buffer, "bin/host.exe");
+            WinExec(buffer, SW_SHOW);
     #else
-            system("./bin/host");
+            strcat(buffer, "bin/host");
+            system(buffer);
     #endif
         } else {
             // Launch client
-            printf("Launching client.\n");
     #ifdef _WIN32
-            WinExec("./bin/game.exe", SW_HIDE);
+            strcat(buffer, "bin/game.exe");
+            WinExec(buffer, SW_HIDE);
     #else
-            system("./bin/game");
+            strcat(buffer, "bin/game");
+            system(buffer);
     #endif
         }
-
-        puts("Exited.\n");
         
         return EXIT_SUCCESS;
     }
