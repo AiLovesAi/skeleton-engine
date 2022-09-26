@@ -10,7 +10,7 @@ for %%F in (shaders/*) do (
 mkdir build
 cd build
 cmake ^
- -G Ninja ^
+ -G "MinGW Makefiles" ^
  -DCMAKE_CXX_COMPILER=g++ ^
  -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
  ..
