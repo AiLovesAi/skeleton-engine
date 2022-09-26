@@ -14,7 +14,7 @@ cmake ^
  -DCMAKE_CXX_COMPILER=g++ ^
  -DCMAKE_BUILD_TYPE="%BUILD_TYPE%" ^
  ..
-ninja
+mingw32-make
 
 :: Copy all outputs to products
 for /R . %%f in (*.dll) do copy %%f "..\products\bin\"
