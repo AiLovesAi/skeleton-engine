@@ -41,6 +41,14 @@ namespace game {
         }
     }
 
+    void const File::ensureExistence(const std::string& file) {
+        if (!fs::exists(file)) {
+            std::stringstream msg;
+            msg << "File not found: " << file;
+            Logger::crash(msg.str());
+        }
+    }
+
     std::string const File::asAscii(const std::string& str) {
         std::stringstream res;
 
