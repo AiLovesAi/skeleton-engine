@@ -79,7 +79,7 @@ namespace game {
             graphicsDevice_.device(),
             swapChain_,
             std::numeric_limits<uint64_t>::max(),
-            imageAvailableSemaphores_[currentFrame_],  // must be a not signaled semaphore
+            imageAvailableSemaphores_[currentFrame_],  // Must be a not signaled semaphore
             VK_NULL_HANDLE,
             imageIndex
         );
@@ -194,18 +194,19 @@ namespace game {
 
     void SwapChain::createImageViews() {
         imageViews_.resize(images_.size());
+    
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = imageFormat_;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
 
         for (size_t i = 0; i < images_.size(); i++) {
-            VkImageViewCreateInfo viewInfo{};
-            viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             viewInfo.image = images_[i];
-            viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            viewInfo.format = imageFormat_;
-            viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            viewInfo.subresourceRange.baseMipLevel = 0;
-            viewInfo.subresourceRange.levelCount = 1;
-            viewInfo.subresourceRange.baseArrayLayer = 0;
-            viewInfo.subresourceRange.layerCount = 1;
 
             if (vkCreateImageView(graphicsDevice_.device(), &viewInfo, nullptr, &imageViews_[i]) != VK_SUCCESS) {
                 Logger::crash("Failed to create texture image view.");
@@ -273,26 +274,20 @@ namespace game {
 
     void SwapChain::createFramebuffers() {
         framebuffers_.resize(imageCount());
+
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = renderPass_;
+        framebufferInfo.width = width();
+        framebufferInfo.height = height();
+        framebufferInfo.layers = 1;
+
         for (size_t i = 0; i < imageCount(); i++) {
             std::array<VkImageView, 2> attachments = {imageViews_[i], depthImageViews_[i]};
-
-            VkExtent2D swapChainExtent = extent();
-            VkFramebufferCreateInfo framebufferInfo = {};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = renderPass_;
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();
-            framebufferInfo.width = swapChainExtent.width;
-            framebufferInfo.height = swapChainExtent.height;
-            framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(
-                    graphicsDevice_.device(),
-                    &framebufferInfo,
-                    nullptr,
-                    &framebuffers_[i]
-                ) != VK_SUCCESS
-            ) {
+            if (vkCreateFramebuffer(graphicsDevice_.device(), &framebufferInfo, nullptr, &framebuffers_[i]) != VK_SUCCESS) {
                 Logger::crash("Failed to create framebuffer.");
             }
         }
@@ -384,19 +379,19 @@ namespace game {
     }
 
     VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) {
-        /*for (const auto &availablePresentMode : availablePresentModes) {
+        /*
+        for (const auto &availablePresentMode : availablePresentModes) {
             switch (availablePresentMode) {
-            case VK_PRESENT_MODE_MAILBOX_KHR:
-                Logger::log(LOG_INFO, "Present mode: Mailbox");
-                return availablePresentMode;
-            case VK_PRESENT_MODE_IMMEDIATE_KHR:
-                Logger::log(LOG_INFO, "Present mode: Immediate");
-                return availablePresentMode;
+                case VK_PRESENT_MODE_MAILBOX_KHR:
+                    Logger::log(LOG_INFO, "Present mode: Mailbox");
+                    return availablePresentMode;
+                case VK_PRESENT_MODE_IMMEDIATE_KHR:
+                    Logger::log(LOG_INFO, "Present mode: Immediate");
+                    return availablePresentMode;
             }
         }
         */
-
-        Logger::log(LOG_INFO, "Present mode: V-Sync");
+        // TODO Choose from graphics settings file
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
@@ -414,13 +409,5 @@ namespace game {
 
             return windowExtent;
         }
-    }
-
-    VkFormat SwapChain::findDepthFormat() {
-        return graphicsDevice_.findSupportedFormat(
-            {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
-            VK_IMAGE_TILING_OPTIMAL,
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-        );
     }
 }

@@ -33,7 +33,13 @@ namespace game {
             float extentAspectRatio() {
                 return static_cast<float>(extent_.width) / static_cast<float>(extent_.height);
             }
-            VkFormat findDepthFormat();
+            VkFormat findDepthFormat() {
+                return graphicsDevice_.findSupportedFormat(
+                    {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+                    VK_IMAGE_TILING_OPTIMAL,
+                    VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+                );
+            }
 
             VkResult acquireNextImage(uint32_t* imageIndex);
             VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
