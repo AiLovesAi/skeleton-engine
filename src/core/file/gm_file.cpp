@@ -4,10 +4,12 @@
 #include "../logger/gm_logger.hpp"
 
 #include <filesystem>
+#include <fstream>
 #include <sstream>
 #include <bit>
 #include <cstring>
 #include <vector>
+#include <mutex>
 
 #if defined(_WIN32)
   #include <windows.h>
@@ -28,6 +30,7 @@ namespace fs = std::filesystem;
 
 namespace game {
     std::string File::executableDir_ = Core::EMPTYSTR;
+    std::mutex mtx;
 
     void File::init() {
         findExecutableDir();
@@ -41,12 +44,42 @@ namespace game {
         }
     }
 
-    void const File::ensureExistence(const std::string& file) {
+    std::string const File::readFile(const std::string& file) {
+        std::stringstream data;
+
         if (!fs::exists(file)) {
+            data << "File not found: " << file;
+            Logger::crash(data.str());
+        }
+
+        mtx.lock();
+        std::ifstream f;
+        f.open(file, std::ios::in | std::ios::binary);
+
+        std::string line;
+        while (std::getline(f, line)) {
+            data << line;
+        }
+
+        f.close();
+        mtx.unlock();
+
+        return data.str();
+    }
+
+    void const File::writeFile(const std::string& file, const std::string& data, const bool append) {
+        if (append && !fs::exists(file)) {
             std::stringstream msg;
             msg << "File not found: " << file;
             Logger::crash(msg.str());
         }
+
+        mtx.lock();
+        std::ofstream f;
+        f.open(file, std::ios::out | std::ios::binary | (append ? std::ios::app : std::ios::trunc));
+        f << data;
+        f.close();
+        mtx.unlock();
     }
 
     std::string const File::asAscii(const std::string& str) {
