@@ -12,6 +12,9 @@ namespace game {
             static inline T swapBytes(const T data) {
                 return ByteSwapper<T, sizeof(T)>().swap(data);
             }
+            
+        private:
+            // Functions
             static inline uint16_t swapBytes2(const uint16_t data) {
                 return (data >> 8) | (data << 8);
             }
@@ -31,7 +34,7 @@ namespace game {
                     ((data << 40) & 0x00ff000000000000) |
                     ((data << 56) & 0xff00000000000000);
             }
-            
+
             // Classes
             template <typename T, size_t tSize> class ByteSwapper;
             template <typename T> class ByteSwapper<T,2> {
