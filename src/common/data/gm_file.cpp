@@ -3,13 +3,15 @@
 #include "../gm_core.hpp"
 #include "../logger/gm_logger.hpp"
 
-#include <filesystem>
-#include <fstream>
-#include <sstream>
+#include <lzma.h>
+
 #include <bit>
 #include <cstring>
-#include <vector>
+#include <filesystem>
+#include <memory>
 #include <mutex>
+#include <sstream>
+#include <vector>
 
 #if defined(_WIN32)
   #include <windows.h>
@@ -25,6 +27,69 @@
   #include <execinfo.h>
   #include <stdlib.h>
 #endif
+
+extern "C" {
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+
+    inline size_t max(size_t a, const size_t b) {
+        a -= b;
+        a &= (~a) >> 63;
+        a += b;
+        return a;
+    }
+    inline size_t min(size_t a, const size_t b) {
+        a -= b;
+        a &= a >> 63;
+        a += b;
+        return a;
+    }
+    
+    char* readFileC(const char* file) {
+        char buf[1024];
+        size_t capacity = sizeof(buf);
+        char* out = (char*) malloc(capacity);
+
+        FILE* f = fopen(file, "rb");
+        if (!f) return NULL;
+
+        size_t len = 0, c = 0;
+        while ((c = fread(buf, sizeof(char), sizeof(buf), f)) > 0) {
+            len += c;
+
+            // Resize out buffer if needed
+            // Note: Subtract 1 from capacity to allow room for null terminator
+            if (capacity - 1 < len) {
+                capacity = max(capacity * 2, len);
+                out = (char*) realloc(out, capacity);
+            }
+
+            strncpy(out + (len - c), buf, c);
+        }
+
+        out[len] = '\0';
+        out = (char*) realloc(out, len + 1);
+
+        fclose(f);
+
+        return out;
+    }
+
+    void writeFileC(const char* file, const char* data, const uint8_t append) {
+        FILE* f = fopen(file, append ? "ab" : "wb");
+        if (!f) return;
+
+        size_t len = strlen(data);
+        size_t c = 0;
+        while (len > 0) {
+            c = min(1024, len);
+            len -= fwrite(data, 1, c, f);
+        }
+
+        fclose(f);
+    }
+}
 
 namespace fs = std::filesystem;
 
@@ -53,18 +118,24 @@ namespace game {
         }
 
         mtx.lock();
-        std::ifstream f;
-        f.open(file, std::ios::in | std::ios::binary);
 
-        std::string line;
-        while (std::getline(f, line)) {
-            data << line;
-        }
+        char* input = readFileC(file.c_str());
+        data << input;
+        std::free(input);
 
-        f.close();
         mtx.unlock();
 
         return data.str();
+    }
+
+    std::string const File::decompressFile(const std::string& file) {
+        lzma_stream stream = LZMA_STREAM_INIT;
+        
+        // TODO
+
+	    lzma_end(&stream);
+
+        return "";
     }
 
     void const File::writeFile(const std::string& file, const std::string& data, const bool append) {
@@ -75,11 +146,16 @@ namespace game {
         }
 
         mtx.lock();
-        std::ofstream f;
-        f.open(file, std::ios::out | std::ios::binary | (append ? std::ios::app : std::ios::trunc));
-        f << data;
-        f.close();
+
+        writeFileC(file.c_str(), data.c_str(), append);
+
         mtx.unlock();
+    }
+
+    void const File::compressFile(const std::string& file, const std::string& data, const bool append) {
+        lzma_stream stream = LZMA_STREAM_INIT;
+
+	    lzma_end(&stream);
     }
 
     std::string const File::asAscii(const std::string& str) {

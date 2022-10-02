@@ -88,7 +88,7 @@ target_link_directories(Minecraft PRIVATE "lib/" "build/")
 
 # link libraries
 set(COMMON_LIBS
-	-Wl,-Bdynamic -lgcc -lstdc++ -lpthread
+	-Wl,-Bdynamic -lgcc -lstdc++ -lpthread -llzma
 )
 set(SERVER_LIBS
 	${COMMON_LIBS}
