@@ -17,7 +17,6 @@ namespace game {
             resizeBuffer(std::max(capacity_ * 2, resultHead));
         }
         
-        // TODO Write bits
         std::memcpy(buffer_ + head_, data, size);
         head_ = resultHead;
     }

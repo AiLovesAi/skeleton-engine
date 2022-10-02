@@ -7,7 +7,7 @@ namespace game {
     class Serializer {
         public:
             // Constructors
-            Serializer();
+            Serializer() { resizeBuffer(8); }
             ~Serializer();
 
             // Functions
@@ -22,7 +22,7 @@ namespace game {
         
         private:
             // Functions
-            void resizeBuffer(size_t size);
+            void resizeBuffer(const size_t size);
 
             // Variables
             char* buffer_ = nullptr;

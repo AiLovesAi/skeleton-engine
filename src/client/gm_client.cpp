@@ -5,7 +5,7 @@
 #include "gamestates/gm_client_state.hpp"
 #include "graphics/vulkan/gm_swap_chain.hpp"
 
-#include <core/logger/gm_logger.hpp>
+#include <common/logger/gm_logger.hpp>
 
 #include <thread>
 

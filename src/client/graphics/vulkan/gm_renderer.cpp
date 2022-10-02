@@ -1,6 +1,6 @@
 #include "gm_renderer.hpp"
 
-#include <core/logger/gm_logger.hpp>
+#include <common/logger/gm_logger.hpp>
 
 #include <array>
 

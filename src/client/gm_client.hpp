@@ -7,7 +7,7 @@
 #include "graphics/window/gm_window.hpp"
 #include "graphics/vulkan/gm_descriptors.hpp"
 
-#include <core/gm_core.hpp>
+#include <common/gm_core.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>

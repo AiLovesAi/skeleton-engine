@@ -1,8 +1,8 @@
 #include "gm_server_instance.hpp"
 
-#include <core/gm_core.hpp>
-#include <core/logger/gm_logger.hpp>
-#include <core/system/gm_threads.hpp>
+#include <common/gm_core.hpp>
+#include <common/logger/gm_logger.hpp>
+#include <common/system/gm_threads.hpp>
 
 namespace game {
     ServerInstance& ServerInstance::instance() {

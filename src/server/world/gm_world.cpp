@@ -1,6 +1,6 @@
 #include "gm_world.hpp"
 
-#include <core/logger/gm_logger.hpp>
+#include <common/logger/gm_logger.hpp>
 
 #include <functional>
 #include <thread>

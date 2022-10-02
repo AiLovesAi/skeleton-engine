@@ -1,7 +1,7 @@
 #include "gm_system.hpp"
 
 #include "../gm_core.hpp"
-#include "../file/gm_file.hpp"
+#include "../data/gm_file.hpp"
 
 #if defined(_WIN32)
   #include <windows.h>

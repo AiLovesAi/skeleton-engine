@@ -6,11 +6,11 @@ project(Minecraft CXX)
 # get source files
 file(GLOB_RECURSE CLIENT_FILES "src/client/*.cpp")
 file(GLOB_RECURSE SERVER_FILES "src/server/*.cpp")
-file(GLOB_RECURSE CORE_FILES "src/core/*.cpp")
+file(GLOB_RECURSE COMMON_FILES "src/common/*.cpp")
 file(GLOB RESOURCE_FILE "resources.rc")
 
 # add the executable
-add_library(core SHARED "${CORE_FILES}")
+add_library(common SHARED "${COMMON_FILES}")
 add_library(server SHARED "${SERVER_FILES}")
 add_library(client SHARED "${CLIENT_FILES}")
 add_executable(game "src/game.cpp")
@@ -62,8 +62,8 @@ target_compile_options(client PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(client PRIVATE ${CMAKE_L_FLAGS})
 target_compile_options(server PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(server PRIVATE ${CMAKE_L_FLAGS})
-target_compile_options(core PRIVATE ${CMAKE_CPP_FLAGS})
-target_link_options(core PRIVATE ${CMAKE_L_FLAGS})
+target_compile_options(common PRIVATE ${CMAKE_CPP_FLAGS})
+target_link_options(common PRIVATE ${CMAKE_L_FLAGS})
 target_compile_options(game PRIVATE ${CMAKE_CPP_FLAGS})
 target_link_options(game PRIVATE ${CMAKE_L_FLAGS})
 target_compile_options(host PRIVATE ${CMAKE_CPP_FLAGS})
@@ -77,8 +77,8 @@ link_directories("lib/")
 target_link_directories(client PRIVATE "lib/" "build/")
 target_include_directories(server PRIVATE "lib/include/" "src/")
 target_link_directories(server PRIVATE "lib/" "build/")
-target_include_directories(core PRIVATE "lib/include/" "src/")
-target_link_directories(core PRIVATE "lib/" "build/")
+target_include_directories(common PRIVATE "lib/include/" "src/")
+target_link_directories(common PRIVATE "lib/" "build/")
 target_include_directories(game PRIVATE "lib/include/" "src/")
 target_link_directories(game PRIVATE "lib/" "build/")
 target_include_directories(host PRIVATE "lib/include/" "src/")
@@ -87,12 +87,12 @@ target_include_directories(Minecraft PRIVATE "lib/include/" "src/")
 target_link_directories(Minecraft PRIVATE "lib/" "build/")
 
 # link libraries
-set(CORE_LIBS
+set(COMMON_LIBS
 	-Wl,-Bdynamic -lgcc -lstdc++ -lpthread
 )
 set(SERVER_LIBS
-	${CORE_LIBS}
-	-Wl,-Bdynamic -lcore
+	${COMMON_LIBS}
+	-Wl,-Bdynamic -lcommon
 )
 set(CLIENT_LIBS
 	${SERVER_LIBS}
@@ -100,19 +100,19 @@ set(CLIENT_LIBS
 	-Wl,-Bdynamic -lglfw3 -lsoft_oal -lsndfile -lserver
 )
 set(GAME_LIBS
-	${CORE_LIBS}
-	-Wl,-Bdynamic -lcore -lclient
+	${COMMON_LIBS}
+	-Wl,-Bdynamic -lcommon -lclient
 )
 set(HOST_LIBS
 	${SERVER_LIBS}
 	-Wl,-Bdynamic -lserver
 )
-target_link_libraries(core PRIVATE ${CORE_LIBS})
+target_link_libraries(common PRIVATE ${COMMON_LIBS})
 target_link_libraries(server PRIVATE ${SERVER_LIBS})
 target_link_libraries(client PRIVATE ${CLIENT_LIBS})
 target_link_libraries(game PRIVATE ${GAME_LIBS})
 target_link_libraries(host PRIVATE ${HOST_LIBS})
-target_link_libraries(Minecraft PRIVATE ${CORE_LIBS})
+target_link_libraries(Minecraft PRIVATE ${COMMON_LIBS})
 
 # set resources
 target_sources(Minecraft PRIVATE ${RESOURCE_FILE})
