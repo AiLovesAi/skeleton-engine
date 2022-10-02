@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <type_traits>
 
 namespace game {
@@ -8,7 +9,7 @@ namespace game {
         public:
             // Constructors
             Serializer() { resizeBuffer(8); }
-            ~Serializer();
+            ~Serializer() { std::free(buffer_); }
 
             // Functions
             void write(const void* data, const size_t size);
