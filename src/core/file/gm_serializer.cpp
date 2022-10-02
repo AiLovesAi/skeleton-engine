@@ -1,24 +1,44 @@
 #include "gm_serializer.hpp"
 
 #include <algorithm>
-#include <cstring>
 
 namespace game {
-    void Serializer::resizeBuffer(const size_t size) {
-        buffer_ = static_cast<char*>(std::realloc(buffer_, size));
-        capacity_ = size;
-    }
-
-    void Serializer::write(const void* data, const size_t size) {
-        // TODO Translate to network endianness
-        size_t resultHead = head_ + size;
+    void Serializer::writeBits(const uint8_t data, const size_t count) {
+        size_t resultHead = head_ + count;
 
         if (resultHead > capacity_) {
-            resizeBuffer(std::max(capacity_ * 2, resultHead));
+            resizeBuffer(std::max((capacity_ >> 3) * 2, (resultHead >> 3) + !!(resultHead & 0x7)));
         }
-        
-        // TODO Write bits
-        std::memcpy(buffer_ + head_, data, size);
+
+        size_t byteOffset = head_ >> 3; // Number of fully written bytes
+        uint8_t bitOffset = head_ & 0x7; // Bit remainder
+
+        // Preserve remaining bits
+        uint8_t mask = ~(0xff << bitOffset);
+        buffer_[byteOffset] = (buffer_[byteOffset] & mask) | (data << bitOffset);
+
+        uint8_t freeBits = 0x8 - bitOffset; // Bits remaining in current byte
+        // Use another byte if needed
+        if (freeBits < count) {
+            buffer_[byteOffset + 1] = data >> freeBits;
+        }
+
         head_ = resultHead;
+    }
+
+    void Serializer::writeBits(const void* data, size_t count) {
+        const char* srcByte = static_cast<const char*>(data);
+
+        // Write full bytes
+        while (count > 8) {
+            writeBits(*srcByte, 8);
+            ++srcByte;
+            count -= 8;
+        }
+
+        // Write remaining bits
+        if (count > 0) {
+            writeBits(*srcByte, count);
+        }
     }
 }
