@@ -3,6 +3,7 @@
 #include "gm_type_aliaser.hpp"
 
 #include <cstdint>
+#include <bit>
 
 namespace game {
     class Endianness {
@@ -11,6 +12,19 @@ namespace game {
             template <typename T>
             static inline T swapBytes(const T data) {
                 return ByteSwapper<T, sizeof(T)>().swap(data);
+            }
+
+            template <typename T>
+            static inline T hton(const T data) {
+                if constexpr (std::endian::native == std::endian::big) {
+                    return data;
+                } else {
+                    return swapBytes(data);
+                }
+            }
+            template <typename T>
+            static inline T ntoh(const T data) {
+                hton(data);
             }
             
         private:
