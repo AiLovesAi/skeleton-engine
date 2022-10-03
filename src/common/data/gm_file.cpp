@@ -5,7 +5,10 @@
 
 #include <lzma.h>
 
+#include <algorithm>
 #include <bit>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <memory>
@@ -28,69 +31,6 @@
   #include <stdlib.h>
 #endif
 
-extern "C" {
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-
-    inline size_t max(size_t a, const size_t b) {
-        a -= b;
-        a &= (~a) >> 63;
-        a += b;
-        return a;
-    }
-    inline size_t min(size_t a, const size_t b) {
-        a -= b;
-        a &= a >> 63;
-        a += b;
-        return a;
-    }
-    
-    char* readFileC(const char* file) {
-        char buf[1024];
-        size_t capacity = sizeof(buf);
-        char* out = (char*) malloc(capacity);
-
-        FILE* f = fopen(file, "rb");
-        if (!f) return NULL;
-
-        size_t len = 0, c = 0;
-        while ((c = fread(buf, sizeof(char), sizeof(buf), f)) > 0) {
-            len += c;
-
-            // Resize out buffer if needed
-            // Note: Subtract 1 from capacity to allow room for null terminator
-            if (capacity - 1 < len) {
-                capacity = max(capacity * 2, len);
-                out = (char*) realloc(out, capacity);
-            }
-
-            strncpy(out + (len - c), buf, c);
-        }
-
-        out[len] = '\0';
-        out = (char*) realloc(out, len + 1);
-
-        fclose(f);
-
-        return out;
-    }
-
-    void writeFileC(const char* file, const char* data, const uint8_t append) {
-        FILE* f = fopen(file, append ? "ab" : "wb");
-        if (!f) return;
-
-        size_t len = strlen(data);
-        size_t c = 0;
-        while (len > 0) {
-            c = min(1024, len);
-            len -= fwrite(data, 1, c, f);
-        }
-
-        fclose(f);
-    }
-}
-
 namespace fs = std::filesystem;
 
 namespace game {
@@ -110,32 +50,151 @@ namespace game {
     }
 
     std::string const File::readFile(const std::string& file) {
-        std::stringstream data;
-
         if (!fs::exists(file)) {
-            data << "File not found: " << file;
-            Logger::crash(data.str());
+            std::stringstream msg;
+            msg << "File not found: " << file;
+            Logger::crash(msg.str());
+        }
+        
+        // Allocate
+        char buf[BUFSIZ];
+        size_t capacity = sizeof(buf);
+        char* out = static_cast<char*>(std::malloc(capacity));
+
+        // Open file
+        mtx.lock();
+        FILE* f = std::fopen(file.c_str(), "rb");
+        if (!f) {
+            std::stringstream msg;
+            msg << "Could not open file: " << file;
+            Logger::crash(msg.str());
         }
 
-        mtx.lock();
+        // Read
+        size_t len = 0, c = 0;
+        while ((c = std::fread(buf, sizeof(char), sizeof(buf), f)) > 0) {
+            len += c;
 
-        char* input = readFileC(file.c_str());
-        data << input;
-        std::free(input);
+            // Resize out buffer if needed
+            // Note: Subtract 1 from capacity to allow room for null terminator.
+            if (capacity - 1 < len) {
+                capacity = std::max(capacity * 2, len);
+                out = static_cast<char*>(std::realloc(out, capacity));
+            }
 
+            std::memcpy(out + (len - c), buf, c);
+        }
+
+        out[len] = '\0';
+        out = static_cast<char*>(std::realloc(out, len + 1));
+
+        // Close file
+        std::fclose(f);
         mtx.unlock();
 
-        return data.str();
+        // Free
+        std::string data(out);
+        std::free(out);
+        return data;
     }
 
     std::string const File::decompressFile(const std::string& file) {
+        std::string data;
         lzma_stream stream = LZMA_STREAM_INIT;
-        
-        // TODO
+	    /*lzma_action action = LZMA_RUN;
 
+        // Open file
+        mtx.lock();
+        FILE* f = fopen(file.c_str(), "rb");
+        if (f == nullptr) {
+            std::stringstream msg;
+            msg << "Error opening file: " << file;
+        }
+        
+        uint8_t inbuf[BUFSIZ];
+        uint8_t outbuf[BUFSIZ];
+
+        stream.next_in = nullptr;
+        stream.avail_in = 0;
+        stream.next_out = outbuf;
+        stream.avail_out = sizeof(outbuf);
+
+        while (true) {
+            if (stream.avail_in == 0 && !feof(infile)) {
+                stream.next_in = inbuf;
+                stream.avail_in = fread(inbuf, 1, sizeof(inbuf),
+                        infile);
+
+                if (ferror(infile)) {
+                    fprintf(stderr, "%s: Read error: %s\n",
+                            inname, strerror(errno));
+                    return false;
+                }
+
+                // Once the end of the input file has been reached,
+                // we need to tell lzma_code() that no more input
+                // will be coming. As said before, this isn't required
+                // if the LZMA_CONCATENATED flag isn't used when
+                // initializing the decoder.
+                if (feof(infile))
+                    action = LZMA_FINISH;
+            }
+
+            lzma_ret ret = lzma_code(strm, action);
+
+            if (stream.avail_out == 0 || ret == LZMA_STREAM_END) {
+                size_t write_size = sizeof(outbuf) - stream.avail_out;
+
+                if (fwrite(outbuf, 1, write_size, outfile)
+                        != write_size) {
+                    fprintf(stderr, "Write error: %s\n",
+                            strerror(errno));
+                    return false;
+                }
+
+                stream.next_out = outbuf;
+                stream.avail_out = sizeof(outbuf);
+            }
+
+            if (ret != LZMA_OK) {
+                if (ret == LZMA_STREAM_END) break;
+
+                std::stringstream msg;
+                switch (ret) {
+                    case LZMA_MEM_ERROR:
+                        msg << "Ran out of memory while decompressing file: " << file;
+                        break;
+
+                    case LZMA_DATA_ERROR:
+                        msg << "Corrupted data encountered while decompressing file: " << file;
+                        break;
+
+                    case LZMA_FORMAT_ERROR:
+                        msg << "Input file for decompression is not in xz format: " << file;
+                        break;
+
+                    case LZMA_OPTIONS_ERROR:
+                        msg << "Unsupported compression options for file: " << file;
+                        break;
+
+                    case LZMA_BUF_ERROR:
+                        msg << "Compressed file is truncated or otherwise corrupt: " << file;
+                        break;
+
+                    default:
+                        msg << "Unknown error occurred while decompressing file: " << file;
+                        break;
+                }
+                Logger::crash(msg.str());
+            }
+	    }
+
+        // Close file
+        fclose(f);
+        mtx.unlock();*/
 	    lzma_end(&stream);
 
-        return "";
+        return data;
     }
 
     void const File::writeFile(const std::string& file, const std::string& data, const bool append) {
@@ -145,16 +204,109 @@ namespace game {
             Logger::crash(msg.str());
         }
 
+
+        // Open file
         mtx.lock();
+        FILE* f = std::fopen(file.c_str(), append ? "ab" : "wb");
+        if (!f) {
+            std::stringstream msg;
+            msg << "Could not open file: " << file;
+            Logger::crash(msg.str());
+        }
 
-        writeFileC(file.c_str(), data.c_str(), append);
+        // Write
+        // Note: Add one to length for null terminator.
+        size_t len = data.length() + 1;
+        size_t c = 0;
+        const char* cstr = data.c_str();
+        for (size_t head = 0; head < len; head += c) {
+            c = std::min(static_cast<size_t>(BUFSIZ), len - head);
+            std::fwrite(cstr + head, 1, c, f);
+        }
 
+        // Close file
+        std::fclose(f);
         mtx.unlock();
     }
 
     void const File::compressFile(const std::string& file, const std::string& data, const bool append) {
         lzma_stream stream = LZMA_STREAM_INIT;
+	    lzma_action action = LZMA_RUN;
 
+        // Open file
+        mtx.lock();
+        FILE* f = fopen(file.c_str(), append ? "ab" : "wb");
+        if (f == nullptr) {
+            std::stringstream msg;
+            msg << "Error opening file: " << file;
+        }
+
+        // TODO Use uint8_t* to store data - data can contain '\0', which would prematurely null terminate a string
+        size_t len = data.length();
+        size_t head = 0, c = 0;
+        const char* cstr = data.c_str();
+        uint8_t inbuf[BUFSIZ];
+        uint8_t outbuf[BUFSIZ];
+        
+        stream.next_in = nullptr;
+        stream.avail_in = 0;
+        stream.next_out = outbuf;
+        stream.avail_out = sizeof(outbuf);
+
+        // Compress and write
+        while (true) {
+            // Fill the input buffer if it is empty.
+            if (stream.avail_in == 0 && head < len) {
+                c = std::min(sizeof(inbuf), len - head);
+                stream.next_in = inbuf;
+                stream.avail_in = c;
+                std::memcpy(inbuf, cstr + head, c);
+                head += c;
+
+                if (head >= len) action = LZMA_FINISH;
+            }
+
+            // Compress
+		    lzma_ret ret = lzma_code(&stream, action);
+            
+            if (stream.avail_out == 0 || ret == LZMA_STREAM_END) {
+                // When lzma_code() has returned LZMA_STREAM_END, the output buffer is likely to be only
+                // partially full. Calculate how much new data there is to be written to the output file.
+                c = sizeof(outbuf) - stream.avail_out;
+
+                fwrite(outbuf, 1, c, f);
+
+                // Reset next_out and avail_out.
+                stream.next_out = outbuf;
+                stream.avail_out = sizeof(outbuf);
+            }
+
+            if (ret != LZMA_OK) {
+                // Once everything has been encoded successfully, the return value of
+                // lzma_code() will be LZMA_STREAM_END.
+                if (ret == LZMA_STREAM_END) break;
+
+                std::stringstream msg;
+                switch (ret) {
+                    case LZMA_MEM_ERROR:
+                        msg << "Ran out of memory while compressing file: " << file;
+                        break;
+
+                    case LZMA_DATA_ERROR:
+                        msg << "File size is greater than maximum (2^63 bytes): " << file;
+                        break;
+
+                    default:
+                        msg << "Unknown error occurred while compressing file: " << file;
+                        break;
+                }
+                Logger::crash(msg.str());
+            }
+        }
+
+        // Close file
+        fclose(f);
+        mtx.unlock();
 	    lzma_end(&stream);
     }
 

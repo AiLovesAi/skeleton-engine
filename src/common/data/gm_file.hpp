@@ -2,13 +2,6 @@
 
 #include <string>
 
-extern "C" {
-    #include <stdint.h>
-
-    char* readFileC(const char* file);
-    void writeFileC(const char* file, const char* data, const uint8_t append);
-}
-
 namespace game {
     class File {
         public:
