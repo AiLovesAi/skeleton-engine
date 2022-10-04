@@ -141,16 +141,16 @@ namespace game {
 
         stream.next_in = nullptr;
         stream.avail_in = 0;
-        stream.next_out = outbuf;
-        stream.avail_out = sizeof(outbuf);
+        stream.next_out = buf;
+        stream.avail_out = sizeof(buf);
 
         while (true) {
             // Fill input buffer
-            if (stream.avail_in == 0 && !std::feof(infile)) {
+            if (stream.avail_in == 0 && !std::feof(f)) {
                 stream.next_in = buf;
                 stream.avail_in = std::fread(buf, 1, sizeof(buf), f);
 
-                if (std::feof(infile)) action = LZMA_FINISH;
+                if (std::feof(f)) action = LZMA_FINISH;
             }
 
             // Decompress
