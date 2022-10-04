@@ -49,70 +49,66 @@ namespace game {
         }
     }
 
-    std::string const File::readFile(const std::string& file) {
-        if (!fs::exists(file)) {
+    uint8_t* const File::readFile(const char* filepath, size_t* len) {
+        if (!fs::exists(filepath)) {
             std::stringstream msg;
-            msg << "File not found: " << file;
+            msg << "File not found: " << filepath;
             Logger::crash(msg.str());
         }
         
         // Allocate
-        char buf[BUFSIZ];
+        uint8_t buf[BUFSIZ];
         size_t capacity = sizeof(buf);
-        char* out = static_cast<char*>(std::malloc(capacity));
+        uint8_t* data = static_cast<uint8_t*>(std::malloc(capacity));
 
         // Open file
         mtx.lock();
-        FILE* f = std::fopen(file.c_str(), "rb");
+        FILE* f = std::fopen(filepath, "rb");
         if (!f) {
             std::stringstream msg;
-            msg << "Could not open file: " << file;
+            msg << "Could not open file: " << filepath;
             Logger::crash(msg.str());
         }
 
         // Read
-        size_t len = 0, c = 0;
-        while ((c = std::fread(buf, sizeof(char), sizeof(buf), f)) > 0) {
-            len += c;
+        size_t head = 0, c = 0;
+        while ((c = std::fread(buf, 1, sizeof(buf), f)) > 0) {
+            head += c;
 
             // Resize out buffer if needed
-            // Note: Subtract 1 from capacity to allow room for null terminator.
-            if (capacity - 1 < len) {
-                capacity = std::max(capacity * 2, len);
-                out = static_cast<char*>(std::realloc(out, capacity));
+            if (capacity < head) {
+                capacity *= 2;
+                data = static_cast<uint8_t*>(std::realloc(data, capacity));
             }
 
-            std::memcpy(out + (len - c), buf, c);
+            std::memcpy(data + (head - c), buf, c);
         }
-
-        out[len] = '\0';
-        out = static_cast<char*>(std::realloc(out, len + 1));
 
         // Close file
         std::fclose(f);
         mtx.unlock();
-
-        // Free
-        std::string data(out);
-        std::free(out);
+        if (len) *len = head;
+        data = static_cast<uint8_t*>(std::realloc(data, head));
         return data;
     }
 
-    std::string const File::decompressFile(const std::string& file) {
-        std::string data;
+    uint8_t* const File::decompressFile(const char* filepath, size_t* len) {
         lzma_stream stream = LZMA_STREAM_INIT;
-	    /*lzma_action action = LZMA_RUN;
+	    lzma_action action = LZMA_RUN;
 
         // Open file
         mtx.lock();
-        FILE* f = fopen(file.c_str(), "rb");
+        FILE* f = std::fopen(filepath, "rb");
         if (f == nullptr) {
             std::stringstream msg;
-            msg << "Error opening file: " << file;
+            msg << "Error opening file: " << filepath;
+            Logger::crash(msg.str());
         }
         
-        uint8_t inbuf[BUFSIZ];
-        uint8_t outbuf[BUFSIZ];
+        size_t head = 0, c = 0;
+        uint8_t buf[BUFSIZ];
+        size_t capacity = sizeof(buf);
+        uint8_t* data = static_cast<uint8_t*>(std::malloc(data, capacity));
 
         stream.next_in = nullptr;
         stream.avail_in = 0;
@@ -120,40 +116,30 @@ namespace game {
         stream.avail_out = sizeof(outbuf);
 
         while (true) {
-            if (stream.avail_in == 0 && !feof(infile)) {
-                stream.next_in = inbuf;
-                stream.avail_in = fread(inbuf, 1, sizeof(inbuf),
-                        infile);
+            // Fill input buffer
+            if (stream.avail_in == 0 && !std::feof(infile)) {
+                stream.next_in = buf;
+                stream.avail_in = std::fread(buf, 1, sizeof(buf), f);
 
-                if (ferror(infile)) {
-                    fprintf(stderr, "%s: Read error: %s\n",
-                            inname, strerror(errno));
-                    return false;
-                }
-
-                // Once the end of the input file has been reached,
-                // we need to tell lzma_code() that no more input
-                // will be coming. As said before, this isn't required
-                // if the LZMA_CONCATENATED flag isn't used when
-                // initializing the decoder.
-                if (feof(infile))
-                    action = LZMA_FINISH;
+                if (std::feof(infile)) action = LZMA_FINISH;
             }
 
-            lzma_ret ret = lzma_code(strm, action);
+            // Decompress
+            lzma_ret ret = lzma_code(&stream, action);
 
+            // Fill output data
             if (stream.avail_out == 0 || ret == LZMA_STREAM_END) {
-                size_t write_size = sizeof(outbuf) - stream.avail_out;
-
-                if (fwrite(outbuf, 1, write_size, outfile)
-                        != write_size) {
-                    fprintf(stderr, "Write error: %s\n",
-                            strerror(errno));
-                    return false;
+                c = sizeof(buf) - stream.avail_out;
+                head += c;
+                
+                // Check if next cycle can store enough data
+                if (capacity < head + sizeof(buf)) {
+                    capacity *= 2;
+                    data = static_cast<uint8_t*>(std::realloc(data, capacity));
                 }
-
-                stream.next_out = outbuf;
-                stream.avail_out = sizeof(outbuf);
+                
+                stream.next_out = data + head;
+                stream.avail_out = sizeof(buf);
             }
 
             if (ret != LZMA_OK) {
@@ -162,27 +148,27 @@ namespace game {
                 std::stringstream msg;
                 switch (ret) {
                     case LZMA_MEM_ERROR:
-                        msg << "Ran out of memory while decompressing file: " << file;
+                        msg << "Ran out of memory while decompressing file: " << filepath;
                         break;
 
                     case LZMA_DATA_ERROR:
-                        msg << "Corrupted data encountered while decompressing file: " << file;
+                        msg << "Corrupted data encountered while decompressing file: " << filepath;
                         break;
 
                     case LZMA_FORMAT_ERROR:
-                        msg << "Input file for decompression is not in xz format: " << file;
+                        msg << "Input file for decompression is not in xz format: " << filepath;
                         break;
 
                     case LZMA_OPTIONS_ERROR:
-                        msg << "Unsupported compression options for file: " << file;
+                        msg << "Unsupported compression options for file: " << filepath;
                         break;
 
                     case LZMA_BUF_ERROR:
-                        msg << "Compressed file is truncated or otherwise corrupt: " << file;
+                        msg << "Compressed file is truncated or otherwise corrupt: " << filepath;
                         break;
 
                     default:
-                        msg << "Unknown error occurred while decompressing file: " << file;
+                        msg << "Unknown error occurred while decompressing file: " << filepath;
                         break;
                 }
                 Logger::crash(msg.str());
@@ -190,14 +176,15 @@ namespace game {
 	    }
 
         // Close file
-        fclose(f);
-        mtx.unlock();*/
+        std::fclose(f);
 	    lzma_end(&stream);
-
-        return data;
+        mtx.unlock();
+	    if (len) *len = head;
+	    data = static_cast<uint8_t*>(std::realloc(data, head));
+	    return data;
     }
 
-    void const File::writeFile(const std::string& file, const std::string& data, const bool append) {
+    void const File::writeFile(const char* filepath, const uint8_t* data, size_t len, const bool append) {
         if (append && !fs::exists(file)) {
             std::stringstream msg;
             msg << "File not found: " << file;
@@ -207,18 +194,15 @@ namespace game {
 
         // Open file
         mtx.lock();
-        FILE* f = std::fopen(file.c_str(), append ? "ab" : "wb");
+        FILE* f = std::fopen(filepath, append ? "ab" : "wb");
         if (!f) {
             std::stringstream msg;
-            msg << "Could not open file: " << file;
+            msg << "Could not open file: " << filepath;
             Logger::crash(msg.str());
         }
 
         // Write
-        // Note: Add one to length for null terminator.
-        size_t len = data.length() + 1;
         size_t c = 0;
-        const char* cstr = data.c_str();
         for (size_t head = 0; head < len; head += c) {
             c = std::min(static_cast<size_t>(BUFSIZ), len - head);
             std::fwrite(cstr + head, 1, c, f);
@@ -229,38 +213,34 @@ namespace game {
         mtx.unlock();
     }
 
-    void const File::compressFile(const std::string& file, const std::string& data, const bool append) {
+    void const File::compressFile(const char* filepath, const uint8_t* data, const size_t len, const bool append) {
         lzma_stream stream = LZMA_STREAM_INIT;
 	    lzma_action action = LZMA_RUN;
 
         // Open file
         mtx.lock();
-        FILE* f = fopen(file.c_str(), append ? "ab" : "wb");
+        FILE* f = fopen(filepath, append ? "ab" : "wb");
         if (f == nullptr) {
             std::stringstream msg;
-            msg << "Error opening file: " << file;
+            msg << "Error opening file: " << filepath;
+            Logger::crash(msg.str());
         }
 
-        // TODO Use uint8_t* to store data - data can contain '\0', which would prematurely null terminate a string
-        size_t len = data.length();
         size_t head = 0, c = 0;
-        const char* cstr = data.c_str();
-        uint8_t inbuf[BUFSIZ];
-        uint8_t outbuf[BUFSIZ];
+        uint8_t buf[BUFSIZ];
         
         stream.next_in = nullptr;
         stream.avail_in = 0;
-        stream.next_out = outbuf;
-        stream.avail_out = sizeof(outbuf);
+        stream.next_out = buf;
+        stream.avail_out = sizeof(buf);
 
         // Compress and write
         while (true) {
             // Fill the input buffer if it is empty.
             if (stream.avail_in == 0 && head < len) {
-                c = std::min(sizeof(inbuf), len - head);
-                stream.next_in = inbuf;
+                c = std::min(sizeof(buf), len - head);
+                stream.next_in = data + head;
                 stream.avail_in = c;
-                std::memcpy(inbuf, cstr + head, c);
                 head += c;
 
                 if (head >= len) action = LZMA_FINISH;
@@ -272,13 +252,13 @@ namespace game {
             if (stream.avail_out == 0 || ret == LZMA_STREAM_END) {
                 // When lzma_code() has returned LZMA_STREAM_END, the output buffer is likely to be only
                 // partially full. Calculate how much new data there is to be written to the output file.
-                c = sizeof(outbuf) - stream.avail_out;
+                c = sizeof(buf) - stream.avail_out;
 
-                fwrite(outbuf, 1, c, f);
+                std::fwrite(buf, 1, c, f);
 
                 // Reset next_out and avail_out.
-                stream.next_out = outbuf;
-                stream.avail_out = sizeof(outbuf);
+                stream.next_out = buf;
+                stream.avail_out = sizeof(buf);
             }
 
             if (ret != LZMA_OK) {
@@ -289,15 +269,15 @@ namespace game {
                 std::stringstream msg;
                 switch (ret) {
                     case LZMA_MEM_ERROR:
-                        msg << "Ran out of memory while compressing file: " << file;
+                        msg << "Ran out of memory while compressing file: " << filepath;
                         break;
 
                     case LZMA_DATA_ERROR:
-                        msg << "File size is greater than maximum (2^63 bytes): " << file;
+                        msg << "File size is greater than maximum (2^63 bytes): " << filepath;
                         break;
 
                     default:
-                        msg << "Unknown error occurred while compressing file: " << file;
+                        msg << "Unknown error occurred while compressing file: " << filepath;
                         break;
                 }
                 Logger::crash(msg.str());
@@ -305,9 +285,9 @@ namespace game {
         }
 
         // Close file
-        fclose(f);
-        mtx.unlock();
+        std::fclose(f);
 	    lzma_end(&stream);
+        mtx.unlock();
     }
 
     std::string const File::asAscii(const std::string& str) {
