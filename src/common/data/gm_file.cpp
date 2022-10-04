@@ -49,7 +49,7 @@ namespace game {
         }
     }
 
-    uint8_t* const File::readFile(const char* filepath, size_t* len) {
+    std::shared_pointer<uint8_t*> const File::readFile(const char* filepath, size_t* len) {
         if (!fs::exists(filepath)) {
             std::stringstream msg;
             msg << "File not found: " << filepath;
@@ -92,7 +92,36 @@ namespace game {
         return data;
     }
 
-    uint8_t* const File::decompressFile(const char* filepath, size_t* len) {
+    void const File::writeFile(const char* filepath, const uint8_t* data, size_t len, const bool append) {
+        if (append && !fs::exists(file)) {
+            std::stringstream msg;
+            msg << "File not found: " << file;
+            Logger::crash(msg.str());
+        }
+
+
+        // Open file
+        mtx.lock();
+        FILE* f = std::fopen(filepath, append ? "ab" : "wb");
+        if (!f) {
+            std::stringstream msg;
+            msg << "Could not open file: " << filepath;
+            Logger::crash(msg.str());
+        }
+
+        // Write
+        size_t c = 0;
+        for (size_t head = 0; head < len; head += c) {
+            c = std::min(static_cast<size_t>(BUFSIZ), len - head);
+            std::fwrite(cstr + head, 1, c, f);
+        }
+
+        // Close file
+        std::fclose(f);
+        mtx.unlock();
+    }
+
+    std::shared_pointer<uint8_t*> const File::decompressFile(const char* filepath, size_t* len) {
         lzma_stream stream = LZMA_STREAM_INIT;
 	    lzma_action action = LZMA_RUN;
 
@@ -182,35 +211,6 @@ namespace game {
 	    if (len) *len = head;
 	    data = static_cast<uint8_t*>(std::realloc(data, head));
 	    return data;
-    }
-
-    void const File::writeFile(const char* filepath, const uint8_t* data, size_t len, const bool append) {
-        if (append && !fs::exists(file)) {
-            std::stringstream msg;
-            msg << "File not found: " << file;
-            Logger::crash(msg.str());
-        }
-
-
-        // Open file
-        mtx.lock();
-        FILE* f = std::fopen(filepath, append ? "ab" : "wb");
-        if (!f) {
-            std::stringstream msg;
-            msg << "Could not open file: " << filepath;
-            Logger::crash(msg.str());
-        }
-
-        // Write
-        size_t c = 0;
-        for (size_t head = 0; head < len; head += c) {
-            c = std::min(static_cast<size_t>(BUFSIZ), len - head);
-            std::fwrite(cstr + head, 1, c, f);
-        }
-
-        // Close file
-        std::fclose(f);
-        mtx.unlock();
     }
 
     void const File::compressFile(const char* filepath, const uint8_t* data, const size_t len, const bool append) {
