@@ -33,7 +33,10 @@ namespace game {
         findCPU();
         CPU_THREAD_COUNT_ = lzma_cputhreads();
         PHYSICAL_MEMORY_ = lzma_physmem();
-        if (CPU_THREAD_COUNT_ < 1) Logger::crash("Could not get CPU thread count.");
+        if (CPU_THREAD_COUNT_ < 1) {
+            CPU_THREAD_COUNT_ = 1;
+            Logger::log(LOG_WARN, "Could not get CPU thread count.");
+        }
     }
 
     void System::findOS() {
