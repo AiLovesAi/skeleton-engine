@@ -31,6 +31,8 @@ namespace game {
             static std::string OS() { return OS_; }
             static std::string CPU() { return CPU_; }
             static std::string GPU() { return GPU_; }
+            static uint32_t cpuThreadCount() { return CPU_THREAD_COUNT_; }
+            static size_t physicalMemory() { return PHYSICAL_MEMORY_; }
         
         private:
             // Functions
@@ -38,6 +40,8 @@ namespace game {
             static void findCPU();
 
             // Variables
+            static uint32_t CPU_THREAD_COUNT_;
+            static size_t PHYSICAL_MEMORY_;
             static std::string OS_;
             static std::string CPU_;
             static std::string GPU_;

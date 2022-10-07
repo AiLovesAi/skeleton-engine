@@ -124,9 +124,11 @@ namespace game {
             msg << "Description: " << message << "\n\n";
             msg << "-- System Details --\nDetails:\n";
             msg << "Operating System: " << System::OS() << "\n";
+            msg << "Physical Memory: " << System::physicalMemory() << "B\n";
             msg << "CPU: " << System::CPU() << "\n";
-            msg << "Graphics device: " << System::GPU() << "\n";
-            msg << "Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
+            msg << "CPU Threads: " << System::cpuThreadCount() << "\n";
+            msg << "Graphics Device: " << System::GPU() << "\n";
+            msg << "Crashing Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
             std::cerr << msg.str();
 
             mtx_.lock();

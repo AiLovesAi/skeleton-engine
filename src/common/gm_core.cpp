@@ -21,6 +21,8 @@ namespace game {
         File::init();
         Logger::init(logFile, crashFile);
 
-        Logger::log(LOG_INFO, "Using CPU: " + System::CPU());
+        Logger::log(LOG_INFO, "CPU: " + System::CPU());
+        Logger::log(LOG_INFO, "CPU threads: " + System::cpuThreadCount());
+        Logger::log(LOG_INFO, "Physical memory: " + System::physicalMemory());
     }
 }

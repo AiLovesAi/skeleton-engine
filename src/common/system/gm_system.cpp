@@ -1,7 +1,10 @@
 #include "gm_system.hpp"
 
 #include "../gm_core.hpp"
+#include "../logger/gm_logger.hpp"
 #include "../data/gm_file.hpp"
+
+#include <lzma.h>
 
 #if defined(_WIN32)
   #include <windows.h>
@@ -19,6 +22,8 @@
 #endif
 
 namespace game {
+    uint32_t System::CPU_THREAD_COUNT_;
+    size_t System::PHYSICAL_MEMORY_;
     std::string System::OS_ = Core::EMPTYSTR;
     std::string System::CPU_ = Core::EMPTYSTR;
     std::string System::GPU_ = Core::EMPTYSTR;
@@ -26,6 +31,9 @@ namespace game {
     void System::init() {
         findOS();
         findCPU();
+        CPU_THREAD_COUNT_ = lzma_cputhreads();
+        PHYSICAL_MEMORY_ = lzma_physmem();
+        if (CPU_THREAD_COUNT_ < 1) Logger::crash("Could not get CPU thread count.");
     }
 
     void System::findOS() {
