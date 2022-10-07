@@ -5,6 +5,7 @@
 #include "../system/gm_system.hpp"
 #include "../system/gm_threads.hpp"
 
+#include <atomic>
 #include <csignal>
 #include <future>
 #include <fstream>
@@ -18,6 +19,7 @@
 
 namespace game {
     static std::mutex mtx_;
+    static std::atomic<bool> crashed_ = false;
     std::string Logger::logPath_ = "latest.log";
     std::string Logger::crashPath_ = "crash.log";
     void signalHandler(int signum);
@@ -112,25 +114,28 @@ namespace game {
     [[noreturn]] void Logger::crash(const std::string& message) {
         std::time_t t = std::time(0);
         std::tm* now = std::localtime(&t);
+        crashed_ = true;
+        
+        if (!crashed_) {
+            std::stringstream msg;
+            msg << "---- Crash Report ----\n";
+            msg << "Time: " << now->tm_mon << "/" << now->tm_mday << "/" << (now->tm_year - 30) << " "
+                << (now->tm_hour % 12) << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << " " << ((now->tm_hour < 12) ? "AM\n" : "PM\n");
+            msg << "Description: " << message << "\n\n";
+            msg << "-- System Details --\nDetails:\n";
+            msg << "Operating System: " << System::OS() << "\n";
+            msg << "CPU: " << System::CPU() << "\n";
+            msg << "Graphics device: " << System::GPU() << "\n";
+            msg << "Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
+            std::cerr << msg.str();
 
-        std::stringstream msg;
-        msg << "---- Crash Report ----\n";
-        msg << "Time: " << now->tm_mon << "/" << now->tm_mday << "/" << (now->tm_year - 30) << " "
-            << (now->tm_hour % 12) << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << " " << ((now->tm_hour < 12) ? "AM\n" : "PM\n");
-        msg << "Description: " << message << "\n\n";
-        msg << "-- System Details --\nDetails:\n";
-        msg << "Operating System: " << System::OS() << "\n";
-        msg << "CPU: " << System::CPU() << "\n";
-        msg << "Graphics device: " << System::GPU() << "\n";
-        msg << "Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
-        std::cerr << msg.str();
-
-        mtx_.lock();
-        std::ofstream file;
-        file.open(crashPath_, std::ios::out | std::ios::binary | std::ios::trunc);
-        file << msg.str();
-        file.close();
-        mtx_.unlock();
+            mtx_.lock();
+            std::ofstream file;
+            file.open(crashPath_, std::ios::out | std::ios::binary | std::ios::trunc);
+            file << msg.str();
+            file.close();
+            mtx_.unlock();
+        }
 
         Core::running = false;
         throw std::runtime_error(message);
