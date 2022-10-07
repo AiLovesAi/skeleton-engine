@@ -5,14 +5,13 @@
 #include <string>
 
 namespace game {
-    // Types
-    typedef struct FileContents_ {
-        size_t len = 0;
-        std::shared_ptr<uint8_t> data = nullptr;
-    } FileContents;
-    
     class File {
         public:
+            // Types
+            typedef struct FileContents_ {
+                size_t len = 0;
+                std::shared_ptr<uint8_t> data = nullptr;
+            } FileContents;
 
             // Functions
             static void init();

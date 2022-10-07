@@ -49,7 +49,7 @@ namespace game {
         }
     }
 
-    FileContents const File::readFile(const char* filepath) {
+    File::FileContents const File::readFile(const char* filepath) {
         if (!fs::exists(filepath)) {
             std::stringstream msg;
             msg << "File not found: " << filepath;
@@ -126,7 +126,7 @@ namespace game {
         mtx.unlock();
     }
 
-    FileContents const File::decompressFile(const char* filepath) {
+    File::FileContents const File::decompressFile(const char* filepath) {
         lzma_stream stream = LZMA_STREAM_INIT;
 	    lzma_action action = LZMA_RUN;
 
