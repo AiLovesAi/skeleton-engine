@@ -30,6 +30,12 @@ namespace game {
             static bool const isAscii(const std::string& str);
 
             static std::string executableDir() { return executableDir_; }
+
+            // Variables
+            // Level 3 seems to be a good compromise between compression size and speed.
+            // Level 2-3 has a noticeable difference in size and moderate increase in compression time.
+            // Level 4 has very little increase but double the time of 3.
+            static constexpr uint32_t COMPRESSION_PRESET = 3;
             
         private:
             // Functions
