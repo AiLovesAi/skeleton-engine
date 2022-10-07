@@ -49,7 +49,7 @@ namespace game {
         }
     }
 
-    std::shared_pointer<uint8_t*> const File::readFile(const char* filepath, size_t* len) {
+    FileContents const File::readFile(const char* filepath) {
         if (!fs::exists(filepath)) {
             std::stringstream msg;
             msg << "File not found: " << filepath;
@@ -87,15 +87,18 @@ namespace game {
         // Close file
         std::fclose(f);
         mtx.unlock();
-        if (len) *len = head;
         data = static_cast<uint8_t*>(std::realloc(data, head));
-        return data;
+
+        FileContents contents;
+        contents.len = head; 
+        contents.data = std::shared_ptr<uint8_t>(data, std::free);
+        return contents;
     }
 
-    void const File::writeFile(const char* filepath, const uint8_t* data, size_t len, const bool append) {
-        if (append && !fs::exists(file)) {
+    void const File::writeFile(const char* filepath, const FileContents& contents, const bool append) {
+        if (append && !fs::exists(filepath)) {
             std::stringstream msg;
-            msg << "File not found: " << file;
+            msg << "File not found: " << filepath;
             Logger::crash(msg.str());
         }
 
@@ -110,10 +113,12 @@ namespace game {
         }
 
         // Write
+        const size_t len = contents.len;
+        const uint8_t* data = contents.data.get();
         size_t c = 0;
         for (size_t head = 0; head < len; head += c) {
             c = std::min(static_cast<size_t>(BUFSIZ), len - head);
-            std::fwrite(cstr + head, 1, c, f);
+            std::fwrite(data + head, 1, c, f);
         }
 
         // Close file
@@ -121,7 +126,7 @@ namespace game {
         mtx.unlock();
     }
 
-    std::shared_pointer<uint8_t*> const File::decompressFile(const char* filepath, size_t* len) {
+    FileContents const File::decompressFile(const char* filepath) {
         lzma_stream stream = LZMA_STREAM_INIT;
 	    lzma_action action = LZMA_RUN;
 
@@ -137,7 +142,7 @@ namespace game {
         size_t head = 0, c = 0;
         uint8_t buf[BUFSIZ];
         size_t capacity = sizeof(buf);
-        uint8_t* data = static_cast<uint8_t*>(std::malloc(data, capacity));
+        uint8_t* data = static_cast<uint8_t*>(std::malloc(capacity));
 
         stream.next_in = nullptr;
         stream.avail_in = 0;
@@ -208,12 +213,15 @@ namespace game {
         std::fclose(f);
 	    lzma_end(&stream);
         mtx.unlock();
-	    if (len) *len = head;
 	    data = static_cast<uint8_t*>(std::realloc(data, head));
-	    return data;
+
+        FileContents contents;
+	    contents.len = head;
+        contents.data = std::shared_ptr<uint8_t>(data, std::free);
+        return contents;
     }
 
-    void const File::compressFile(const char* filepath, const uint8_t* data, const size_t len, const bool append) {
+    void const File::compressFile(const char* filepath, const FileContents& contents, const bool append) {
         lzma_stream stream = LZMA_STREAM_INIT;
 	    lzma_action action = LZMA_RUN;
 
@@ -225,6 +233,9 @@ namespace game {
             msg << "Error opening file: " << filepath;
             Logger::crash(msg.str());
         }
+
+        const size_t len = contents.len;
+        const uint8_t* data = contents.data.get();
 
         size_t head = 0, c = 0;
         uint8_t buf[BUFSIZ];

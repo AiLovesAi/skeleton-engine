@@ -5,20 +5,27 @@
 #include <string>
 
 namespace game {
+    // Types
+    typedef struct FileContents_ {
+        size_t len = 0;
+        std::shared_ptr<uint8_t> data = nullptr;
+    } FileContents;
+    
     class File {
         public:
+
             // Functions
             static void init();
 
             static void const ensureParentDir(const std::string& path);
             
-            static std::shared_pointer<uint8_t*> const readFile(const char* filepath, size_t* len) __attribute__((warn_unused_result));
-            static void const writeFile(const char* filepath, const uint8_t* data, const size_t len) { writeFile(filepath, data, len, false); }
-            static void const writeFile(const char* filepath, const uint8_t* data, const size_t len, const bool append);
+            static FileContents const readFile(const char* filepath);
+            static void const writeFile(const char* filepath, const FileContents& contents) { writeFile(filepath, contents, false); }
+            static void const writeFile(const char* filepath, const FileContents& contents, const bool append);
             
-            static std::shared_pointer<uint8_t*> const decompressFile(const char* filepath, size_t* len) __attribute__((warn_unused_result));
-            static void const compressFile(const char* filepath, const uint8_t* data, const size_t len) { compressFile(file, data, false); }
-            static void const compressFile(const char* filepath, const uint8_t* data, const size_t len, const bool append);
+            static FileContents const decompressFile(const char* filepath);
+            static void const compressFile(const char* filepath, const FileContents& contents) { compressFile(filepath, contents, false); }
+            static void const compressFile(const char* filepath, const FileContents& contents, const bool append);
             
             static std::string const asAscii(const std::string& str);
             static bool const isAscii(const std::string& str);
