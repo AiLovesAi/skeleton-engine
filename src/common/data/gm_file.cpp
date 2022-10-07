@@ -196,20 +196,20 @@ namespace game {
         }
         
         size_t head = 0, c = 0;
-        uint8_t buf[BUFSIZ];
-        size_t capacity = sizeof(buf);
+        uint8_t inbuf[BUFSIZ], outbuf[BUFSIZ];
+        size_t capacity = sizeof(inbuf);
         uint8_t* data = static_cast<uint8_t*>(std::malloc(capacity));
 
         stream.next_in = nullptr;
         stream.avail_in = 0;
-        stream.next_out = buf;
-        stream.avail_out = sizeof(buf);
+        stream.next_out = outbuf;
+        stream.avail_out = sizeof(outbuf);
 
         while (true) {
             // Fill input buffer
             if (stream.avail_in == 0 && !std::feof(f)) {
-                stream.next_in = buf;
-                stream.avail_in = std::fread(buf, 1, sizeof(buf), f);
+                stream.next_in = inbuf;
+                stream.avail_in = std::fread(inbuf, 1, sizeof(inbuf), f);
 
                 if (std::feof(f)) action = LZMA_FINISH;
             }
@@ -219,17 +219,18 @@ namespace game {
 
             // Fill output data
             if (stream.avail_out == 0 || ret == LZMA_STREAM_END) {
-                c = sizeof(buf) - stream.avail_out;
+                c = sizeof(outbuf) - stream.avail_out;
                 head += c;
                 
-                // Check if next cycle can store enough data
-                if (capacity < head + sizeof(buf)) {
+                // Check if data can fit buffer
+                if (capacity < head) {
                     capacity *= 2;
                     data = static_cast<uint8_t*>(std::realloc(data, capacity));
                 }
+                std::memcpy(data + (head - c), outbuf, c);
                 
-                stream.next_out = data + head;
-                stream.avail_out = sizeof(buf);
+                stream.next_out = outbuf;
+                stream.avail_out = sizeof(outbuf);
             }
 
             if (ret != LZMA_OK) {
