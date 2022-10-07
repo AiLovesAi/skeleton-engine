@@ -27,7 +27,7 @@ namespace game {
         msg << "Hardware details:\n";
         msg << "CPU: " << System::CPU() << "\n";
         msg << "CPU threads: " << System::cpuThreadCount() << "\n";
-        msg << "Physical memory: " << System::physicalMemory();
+        msg << "Physical memory: " << System::physicalMemory() << "B";
         Logger::log(LOG_INFO, msg.str());
     }
 }
