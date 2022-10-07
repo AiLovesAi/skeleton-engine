@@ -122,7 +122,7 @@ namespace game {
             msg << "Time: " << now->tm_mon << "/" << now->tm_mday << "/" << (now->tm_year - 30) << " "
                 << (now->tm_hour % 12) << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << " " << ((now->tm_hour < 12) ? "AM\n" : "PM\n");
             msg << "Description: " << message << "\n\n";
-            msg << "-- System Details --\nDetails:\n";
+            msg << "--- System Details ---\n";
             msg << "Operating System: " << System::OS() << "\n";
             msg << "Physical Memory: " << System::physicalMemory() << "B\n";
             msg << "CPU: " << System::CPU() << "\n";

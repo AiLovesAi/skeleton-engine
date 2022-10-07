@@ -25,9 +25,9 @@ namespace game {
 
         std::stringstream msg;
         msg << "Hardware details:\n";
-        msg << "CPU: " << System::CPU() << "\n";
-        msg << "CPU threads: " << System::cpuThreadCount() << "\n";
-        msg << "Physical memory: " << System::physicalMemory() << "B";
+        msg << "\tCPU: " << System::CPU() << "\n";
+        msg << "\tCPU threads: " << System::cpuThreadCount() << "\n";
+        msg << "\tPhysical memory: " << System::physicalMemory() << "B";
         Logger::log(LOG_INFO, msg.str());
     }
 }
