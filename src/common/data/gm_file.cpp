@@ -2,6 +2,7 @@
 
 #include "../gm_core.hpp"
 #include "../logger/gm_logger.hpp"
+#include "../system/gm_system.hpp"
 
 #include <lzma.h>
 
@@ -126,24 +127,7 @@ namespace game {
         mtx.unlock();
     }
 
-    void initDecoder(lzma_stream *stream, const char* filepath) {
-        // Initialize a .xz decoder. The decoder supports a memory usage limit
-        // and a set of flags.
-        //
-        // The memory usage of the decompressor depends on the settings used
-        // to compress a .xz file. It can vary from less than a megabyte to
-        // a few gigabytes, but in practice (at least for now) it rarely
-        // exceeds 65 MiB because that's how much memory is required to
-        // decompress files created with "xz -9". Settings requiring more
-        // memory take extra effort to use and don't (at least for now)
-        // provide significantly better compression in most cases.
-        //
-        // Memory usage limit is useful if it is important that the
-        // decompressor won't consume gigabytes of memory. The need
-        // for limiting depends on the application. In this example,
-        // no memory usage limiting is used. This is done by setting
-        // the limit to UINT64_MAX.
-        //
+    inline void initDecoder(lzma_stream *stream, const char* filepath) {
         // The .xz format allows concatenating compressed files as is:
         //
         //     echo foo | xz > foobar.xz
@@ -278,12 +262,18 @@ namespace game {
         return contents;
     }
 
-    void initEncoder(lzma_stream* stream, const char* filepath) {
-        // Initialize the encoder using a preset. Set the integrity to check
-        // to CRC64, which is the default in the xz command line tool. If
-        // the .xz file needs to be decompressed with XZ Embedded, use
-        // LZMA_CHECK_CRC32 instead.
-        lzma_ret ret = lzma_easy_encoder(stream, File::COMPRESSION_PRESET, LZMA_CHECK_CRC64);
+    inline void initEncoder(lzma_stream* stream, const char* filepath) {
+        lzma_mt mt = {
+            .flags = 0,
+            .threads = std::min(System::cpuThreadCount(), static_cast<uint32_t>(8)),
+            .block_size = 0,
+            .timeout = 0,
+            .preset = File::COMPRESSION_PRESET,
+            .filters = nullptr, // Filters must be null with a preset
+            .check = LZMA_CHECK_CRC64,
+        };
+
+        lzma_ret ret = lzma_stream_encoder_mt(stream, &mt);
 
         if (ret != LZMA_OK) {
             std::stringstream msg;
