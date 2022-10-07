@@ -7,6 +7,7 @@
 
 #include <ctime>
 #include <random>
+#include <sstream>
 
 namespace game {
     std::string Core::TITLE = Core::EMPTYSTR;
@@ -21,8 +22,12 @@ namespace game {
         File::init();
         Logger::init(logFile, crashFile);
 
-        Logger::log(LOG_INFO, "CPU: " + System::CPU());
-        Logger::log(LOG_INFO, "CPU threads: " + System::cpuThreadCount());
-        Logger::log(LOG_INFO, "Physical memory: " + System::physicalMemory());
+
+        std::stringstream msg;
+        msg << "Hardware details:\n";
+        msg << "CPU: " << System::CPU() << "\n";
+        msg << "CPU threads: " << System::cpuThreadCount() << "\n";
+        msg << "Physical memory: " << System::physicalMemory();
+        Logger::log(LOG_INFO, msg.str());
     }
 }
