@@ -39,15 +39,15 @@ namespace game {
             //     write(&networkData, sizeof(T));
             // }
 
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, const uint8_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, const int8_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, uint16_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, int16_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, uint32_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, int32_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, uint64_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, int64_t data);
-            static std::shared_ptr<uint8_t> generate(const wchar_t* name, uint8_t nameLen, const wchar_t* data, uint16_t len);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, uint8_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, int8_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, uint16_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, int16_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, uint32_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, int32_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, uint64_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, int64_t data);
+            static std::shared_ptr<uint8_t> generate(const wchar_t* name, const uint8_t nameLen, const wchar_t* data, uint16_t len);
 
             // Variables
             uint8_t* buffer_ = nullptr;

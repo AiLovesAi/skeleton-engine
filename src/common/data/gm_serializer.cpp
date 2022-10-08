@@ -20,118 +20,110 @@ namespace game {
         head_ = resultHead;
     }
 
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, const uint8_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, const uint8_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(uint8_t)];
-        nameLen = Endianness::hton(nameLen);
 
         buffer[0] = BKV::BKV_UINT8;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         buffer[c] = data;
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, const int8_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, const int8_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(int8_t)];
-        nameLen = Endianness::hton(nameLen);
 
         buffer[0] = BKV::BKV_INT8;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         buffer[c] = data;
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, uint16_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, uint16_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(uint16_t)];
-        nameLen = Endianness::hton(nameLen);
         data = Endianness::hton(data);
 
         buffer[0] = BKV::BKV_UINT16;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         std::memcpy(buffer + c, &data, sizeof(uint16_t));
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, int16_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, int16_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(int16_t)];
-        nameLen = Endianness::hton(nameLen);
         data = Endianness::hton(data);
 
         buffer[0] = BKV::BKV_INT16;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         std::memcpy(buffer + c, &data, sizeof(int16_t));
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, uint32_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, uint32_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(uint32_t)];
-        nameLen = Endianness::hton(nameLen);
         data = Endianness::hton(data);
 
         buffer[0] = BKV::BKV_UINT32;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         std::memcpy(buffer + c, &data, sizeof(uint32_t));
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, int32_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, int32_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(int32_t)];
-        nameLen = Endianness::hton(nameLen);
         data = Endianness::hton(data);
 
         buffer[0] = BKV::BKV_INT32;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         std::memcpy(buffer + c, &data, sizeof(int32_t));
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, uint64_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, uint64_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(uint64_t)];
-        nameLen = Endianness::hton(nameLen);
         data = Endianness::hton(data);
 
         buffer[0] = BKV::BKV_UINT64;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         std::memcpy(buffer + c, &data, sizeof(uint64_t));
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, int64_t data) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, int64_t data) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
         uint8_t *buffer = new uint8_t[c + sizeof(int64_t)];
-        nameLen = Endianness::hton(nameLen);
         data = Endianness::hton(data);
 
         buffer[0] = BKV::BKV_INT64;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
         std::memcpy(buffer + c, &data, sizeof(int64_t));
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
-    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, uint8_t nameLen, const wchar_t* data, uint16_t len) {
+    std::shared_ptr<uint8_t> Serializer::generate(const wchar_t* name, const uint8_t nameLen, const wchar_t* data, uint16_t len) {
         size_t c = 2 + (sizeof(wchar_t) * nameLen);
-        uint8_t *buffer = new uint8_t[c + (sizeof(wchar_t) * len)];
-        nameLen = Endianness::hton(nameLen);
-        data = Endianness::hton(data);
+        uint8_t *buffer = new uint8_t[c + sizeof(uint16_t) + (sizeof(wchar_t) * len)];
 
         buffer[0] = BKV::BKV_STRING;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen);
-        std::memcpy(buffer + c, data, sizeof(wchar_t) * len);
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
+        std::memcpy(buffer + c + sizeof(uint16_t), data, sizeof(wchar_t) * len); // Copy string after string length
+        len = Endianness::hton(len);
+        std::memcpy(buffer + c, &len, sizeof(uint16_t)); // Copy string length before string
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
