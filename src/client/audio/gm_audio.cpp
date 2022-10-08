@@ -1,6 +1,6 @@
 #include "gm_audio.hpp"
 
-#include <common/logger/gm_logger.hpp>
+#include <common/data/gm_logger.hpp>
 
 #include <fstream>
 

@@ -3,7 +3,7 @@
 #include "../game/gm_model.hpp"
 
 #include <common/data/gm_file.hpp>
-#include <common/logger/gm_logger.hpp>
+#include <common/data/gm_logger.hpp>
 
 #include <fstream>
 

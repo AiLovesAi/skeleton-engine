@@ -13,12 +13,12 @@ namespace game {
             // |===ID===|================KEY============================|===VALUE===|
             // | tagID  | BKV_UINT8 (name length) + UTF-8 String (name) | <Payload> |
             // |========|===============================================|===========|
-            // Example: (BKV_COMPOUND + strLen + "Compound"){ (BKV_UINT32 + strLen + "ID") + 0xdeadbeef }BKV_END
-            // Example HEX: 0108<0x"Compound"> 0b02<0x"ID">deadbeef 00
-            // Example SBKV: {Compound:{ID:0xdeadbeef}}
+            // Example: (BKV_COMPOUND + strLen + "Compound"){ (BKV_UINT32 + strLen + "id") + 0xdeadbeef }BKV_END
+            // Example HEX: 0108<0x"Compound"> 0b02<0x"id">deadbeef 00
+            // Example SBKV: {Compound:{id:0xdeadbeef}}
             // Payloads for each type are listed below:
             enum BKV_Tags {
-                BKV_END = 0, // End of compound (does not have a name)
+                BKV_END, // End of compound (does not have a name)
                 BKV_COMPOUND, // List of tags, closed by BKV_END
                 BKV_LIST, // BKV_UINT8 (tagID) + BKV_UINT32 (size) + Array of BKV_<tagID>
                 BKV_UINT8, // 1B Unsigned Int

@@ -1,7 +1,7 @@
 #include "gm_system.hpp"
 
 #include "../gm_core.hpp"
-#include "../logger/gm_logger.hpp"
+#include "../data/gm_logger.hpp"
 #include "../data/gm_file.hpp"
 
 #include <lzma.h>
