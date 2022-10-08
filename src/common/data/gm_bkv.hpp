@@ -1,7 +1,5 @@
 #pragma once
 
-#include "gm_file.hpp"
-
 #include <cstdint>
 
 namespace game {
