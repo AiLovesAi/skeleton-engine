@@ -27,7 +27,7 @@ namespace game {
         buffer[0] = BKV::BKV_UINT8;
         buffer[1] = nameLen;
         std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
-        buffer[c] = data;
+        buffer[c - 1] = data;
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
@@ -38,7 +38,7 @@ namespace game {
         buffer[0] = BKV::BKV_INT8;
         buffer[1] = nameLen;
         std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
-        buffer[c] = data;
+        buffer[c - 1] = data;
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
