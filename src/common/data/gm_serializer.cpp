@@ -29,10 +29,10 @@ namespace game {
         uint8_t *buffer = new uint8_t[c + sizeof(T)];
         data = Endianness::hton(data);
 
-        buffer[0] = BKV::BKV_I64;
-        buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
-        std::memcpy(buffer + c, &data, sizeof(T));
+        buffer[0] = BKV::BKV_I64; // ID
+        buffer[1] = nameLen; // Name length
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Name
+        std::memcpy(buffer + c, &data, sizeof(T)); // Data
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
@@ -42,10 +42,10 @@ namespace game {
 
         buffer[0] = BKV::BKV_STR;
         buffer[1] = nameLen;
-        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Copy name
-        std::memcpy(buffer + c + sizeof(uint16_t), data, sizeof(wchar_t) * len); // Copy string after string length
+        std::memcpy(buffer + 2, name, sizeof(wchar_t) * nameLen); // Name
+        std::memcpy(buffer + c + sizeof(uint16_t), data, sizeof(wchar_t) * len); // String (after string length)
         len = Endianness::hton(len);
-        std::memcpy(buffer + c, &len, sizeof(uint16_t)); // Copy string length before string
+        std::memcpy(buffer + c, &len, sizeof(uint16_t)); // String Length (before string)
 
         return std::shared_ptr<uint8_t>(buffer, std::free);
     }
