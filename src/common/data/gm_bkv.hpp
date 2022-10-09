@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 namespace game {
     class BKV {
@@ -8,6 +9,11 @@ namespace game {
             // Types
             template <typename T>
             struct BKVTypeMap { static const uint8_t tagID; };
+            
+            typedef struct UTF8Str_ {
+                uint16_t len;
+                std::shared_ptr<char> str;
+            } UTF8Str;
 
             // Binary Key Value Tags
             // Key/Value format:
@@ -44,5 +50,15 @@ namespace game {
                 BKV_STR, // BKV_UI16 (length) + UTF-8 String
                 BKV_STR_ARRAY, // BKV_UI32 (size) + Array of BKV_STR
             };
+
+            // Functions
+            static std::shared_ptr<uint8_t> generateCompound(const UTF8Str& name);
+            static inline uint8_t generateCompoundEnd() { return BKV::BKV_END; }
+            template<typename T>
+            static std::shared_ptr<uint8_t> generate(const UTF8Str& name, const T data);
+            template<typename T>
+            static std::shared_ptr<uint8_t> generateList(const UTF8Str& name, const T* data, const uint32_t size);
+            static std::shared_ptr<uint8_t> generateStr(const UTF8Str& name, const UTF8Str& data);
+            static std::shared_ptr<uint8_t> generateStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
     };
 }
