@@ -5,7 +5,10 @@
 namespace game {
     class BKV {
         public:
-            // Enums
+            // Types
+            template <typename T>
+            struct BKVTypeMap { static const uint8_t tagID; };
+
             // Binary Key Value Tags
             // Key/Value format:
             // |===ID===|================KEY==========================|===VALUE===|
@@ -18,7 +21,6 @@ namespace game {
             enum BKV_Tags {
                 BKV_END, // End of compound (does not have a name)
                 BKV_COMPOUND, // List of tags, closed by BKV_END
-                BKV_LIST, // BKV_UI8 (tagID) + BKV_UI32 (size) + Array of BKV_<tagID>
                 BKV_UI8, // 1B Unsigned Int
                 BKV_UI8_ARRAY, // BKV_UI32 (size) + Array of BKV_UI8
                 BKV_I8, // 1B Signed Int
