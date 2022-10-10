@@ -1,7 +1,7 @@
 #include "gm_file.hpp"
 
+#include "gm_logger.hpp"
 #include "../gm_core.hpp"
-#include "../data/gm_logger.hpp"
 #include "../system/gm_system.hpp"
 
 #include <lzma.h>
@@ -90,10 +90,7 @@ namespace game {
         mtx.unlock();
         data = static_cast<uint8_t*>(std::realloc(data, head));
 
-        FileContents contents;
-        contents.len = head; 
-        contents.data = std::shared_ptr<uint8_t>(data, std::free);
-        return contents;
+        return FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};
     }
 
     void const File::writeFile(const char* filepath, const FileContents& contents, const bool append) {
@@ -256,10 +253,7 @@ namespace game {
         mtx.unlock();
 	    data = static_cast<uint8_t*>(std::realloc(data, head));
 
-        FileContents contents;
-	    contents.len = head;
-        contents.data = std::shared_ptr<uint8_t>(data, std::free);
-        return contents;
+        return FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};;
     }
 
     inline void initEncoder(lzma_stream* stream, const char* filepath) {
