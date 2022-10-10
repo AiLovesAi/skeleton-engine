@@ -24,7 +24,7 @@ namespace game {
             }
             template <typename T>
             static inline T ntoh(const T data) {
-                hton(data);
+                return hton(data);
             }
             
         private:
