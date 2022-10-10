@@ -607,6 +607,7 @@ namespace game {
     
     BKV::BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
         // TODO
+        return BKV_t{};
     }
     BKV::BKV_t BKV::bkvCompound(const UTF8Str& name) {
         if (name.len > 0xff) {
@@ -662,7 +663,7 @@ namespace game {
         buffer[0] = BKV::BKVTypeMap<T>::tagID + 1; // ID (TagID + 1 is an array of that type)
         buffer[1] = name.len; // Name length
         std::memcpy(buffer + 2, name.str.get(), name.len); // Name
-        std::memcpy(buffer + c - sizeof(uint32_t), &networkSize, sizeof(uint32_t)); // List size
+        std::memcpy(buffer + listStart - sizeof(uint32_t), &networkSize, sizeof(uint32_t)); // List size
         T networkData;
         for (size_t i = 0; i < size; i++) {
             networkData = Endianness::hton(data[i]);
