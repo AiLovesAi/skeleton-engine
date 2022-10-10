@@ -11,9 +11,14 @@ namespace game {
             struct BKVTypeMap { static const uint8_t tagID; };
             
             typedef struct UTF8Str_ {
-                uint16_t len;
+                size_t len;
                 std::shared_ptr<char> str;
             } UTF8Str;
+            
+            typedef struct BKV_t_ {
+                size_t size;
+                std::shared_ptr<uint8_t> data;
+            } BKV_t;
 
             // Binary Key Value Tags
             // Key/Value format:
@@ -51,14 +56,43 @@ namespace game {
                 BKV_STR_ARRAY, // BKV_UI32 (size) + Array of BKV_STR
             };
 
+            // Constructors
+            BKV() {}
+            BKV(const BKV_t& bkv);
+            BKV(const UTF8Str& stringified);
+            ~BKV() { std::free(buffer_); };
+
             // Functions
-            static std::shared_ptr<uint8_t> generateCompound(const UTF8Str& name);
-            static inline uint8_t generateCompoundEnd() { return BKV::BKV_END; }
             template<typename T>
-            static std::shared_ptr<uint8_t> generate(const UTF8Str& name, const T data);
+            void set(const std::string& name, const T data);
             template<typename T>
-            static std::shared_ptr<uint8_t> generateList(const UTF8Str& name, const T* data, const uint32_t size);
-            static std::shared_ptr<uint8_t> generateStr(const UTF8Str& name, const UTF8Str& data);
-            static std::shared_ptr<uint8_t> generateStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
+            void setList(const std::string& name, const T* data, const uint32_t size);
+            void setStr(const std::string& name, const UTF8Str& data);
+            void setStrList(const std::string& name, const UTF8Str* data, const uint16_t size);
+            
+            template<typename T>
+            T get(const std::string& name);
+
+        private:
+            // Functions
+            void resizeBuffer(const size_t size);
+            void write(const BKV_t& bkv);
+
+            static UTF8Str sbkvFromBKV(const BKV_t& bkv);
+
+            static BKV_t bkvFromSBKV(const UTF8Str& stringified);
+            static BKV_t bkvCompound(const UTF8Str& name);
+            static inline uint8_t bkvCompoundEnd() { return BKV::BKV_END; }
+            template<typename T>
+            static BKV_t bkv(const UTF8Str& name, const T data);
+            template<typename T>
+            static BKV_t bkvList(const UTF8Str& name, const T* data, const uint32_t size);
+            static BKV_t bkvStr(const UTF8Str& name, const UTF8Str& data);
+            static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
+
+            // Variables
+            uint8_t* buffer_ = nullptr;
+            size_t head_ = 0;
+            size_t capacity_ = 0;
     };
 }
