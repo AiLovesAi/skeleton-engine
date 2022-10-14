@@ -64,23 +64,25 @@ namespace game {
                     checkResize(sbkv, head + 1, capacity);
                     sbkv[head++] = '}';
                     break;
-                case BKV_COMPOUND: // "Name:{"
+                case BKV_COMPOUND: // Name:{
                     checkResize(sbkv, head + data[i] + 2, capacity);
+
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
+
                     sbkv[head++] = ':';
                     sbkv[head++] = '{';
                     break;
                 case BKV_UI8: { // Name:Xub
-                    const std::string val = std::to_string(data[i++]);
+                    const std::string val = std::to_string(data[i + 1 + data[i]]);
                     checkResize(sbkv, head + data[i] + val.length() + 3, capacity);
 
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i] + sizeof(uint8_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -94,7 +96,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -118,12 +120,16 @@ namespace game {
                     sbkv[head] = ']'; // Replace last comma with close bracket
                 } break;
                 case BKV_I8: { // Name:Xb
-                    const std::string val = std::to_string(data[i++]); // TODO This is incorrect. Should be data[i + 1 + nameLen], move to after Name
+                    const std::string val = std::to_string(data[i + 1 + data[i]]);
                     checkResize(sbkv, head + data[i] + val.length() + 2, capacity);
-                    std::memcpy(sbkv + head, data + i + 1, data[i]); // Name
+
+                    // Name
+                    std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i] + sizeof(int8_t);
                     sbkv[head++] = ':';
+
+                    // Value
                     std::memcpy(sbkv + head, val.c_str(), val.length()); // Value
                     head += val.length();
                     sbkv[head++] = 'b';
@@ -133,7 +139,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -158,7 +164,7 @@ namespace game {
                 case BKV_UI16: { // Name:Xus
                     // Val
                     uint16_t v;
-                    std::memcpy(&v, data + i + data[i], sizeof(uint16_t));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(uint16_t));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -167,7 +173,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(uint16_t);
+                    i += 1 + data[i] + sizeof(uint16_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -181,7 +187,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -212,7 +218,7 @@ namespace game {
                 case BKV_I16: { // Name:Xs
                     // Val
                     int16_t v;
-                    std::memcpy(&v, data + i + data[i], sizeof(int16_t));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(int16_t));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -221,7 +227,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(int16_t);
+                    i += 1 + data[i] + sizeof(int16_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -234,7 +240,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -264,7 +270,7 @@ namespace game {
                 case BKV_UI32: { // Name:Xu
                     // Val
                     uint32_t v;
-                    std::memcpy(&v, data + i + data[i], sizeof(uint32_t));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(uint32_t));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -273,7 +279,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(uint32_t);
+                    i += 1 + data[i] + sizeof(uint32_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -286,7 +292,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -316,7 +322,7 @@ namespace game {
                 case BKV_I32: { // Name:X
                     // Val
                     int32_t v;
-                    std::memcpy(&v, data + i + data[i], sizeof(int32_t));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(int32_t));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -325,7 +331,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(int32_t);
+                    i += 1 + data[i] + sizeof(int32_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -337,7 +343,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -366,7 +372,7 @@ namespace game {
                 case BKV_UI64: { // Name:Xul
                     // Val
                     uint64_t v;
-                    std::memcpy(&v, data + i + data[i], sizeof(uint64_t));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(uint64_t));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -375,7 +381,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(uint64_t);
+                    i += 1 + data[i] + sizeof(uint64_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -389,7 +395,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -420,7 +426,7 @@ namespace game {
                 case BKV_I64: { // Name:Xl
                     // Val
                     int64_t v;
-                    std::memcpy(&v, data + i + data[i], sizeof(int64_t));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(int64_t));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -429,7 +435,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(int16_t);
+                    i += 1 + data[i] + sizeof(int16_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -442,7 +448,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -472,7 +478,7 @@ namespace game {
                 case BKV_FLOAT: { // Name:X.f
                     // Val
                     float v;
-                    std::memcpy(&v, data + i + data[i], sizeof(float));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(float));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -481,7 +487,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(float);
+                    i += 1 + data[i] + sizeof(float);
                     sbkv[head++] = ':';
 
                     // Value
@@ -494,7 +500,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -524,7 +530,7 @@ namespace game {
                 case BKV_DOUBLE: { // Name:X.
                     // Val
                     double v;
-                    std::memcpy(&v, data + i + data[i], sizeof(double));
+                    std::memcpy(&v, data + i + 1 + data[i], sizeof(double));
                     v = Endianness::ntoh(v);
 
                     const std::string val = std::to_string(v);
@@ -533,7 +539,7 @@ namespace game {
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(double);
+                    i += 1 + data[i] + sizeof(double);
                     sbkv[head++] = ':';
 
                     // Value
@@ -545,7 +551,7 @@ namespace game {
                     checkResize(sbkv, head + data[i] + 2, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
-                    i += data[i];
+                    i += 1 + data[i];
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
                     
@@ -574,31 +580,61 @@ namespace game {
                 case BKV_STR: { // Name:"Str"
                     // Val
                     size_t len;
-                    std::memcpy(&len, data + i + data[i], sizeof(uint16_t));
+                    std::memcpy(&len, data + i + 1 + data[i], sizeof(uint16_t));
                     len = Endianness::ntoh(len);
 
-                    checkResize(sbkv, head + data[i] + len + 1, capacity);
+                    checkResize(sbkv, head + data[i] + len + 3, capacity);
 
                     // Name
                     std::memcpy(sbkv + head, data + i + 3, data[i]);
                     head += data[i];
-                    i += data[i] + sizeof(uint16_t);
+                    i += 1 + data[i] + sizeof(uint16_t);
                     sbkv[head++] = ':';
                     sbkv[head++] = '"';
 
                     // Value
-                    std::memcpy(sbkv + head, data + i, len); // Value
+                    std::memcpy(sbkv + head, data + i, len);
                     head += len;
                     i += len;
                     sbkv[head++] = '"';
                 } break;
-                    break;
-                case BKV_STR_ARRAY: // Name:["Str1", "Str2", "Str3"]
-                    // TODO
-                    break;
+                case BKV_STR_ARRAY: { // Name:["Str1","Str2","Str3"]
+                    // Name
+                    checkResize(sbkv, head + data[i] + 2, capacity);
+                    std::memcpy(sbkv + head, data + i + 1, data[i]);
+                    head += data[i];
+                    i += 1 + data[i];
+                    sbkv[head++] = ':';
+                    sbkv[head++] = '[';
+
+                    // Array size
+                    uint32_t size;
+                    std::memcpy(&size, data + i, sizeof(uint32_t));
+                    i += sizeof(uint32_t);
+                    size = Endianness::ntoh(size);
+
+                    // Values
+                    uint16_t len;
+                    std::string str;
+                    for (uint32_t index = 0; index < size; index++) {
+                        std::memcpy(&len, data + i, sizeof(uint16_t));
+                        i += sizeof(uint16_t);
+                        len = Endianness::ntoh(len);
+
+                        checkResize(sbkv, head + len + 3, capacity);
+                        sbkv[head++] = '"';
+                        std::memcpy(sbkv + head, data + i, len);
+                        head += len;
+                        i += len;
+                        sbkv[head++] = '"';
+                        sbkv[head++] = ',';
+                    }
+                    sbkv[head] = ']'; // Replace last comma with close bracket
+                } break;
             }
         }
 
+        checkResize(sbkv, head + 1, capacity);
         sbkv[head++] = '}';
         capacity = head + 1;
         sbkv = static_cast<char*>(std::realloc(sbkv, capacity));
