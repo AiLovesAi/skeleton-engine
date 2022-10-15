@@ -71,7 +71,7 @@ namespace game {
     }
 
     template <typename T>
-    void setValueSBKV(const uint8_t* data, char*& sbkv, size_t& head, size_t& capacity) {
+    void setValueSBKV(const uint8_t* data, char*& sbkv, size_t& i, size_t& head, size_t& capacity) {
         // Val
         T v;
         std::memcpy(&v, data + i + 1 + data[i], sizeof(T));
@@ -94,7 +94,7 @@ namespace game {
         sbkv[head++] = ',';
     }
     template <typename T>
-    void setArraySBKV(const uint8_t* data, char*& sbkv, size_t& head, size_t& capacity) {
+    void setArraySBKV(const uint8_t* data, char*& sbkv, size_t& i,  size_t& head, size_t& capacity) {
         // Name
         checkResize(sbkv, head + data[i] + 2, capacity);
         std::memcpy(sbkv + head, data + i + 1, data[i]);
@@ -153,64 +153,64 @@ namespace game {
                     sbkv[head++] = ',';
                     break;
                 case BKV_UI8: // Name:Xub
-                    setValueSBKV<uint8_t>(data, sbkv, head, capacity);
+                    setValueSBKV<uint8_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI8_ARRAY: // Name:[Xub,Yub,Zub],
-                    setArraySBKV<uint8_t>(data, sbkv, head, capacity);
+                    setArraySBKV<uint8_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I8: // Name:Xb,
-                    setValueSBKV<int8_t>(data, sbkv, head, capacity);
+                    setValueSBKV<int8_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I8_ARRAY: // Name:[Xb,Yb,Zb],
-                    setArraySBKV<int8_t>(data, sbkv, head, capacity);
+                    setArraySBKV<int8_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI16: // Name:Xus,
-                    setValueSBKV<uint16_t>(data, sbkv, head, capacity);
+                    setValueSBKV<uint16_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI16_ARRAY: // Name:[Xus,Yus,Zus],
-                    setArraySBKV<uint16_t>(data, sbkv, head, capacity);
+                    setArraySBKV<uint16_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I16: // Name:Xs,
-                    setValueSBKV<int16_t>(data, sbkv, head, capacity);
+                    setValueSBKV<int16_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I16_ARRAY: // Name:[Xs,Ys,Zs]
-                    setArraySBKV<int16_t>(data, sbkv, head, capacity);
+                    setArraySBKV<int16_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI32: // Name:Xu,
-                    setValueSBKV<uint32_t>(data, sbkv, head, capacity);
+                    setValueSBKV<uint32_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI32_ARRAY: // Name:[Xu,Yu,Zu]
-                    setArraySBKV<uint32_t>(data, sbkv, head, capacity);
+                    setArraySBKV<uint32_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I32: // Name:X,
-                    setValueSBKV<int32_t>(data, sbkv, head, capacity);
+                    setValueSBKV<int32_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I32_ARRAY: // Name:[X,Y,Z],
-                    setArraySBKV<int32_t>(data, sbkv, head, capacity);
+                    setArraySBKV<int32_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI64: // Name:Xul,
-                    setValueSBKV<uint64_t>(data, sbkv, head, capacity);
+                    setValueSBKV<uint64_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_UI64_ARRAY: // Name:[Xul,Yul,Zul],
-                    setArraySBKV<uint64_t>(data, sbkv, head, capacity);
+                    setArraySBKV<uint64_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I64: // Name:Xl,
-                    setValueSBKV<int64_t>(data, sbkv, head, capacity);
+                    setValueSBKV<int64_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_I64_ARRAY: // Name:[Xl,Yl,Zl],
-                    setArraySBKV<int64_t>(data, sbkv, head, capacity);
+                    setArraySBKV<int64_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_FLOAT: // Name:X.f,
-                    setValueSBKV<float>(data, sbkv, head, capacity);
+                    setValueSBKV<float>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_FLOAT_ARRAY: // Name:[X.f,Y.f,Z.f],
-                    setArraySBKV<float>(data, sbkv, head, capacity);
+                    setArraySBKV<float>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_DOUBLE: // Name:X.,
-                    setValueSBKV<double>(data, sbkv, head, capacity);
+                    setValueSBKV<double>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_DOUBLE_ARRAY: // Name:[X.,Y.,Z.],
-                    setArraySBKV<double>(data, sbkv, head, capacity);
+                    setArraySBKV<double>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_STR: { // Name:Str,
                     // Val
