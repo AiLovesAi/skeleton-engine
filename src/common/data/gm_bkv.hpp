@@ -10,6 +10,9 @@ namespace game {
             template <typename T>
             struct BKVTypeMap { static const uint8_t tagID; };
             
+            template <typename T>
+            struct BKVSuffixMap { static const char suffix[]; };
+            
             typedef struct UTF8Str_ {
                 size_t len;
                 std::shared_ptr<char> str;
@@ -91,6 +94,7 @@ namespace game {
             static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
 
             // Variables
+            static constexpr char DEFAULT_CHAR = -1;
             uint8_t* buffer_ = nullptr;
             size_t head_ = 0;
             size_t capacity_ = 0;
