@@ -281,34 +281,34 @@ namespace game {
         uint8_t nameLen = 0;
         uint16_t strLen = 0;
         uint32_t arraySize = 0;
-        size_t nameCapacity = BUFSIZ, strCapacity = BUFSIZ, head = 0;
-        char* name = static_cast<char*>(std::malloc(nameCapacity));
+        size_t strCapacity = BUFSIZ, head = 0;
         char* str = static_cast<char*>(std::malloc(strCapacity));
         bool inName = true, isArray = false, isNumber = false;
         char strChar = 0, c;
         for (size_t i = 0; i < stringified.len; i++) {
             c = sbkv[i];
-            if (inName) {
+            if (inName) { // Get name
                 if (c == ':') {
                     inName = false;
+                    checkResize(bkv, head + 2 + nameLen, capacity);
+                    bkv[head + 1] = nameLen;
+                    std::memcpy(bkv + head + 2, str, nameLen); // Copy name after tag and name length
                     continue;
                 } else {
-                    name[nameLen++] = c;
-                    checkResize(name, nameLen, nameCapacity);
+                    str[nameLen++] = c;
+                    checkResize(str, nameLen, strCapacity);
                     continue;
                 }
                 continue;
-            } else { // Record into string
+            } else { // Record data into string
                 if (strChar) {
                     if ((c == ',' && strChar == DEFAULT_CHAR) || (c == strChar && sbkv[i - 1] != '\\')) {
                         strChar = 0;
                         if (!isArray) {
                             // Finished string
                             checkResize(bkv, head + 2 + nameLen + sizeof(uint16_t) + strLen, capacity);
-                            bkv[head++] = BKV_STR;
-                            bkv[head++] = nameLen;
-                            std::memcpy(bkv + head, name, nameLen);
-                            head += nameLen;
+                            bkv[head] = BKV_STR;
+                            head += 2 + nameLen;
                             strLen = Endianness::hton(strLen);
                             std::memcpy(bkv + head, &strLen, sizeof(uint16_t));
                             head += sizeof(uint16_t);
