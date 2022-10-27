@@ -6,7 +6,10 @@ namespace game {
     class BKV_State {
         public:
             // Functions
-            virtual void parse(BKVbuf_t& buf, const char c) = 0;
+            virtual void parse(BKV::BKVbuf_t& buf, const char c) = 0;
+            void reset(BKV::BKVbuf_t& buf) {
+                buf.bufSize = 0;
+            }
             
         protected:
             // Variables

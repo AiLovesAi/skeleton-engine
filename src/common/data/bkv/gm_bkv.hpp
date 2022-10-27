@@ -25,8 +25,10 @@ namespace game {
             
             typedef struct BKVbuf_t_ {
                 size_t capacity;
-                size_t len;
-                char* sbkv;
+                size_t head;
+                size_t bufSize;
+                char* buf;
+                uint8_t flags;
             } BKVbuf_t;
 
             // Binary Key Value Tags
