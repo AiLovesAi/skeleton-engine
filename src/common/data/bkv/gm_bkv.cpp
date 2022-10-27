@@ -281,7 +281,7 @@ namespace game {
         uint8_t nameLen = 0;
         uint16_t strLen = 0;
         uint32_t arraySize = 0;
-        size_t strCapacity = BUFSIZ, head = 0;
+        size_t strCapacity = BUFSIZ, head = 0; 
         char* str = static_cast<char*>(std::malloc(strCapacity));
         bool inName = true, isArray = false, isNumber = false;
         char strChar = 0, c;

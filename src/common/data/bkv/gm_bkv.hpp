@@ -22,6 +22,12 @@ namespace game {
                 size_t size;
                 std::shared_ptr<uint8_t> data;
             } BKV_t;
+            
+            typedef struct BKVbuf_t_ {
+                size_t capacity;
+                size_t len;
+                char* sbkv;
+            } BKVbuf_t;
 
             // Binary Key Value Tags
             // Key/Value format:
@@ -94,7 +100,6 @@ namespace game {
             static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
 
             // Variables
-            static constexpr char DEFAULT_CHAR = -1;
             uint8_t* buffer_ = nullptr;
             size_t head_ = 0;
             size_t capacity_ = 0;
