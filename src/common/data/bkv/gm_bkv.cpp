@@ -59,13 +59,13 @@ namespace game {
 
     inline void checkResize(uint8_t*& ptr, const size_t head, size_t& capacity) {
         if (head > capacity) {
-            capacity *= 2;
+            capacity <<= 1;
             ptr = static_cast<uint8_t*>(std::realloc(ptr, capacity));
         }
     }
     inline void checkResize(char*& ptr, const size_t head, size_t& capacity) {
         if (head > capacity) {
-            capacity *= 2;
+            capacity <<= 1;
             ptr = static_cast<char*>(std::realloc(ptr, capacity));
         }
     }

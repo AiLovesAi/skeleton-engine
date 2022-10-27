@@ -78,7 +78,7 @@ namespace game {
 
             // Resize out buffer if needed
             if (capacity < head) {
-                capacity *= 2;
+                capacity <<= 1;
                 data = static_cast<uint8_t*>(std::realloc(data, capacity));
             }
 
@@ -205,7 +205,7 @@ namespace game {
                 
                 // Check if data can fit buffer
                 if (capacity < head) {
-                    capacity *= 2;
+                    capacity <<= 1;
                     data = static_cast<uint8_t*>(std::realloc(data, capacity));
                 }
                 std::memcpy(data + (head - c), outbuf, c);
