@@ -3,8 +3,8 @@
 #include "gm_endianness.hpp"
 
 #include <cstring>
-#include <stdexcept>
 #include <sstream>
+#include <stdexcept>
 #include <type_traits>
 
 namespace game {
@@ -346,7 +346,7 @@ namespace game {
         return BKV_t{};
     }
     BKV::BKV_t BKV::bkvCompound(const UTF8Str& name) {
-        if (name.len > 0xff) {
+        if (name.len > UINT8_MAX) {
             std::stringstream msg;
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
@@ -365,7 +365,7 @@ namespace game {
         static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
             "Generic bkv() only supports primitive data types.");
 
-        if (name.len > 0xff) {
+        if (name.len > UINT8_MAX) {
             std::stringstream msg;
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
@@ -386,7 +386,7 @@ namespace game {
         static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
             "Generic bkvList() only supports primitive data types.");
 
-        if (name.len > 0xff) {
+        if (name.len > UINT8_MAX) {
             std::stringstream msg;
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
@@ -409,12 +409,12 @@ namespace game {
         return BKV_t{.size = allocSize, .data = std::shared_ptr<uint8_t>(buffer, std::free)};
     }
     BKV::BKV_t BKV::bkvStr(const UTF8Str& name, const UTF8Str& data) {
-        if (name.len > 0xff) {
+        if (name.len > UINT8_MAX) {
             std::stringstream msg;
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
         }
-        if (data.len > 0xffff) {
+        if (data.len > UINT16_MAX) {
             std::stringstream msg;
             msg << "Too many characters in BKV string: " << name.len << "/65535 characters.";
             throw std::length_error(msg.str());
