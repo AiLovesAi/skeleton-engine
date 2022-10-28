@@ -16,6 +16,11 @@ namespace game {
             ~BKV_State_String() { std::free(str_); }
 
             // Functions
+            void reset() {
+                strLen_ = 0;
+                strChar_ = DEFAULT_CHAR;
+                lastChar_ = DEFAULT_CHAR;
+            }
             virtual void parse(BKV::BKVbuf_t& buf, const char c);
             
         private:
@@ -23,7 +28,7 @@ namespace game {
             static constexpr char DEFAULT_CHAR = -1;
             
             char* str_ = nullptr;
-            uint16_t strCapacity_ = 0;
+            size_t strCapacity_ = 0, strLen_ = 0;
             char strChar_ = DEFAULT_CHAR;
             char lastChar_ = DEFAULT_CHAR;
     };

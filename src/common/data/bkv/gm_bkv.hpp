@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gm_bkv_state.hpp"
+
 #include <cstdint>
 #include <memory>
 
@@ -28,6 +30,7 @@ namespace game {
                 size_t head;
                 size_t bufSize;
                 char* buf;
+                BKV_State* state;
                 uint8_t flags;
             } BKVbuf_t;
 
