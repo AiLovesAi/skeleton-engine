@@ -24,15 +24,6 @@ namespace game {
                 size_t size;
                 std::shared_ptr<uint8_t> data;
             } BKV_t;
-            
-            typedef struct BKVbuf_t_ {
-                size_t capacity;
-                size_t head;
-                size_t bufSize;
-                char* buf;
-                BKV_State* state;
-                uint8_t flags;
-            } BKVbuf_t;
 
             // Binary Key Value Tags
             // Key/Value format:
