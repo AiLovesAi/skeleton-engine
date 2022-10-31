@@ -1,5 +1,6 @@
 #include "gm_bkv_state_name.hpp"
 
+#include "../../gm_endianness.hpp"
 #include "../../gm_buffer_memory.hpp"
 
 #include <sstream>
@@ -7,7 +8,6 @@
 
 namespace game {
     void BKV_State_Name::parse(BKV_Buffer& buf, const char c) {
-        // TODO Copy name to BKV
         if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (lastChar_ != DEFAULT_CHAR && c >= '0' && c <= '9')) {
             nameLen_++;
             if (nameLen_ >= UINT16_MAX) {
@@ -18,7 +18,12 @@ namespace game {
             name_[nameLen_ - 1] = c;
             lastChar_ = c;
         } else if (c == ':') {
-            // TODO Write to BKV
+            const size_t len = Endianness::hton(nameLen_);
+            std::memcpy(buf.bkv + buf.head + 1, &len, sizeof(uint8_t));
+            buf.head += 2;
+            std::memcpy(buf.bkv + buf.head, name_, nameLen_);
+            buf.head += nameLen_;
+            buf.valHead = buf.head;
             buf.state = BKV_State::findTagState();
             reset();
         } else {

@@ -28,7 +28,7 @@ namespace game {
             // Binary Key Value Tags
             // Key/Value format:
             // |===ID===|================KEY==========================|===VALUE===|
-            // | tagID  | BKV_UI8 (name length) + UTF-8 String (name) | <Payload> |
+            // | tagID  | BKV_UI8 (name length) + ASCII String (name) | <Payload> |
             // |========|=============================================|===========|
             // Example: (BKV_COMPOUND + strLen + "Compound"){ (BKV_UI32 + strLen + "id") + 0xdeadbeef }BKV_END
             // Example HEX: 0108<0x"Compound"> 0b02<0x"id">deadbeef 00

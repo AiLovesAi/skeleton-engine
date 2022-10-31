@@ -1,5 +1,6 @@
 #include "gm_bkv_state_string.hpp"
 
+#include "../../gm_endianness.hpp"
 #include "../../gm_buffer_memory.hpp"
 
 #include <sstream>
@@ -10,8 +11,13 @@ namespace game {
         // TODO Copy string until finished
         if ((c == ',' && strChar_ == DEFAULT_CHAR) || (c == strChar_ && lastChar_ != '\\')) {
             // String complete
-            // TODO Copy string to buffer
-            buf.state = parent_;
+            const size_t len = Endianness::hton(strLen_);
+            std::memcpy(buf.bkv + buf.head, &len, sizeof(uint8_t));
+            buf.head ++;
+            std::memcpy(buf.bkv + buf.head, str_, strLen_);
+            buf.head += strLen_;
+            buf.valHead = buf.head;
+            buf.state = parent_; // TODO Should return to name when completed
             reset();
         } else {
             strLen_++;
