@@ -33,6 +33,7 @@ namespace game {
 
             // Variables
             uint8_t* bkv;
+            uint8_t tag = -1;
             size_t capacity = 0; // Capacity of BKV
             size_t head     = 0; // Current index of BKV
             size_t tagHead  = 0; // Starts at current tagID and flushes with head when the keyv/value pair is completed

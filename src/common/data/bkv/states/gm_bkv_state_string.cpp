@@ -17,7 +17,11 @@ namespace game {
             std::memcpy(buf.bkv + buf.head, str_, strLen_);
             buf.head += strLen_;
             buf.valHead = buf.head;
-            buf.state = parent_; // TODO Should return to name when completed
+            if (buf.tag == BKV::BKV_STR_ARRAY) {
+               buf.state = BKV_State::arrayState();
+            } else {
+               buf.state = BKV_State::nameState();
+            }
             reset();
         } else {
             strLen_++;

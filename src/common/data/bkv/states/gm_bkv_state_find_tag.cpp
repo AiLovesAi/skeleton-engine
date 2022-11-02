@@ -7,11 +7,14 @@ namespace game {
         if (c == '\'' || c == '"') {
             goto _str;
         } else if (c >= '0' && c <= '9') {
-            // TODO
+            buf.state = BKV_State::numberState();
+            buf.state->parse(buf, c);
         } else if (c == '[') {
-            // TODO
+            // TODO Set tag to array 
+            buf.state = BKV_State::arrayState();
         } else {
 _str:
+            buf.tag = BKV::BKV_STRING;
             buf.state = BKV_State::stringState();
             buf.state->parse(buf, c);
         }
