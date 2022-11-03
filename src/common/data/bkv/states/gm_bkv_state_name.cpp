@@ -8,7 +8,7 @@
 
 namespace game {
     void BKV_State_Name::parse(BKV_Buffer& buf, const char c) {
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (lastChar_ != DEFAULT_CHAR && c >= '0' && c <= '9')) {
+        if (std::isalpha(c) || (lastChar_ != DEFAULT_CHAR && std::isdigit(c)) {
             nameLen_++;
             if (nameLen_ >= UINT16_MAX) {
                 std::stringstream msg;

@@ -2,9 +2,15 @@
 
 namespace game {
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
-        // TODO
-        if ((c >= '0' && c <= '9') || c == '.' || c == '-') {
-            // TODO Append to number string
+        if (std::isdigit(c) || c == '.' || c == '-') {
+            bufLen_++;
+            if (bufLen_ >= UINT8_MAX) {
+                std::stringstream msg;
+                msg << "Too many digits in BKV number: " << bufLen_ << "/255 digits.";
+                throw std::length_error(msg.str());
+            }
+            BufferMemory::checkResize(numBuf_, bufLen_, bufCapacity_);
+            numBuf_[bufLen_ - 1] = c;
         } else {
             switch (c) {
                 case 'b': {
@@ -13,6 +19,7 @@ namespace game {
                     } else {
                         bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_INT8_ARRAY : BKV::BKV_INT8;
                     }
+                    // TODO Convert to number, copy to BKV in network endian, and reset
                 } break;
                 case 'd': {
                     bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_DOUBLE_ARRAY : BKV::BKV_DOUBLE;

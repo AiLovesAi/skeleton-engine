@@ -11,7 +11,7 @@ namespace game {
         strLen_++;
         if (strLen_ >= UINT16_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV string: " << strLen_ << "/255 characters.";
+            msg << "Too many characters in BKV string: " << strLen_ << "/65535 characters.";
             throw std::length_error(msg.str());
         }
         BufferMemory::checkResize(str_, strLen_, strCapacity_);

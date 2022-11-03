@@ -3,5 +3,6 @@
 namespace game {
     void BKV_State_Array::parse(BKV_Buffer& buf, const char c) {
         // TODO
+        buf.head += sizeof(uint32_t);
     }
 }
