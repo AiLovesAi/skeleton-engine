@@ -7,6 +7,8 @@
 #include "gm_bkv_state_string.hpp"
 #include "../gm_bkv_buffer.hpp"
 
+#include <cctype>
+
 namespace game {
     class BKV_State {
         public:
