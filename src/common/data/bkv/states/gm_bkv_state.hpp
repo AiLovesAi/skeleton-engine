@@ -10,6 +10,9 @@
 namespace game {
     class BKV_State {
         public:
+            // Types
+            static constexpr uint8_t BKV_ARRAY_FLAG = 1 << 7;
+            
             // Functions
             virtual void parse(BKV_Buffer& buf, const char c) = 0;
 

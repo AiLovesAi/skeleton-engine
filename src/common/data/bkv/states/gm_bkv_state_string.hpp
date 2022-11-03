@@ -19,18 +19,23 @@ namespace game {
             // Functions
             void reset() {
                 strLen_ = 0;
+                utf_ = false; 
                 strChar_ = DEFAULT_CHAR;
                 lastChar_ = DEFAULT_CHAR;
             }
             virtual void parse(BKV_Buffer& buf, const char c);
             
         private:
+            // Functions
+            void continueStr(BKV_Buffer& buf, const char c);
+            
             // Variables
             static constexpr char DEFAULT_CHAR = -1;
             
             uint8_t* str_ = nullptr;
             size_t strCapacity_ = 0;
             size_t strLen_ = 0;
+            bool utf_ = false;
             char strChar_ = DEFAULT_CHAR;
             char lastChar_ = DEFAULT_CHAR;
     };
