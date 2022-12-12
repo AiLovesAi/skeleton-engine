@@ -9,9 +9,10 @@ namespace game {
                 msg << "Too many digits in BKV number: " << bufLen_ << "/255 digits.";
                 throw std::length_error(msg.str());
             }
-            BufferMemory::checkResize(numBuf_, bufLen_, bufCapacity_);
+            BufferMemory::checkResize(numBuf_, bufLen_ + 1, bufCapacity_);
             numBuf_[bufLen_ - 1] = c;
         } else {
+            numBuf_[bufLen_] = '\0';
             switch (c) {
                 case 'b': {
                     if (unsigned_) {
@@ -19,7 +20,12 @@ namespace game {
                     } else {
                         bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_INT8_ARRAY : BKV::BKV_INT8;
                     }
-                    // TODO Convert to number, copy to BKV in network endian, and reset
+                    // TODO Input validation
+                    int8_t val = Endianness::hton(atoi(numBuf_));
+                    std::memcpy(bkv.bkv + bkv.head, val, sizeof(int8_t));
+                    bkv.head++;
+                    reset();
+                    // TODO Same for other cases
                 } break;
                 case 'd': {
                     bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_DOUBLE_ARRAY : BKV::BKV_DOUBLE;
