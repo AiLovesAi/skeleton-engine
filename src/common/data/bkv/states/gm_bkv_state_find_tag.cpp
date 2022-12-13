@@ -17,7 +17,7 @@ namespace game {
             buf.state = BKV_State::numberState();
             buf.state->parse(buf, c);
         } else if (c == '[') {
-            buf.tag |= BKV_ARRAY_FLAG;
+            buf.tag |= BKV::BKV_ARRAY;
             buf.state = BKV_State::arrayState();
         } else if (c == '{') {
             buf.tag |= BKV::BKV_COMPOUND;

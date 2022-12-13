@@ -7,7 +7,10 @@
 
 namespace game {
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
-        if (std::isdigit(c) || c == '.' || (c == '-' && bufLen_ == 0)) {
+        if (std::isdigit(c) || (c == '.' && !hasDecimal_) || (c == '-' && bufLen_ == 0)) {
+            if (c == '.') {
+                hasDecimal_ = true;
+            }
             bufLen_++;
             if (bufLen_ >= UINT8_MAX) {
                 std::stringstream msg;
@@ -16,51 +19,36 @@ namespace game {
             }
             BufferMemory::checkResize(numBuf_, bufLen_ + 1, bufCapacity_);
             numBuf_[bufLen_ - 1] = c;
+        } else if ((c == 'x') && (numBuf_[bufLen_ - 1] == '0')) {
+            // TODO Hexidecimal (stores in as little data as possible up to 64 bits)
         } else {
             numBuf_[bufLen_] = '\0';
             switch (c) {
                 case 'b': {
-                    if (unsigned_) {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI8_ARRAY : BKV::BKV_UI8;
-                    } else {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I8_ARRAY : BKV::BKV_I8;
-                    }
-                    // TODO Input validation
-                    int8_t val = Endianness::hton(atoi(numBuf_));
+                    buf.tag |= BKV::BKV_I8;
+                    int8_t val = Endianness::hton(std::atoi(numBuf_));
                     std::memcpy(buf.bkv + buf.head, &val, sizeof(int8_t));
                     buf.head++;
                     reset();
                     // TODO Same for other cases
                 } break;
                 case 'd': {
-                    buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_DOUBLE_ARRAY : BKV::BKV_DOUBLE;
+                    buf.tag |= BKV::BKV_DOUBLE;
                 } break;
                 case 'f': {
-                    buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_FLOAT_ARRAY : BKV::BKV_FLOAT;
+                    buf.tag |= BKV::BKV_FLOAT;
                 } break;
                 case 'i': {
-                    if (unsigned_) {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI32_ARRAY : BKV::BKV_UI32;
-                    } else {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I32_ARRAY : BKV::BKV_I32;
-                    }
+                    buf.tag |= BKV::BKV_I32;
                 } break;
                 case 'l': {
-                    if (unsigned_) {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI64_ARRAY : BKV::BKV_UI64;
-                    } else {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I64_ARRAY : BKV::BKV_I64;
-                    }
+                    buf.tag |= BKV::BKV_I64;
                 } break;
                 case 's': {
-                    if (unsigned_) {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI16_ARRAY : BKV::BKV_UI16;
-                    } else {
-                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I16_ARRAY : BKV::BKV_I16;
-                    }
+                    buf.tag |= BKV::BKV_I16;
                 } break;
                 case 'u': {
-                    unsigned_ = true;
+                    buf.tag |= BKV::BKV_UNSIGNED;
                 } break;
                 default: {
                     std::stringstream msg;

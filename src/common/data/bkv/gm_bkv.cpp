@@ -299,9 +299,9 @@ namespace game {
             if (inName) { // Get name
                 if (c == ':') {
                     inName = false;
-                    BufferMemory::checkResize(bkv, head + 2 + nameLen, capacity);
-                    bkv[head + 1] = nameLen;
-                    std::memcpy(bkv + head + 2, str, nameLen); // Copy name after tag and name length
+                    BufferMemory::checkResize(buf.bkv, head + 2 + nameLen, buf.capacity);
+                    buf.bkv[head + 1] = nameLen;
+                    std::memcpy(buf.bkv + head + 2, str, nameLen); // Copy name after tag and name length
                     continue;
                 } else {
                     str[nameLen++] = c;

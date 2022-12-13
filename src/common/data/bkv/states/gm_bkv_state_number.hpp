@@ -17,7 +17,7 @@ namespace game {
             // Functions
             void reset() {
                 bufLen_ = 0;
-                unsigned_ = false;
+                hasDecimal_ = false;
             }
             virtual void parse(BKV_Buffer& buf, const char c);
 
@@ -26,6 +26,6 @@ namespace game {
             char *numBuf_;
             size_t bufCapacity_ = 0;
             size_t bufLen_ = 0;
-            bool unsigned_ = false;
+            bool hasDecimal_ = false;
     };
 }
