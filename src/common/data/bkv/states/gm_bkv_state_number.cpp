@@ -1,8 +1,13 @@
 #include "gm_bkv_state_number.hpp"
 
+#include "../gm_buffer_memory.hpp"
+#include "../../gm_endianness.hpp"
+
+#include <sstream>
+
 namespace game {
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
-        if (std::isdigit(c) ||c == '.' || (c == '-' && bufLen_ == 0)) {
+        if (std::isdigit(c) || c == '.' || (c == '-' && bufLen_ == 0)) {
             bufLen_++;
             if (bufLen_ >= UINT8_MAX) {
                 std::stringstream msg;
@@ -16,42 +21,42 @@ namespace game {
             switch (c) {
                 case 'b': {
                     if (unsigned_) {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UINT8_ARRAY : BKV::BKV_UINT8;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI8_ARRAY : BKV::BKV_UI8;
                     } else {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_INT8_ARRAY : BKV::BKV_INT8;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I8_ARRAY : BKV::BKV_I8;
                     }
                     // TODO Input validation
                     int8_t val = Endianness::hton(atoi(numBuf_));
-                    std::memcpy(bkv.bkv + bkv.head, val, sizeof(int8_t));
-                    bkv.head++;
+                    std::memcpy(buf.bkv + buf.head, &val, sizeof(int8_t));
+                    buf.head++;
                     reset();
                     // TODO Same for other cases
                 } break;
                 case 'd': {
-                    bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_DOUBLE_ARRAY : BKV::BKV_DOUBLE;
+                    buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_DOUBLE_ARRAY : BKV::BKV_DOUBLE;
                 } break;
                 case 'f': {
-                    bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_FLOAT_ARRAY : BKV::BKV_FLOAT;
+                    buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_FLOAT_ARRAY : BKV::BKV_FLOAT;
                 } break;
                 case 'i': {
                     if (unsigned_) {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UINT32_ARRAY : BKV::BKV_UINT32;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI32_ARRAY : BKV::BKV_UI32;
                     } else {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_INT32_ARRAY : BKV::BKV_INT32;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I32_ARRAY : BKV::BKV_I32;
                     }
                 } break;
                 case 'l': {
                     if (unsigned_) {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UINT64_ARRAY : BKV::BKV_UINT64;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI64_ARRAY : BKV::BKV_UI64;
                     } else {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_INT64_ARRAY : BKV::BKV_INT64;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I64_ARRAY : BKV::BKV_I64;
                     }
                 } break;
                 case 's': {
                     if (unsigned_) {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UINT16_ARRAY : BKV::BKV_UINT16;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_UI16_ARRAY : BKV::BKV_UI16;
                     } else {
-                        bkv.tag = (bkv.tag & BKV_ARRAY_FLAG) ? BKV::BKV_INT16_ARRAY : BKV::BKV_INT16;
+                        buf.tag = (buf.tag & BKV_ARRAY_FLAG) ? BKV::BKV_I16_ARRAY : BKV::BKV_I16;
                     }
                 } break;
                 case 'u': {
@@ -59,7 +64,7 @@ namespace game {
                 } break;
                 default: {
                     std::stringstream msg;
-                    msg << "Invalid character in BKV number at index: " << strLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+                    msg << "Invalid character in BKV number at index: " << bufLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
                     throw std::invalid_argument(msg.str());
                 }
             }
