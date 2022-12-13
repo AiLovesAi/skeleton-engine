@@ -2,7 +2,7 @@
 
 namespace game {
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
-        if (std::isdigit(c) || (c == '.' && bufLen_ > 0) || (c == '-' && bufLen_ == 0)) {
+        if (std::isdigit(c) ||c == '.' || (c == '-' && bufLen_ == 0)) {
             bufLen_++;
             if (bufLen_ >= UINT8_MAX) {
                 std::stringstream msg;
