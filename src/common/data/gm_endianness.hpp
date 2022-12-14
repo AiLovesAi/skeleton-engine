@@ -27,6 +27,32 @@ namespace game {
                 return hton(data);
             }
             
+            template <typename T>
+            static inline T htonf(const T data) {
+                if constexpr (std::endian::native == std::endian::big) {
+                    return data;
+                } else {
+                    return swapBytesFloat(data);
+                }
+            }
+            template <typename T>
+            static inline T ntohf(const T data) {
+                return htonf(data);
+            }
+            
+            template <typename T>
+            static inline T htond(const T data) {
+                if constexpr (std::endian::native == std::endian::big) {
+                    return data;
+                } else {
+                    return swapBytesDouble(data);
+                }
+            }
+            template <typename T>
+            static inline T ntohd(const T data) {
+                return htond(data);
+            }
+            
         private:
             // Functions
             static inline uint8_t swapBytes1(const uint8_t data) { return data; }
@@ -48,6 +74,24 @@ namespace game {
                     ((data << 24) & 0x0000ff0000000000) |
                     ((data << 40) & 0x00ff000000000000) |
                     ((data << 56) & 0xff00000000000000);
+            }
+            static long double swapBytesFloat(const float data) {
+                float res;
+                const char *src = (const char *) &data;
+                char *dst = (char *) &res;
+                for (uint8_t i = 0; i < sizeof(float); i++) {
+                    dst[i] = src[sizeof(float) - i - 1];
+                }
+                return res;
+            }
+            static long double swapBytesDouble(const long double data) {
+                long double res;
+                const char *src = (const char *) &data;
+                char *dst = (char *) &res;
+                for (uint8_t i = 0; i < sizeof(long double); i++) {
+                    dst[i] = src[sizeof(long double) - i - 1];
+                }
+                return res;
             }
 
             // Classes

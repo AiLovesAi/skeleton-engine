@@ -32,7 +32,7 @@ namespace game {
             // |========|=============================================|===========|
             // Example: (BKV_COMPOUND + strLen + "Compound"){ (BKV_UI32 + strLen + "id") + 0xdeadbeef }BKV_END
             // Example BKV in HEX: 0108<0x"Compound"> 8402<0x"id">deadbeef 00    (19 bytes)
-            // Example SBKV: {Compound:{id:0xdeadbeef}}                          (26 bytes)
+            // Example SBKV: {Compound:{id:-559038737}}                          (26 bytes)
             // Payloads for each type are listed below:
             enum BKV_Flags {
                 BKV_UNSIGNED = 1 << 7, // Specified tag is unsigned
