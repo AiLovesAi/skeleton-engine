@@ -8,6 +8,26 @@
 #include <sstream>
 
 namespace game {
+    void BKV_State_Number::parseDouble(BKV_Buffer& buf) {
+        buf.tag |= BKV::BKV_DOUBLE;
+        long double val = std::strtold(numBuf_, nullptr);
+        // Make sure value doesn't overflow or underflow
+        if ((val <= LDBL_MIN) || (val == -HUGE_VALL)) {
+            reset();
+            std::stringstream msg;
+            msg << "BKV value underflows double: " << val << " <= " << LDBL_MIN << ".";
+            throw std::underflow_error(msg.str());
+        } else if ((val >= LDBL_MAX) || (val == HUGE_VALL)) {
+            reset();
+            std::stringstream msg;
+            msg << "BKV value overflows double: " << val << " >= " << LDBL_MAX << ".";
+            throw std::overflow_error(msg.str());
+        }
+        long double v = Endianness::htond(val);
+        std::memcpy(buf.bkv + buf.head, &v, sizeof(long double));
+        buf.head += sizeof(long double);
+    }
+
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
         // Check if number has been completed and a tag is assigned
         if (buf.tag & ~(BKV::BKV_ARRAY | BKV::BKV_UNSIGNED)) {
@@ -42,25 +62,8 @@ namespace game {
                 case ']':
                 case '}': {
                     // Use default (integer if possible, long otherwise)
-                    uint8_t size;
                     if (hasDecimal_) {
-                        buf.tag |= BKV::BKV_DOUBLE;
-                        size = sizeof(long double);
-                        long double val = std::strtold(numBuf_, nullptr);
-                        // Make sure value doesn't overflow or underflow
-                        if ((val <= LDBL_MIN) || (val == -HUGE_VALL)) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value underflows double: " << val << " <= " << LDBL_MIN << ".";
-                            throw std::underflow_error(msg.str());
-                        } else if ((val >= LDBL_MAX) || (val == HUGE_VALL)) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows double: " << val << " >= " << LDBL_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        long double v = Endianness::htond(val);
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(long double));
+                        parseDouble(buf);
                     } else {
                         if (buf.tag & BKV::BKV_UNSIGNED) {
                             uint64_t val = std::strtoull(numBuf_, nullptr, 10);
@@ -73,14 +76,14 @@ namespace game {
                                     throw std::overflow_error(msg.str());
                                 }
                                 buf.tag |= BKV::BKV_I64;
-                                size = sizeof(uint64_t);
                                 uint64_t v = Endianness::hton(val);
-                                std::memcpy(buf.bkv + buf.head, &val, sizeof(uint64_t));
+                                std::memcpy(buf.bkv + buf.head, &v, sizeof(uint64_t));
+                                buf.head += sizeof(uint64_t);
                             } else {
                                 buf.tag |= BKV::BKV_I32;
-                                size = sizeof(uint32_t);
                                 uint32_t v = Endianness::hton(static_cast<uint32_t>(val));
-                                std::memcpy(buf.bkv + buf.head, &val, sizeof(uint32_t));
+                                std::memcpy(buf.bkv + buf.head, &v, sizeof(uint32_t));
+                                buf.head += sizeof(uint32_t);
                             }
                         } else {
                             int64_t val = std::strtoll(numBuf_, nullptr, 10);
@@ -98,18 +101,17 @@ namespace game {
                                     throw std::overflow_error(msg.str());
                                 }
                                 buf.tag |= BKV::BKV_I64;
-                                size = sizeof(uint64_t);
                                 int64_t v = Endianness::hton(val);
-                                std::memcpy(buf.bkv + buf.head, &val, sizeof(int64_t));
+                                std::memcpy(buf.bkv + buf.head, &v, sizeof(int64_t));
+                                buf.head += sizeof(int64_t);
                             } else {
                                 buf.tag |= BKV::BKV_I32;
-                                size = sizeof(uint32_t);
                                 int32_t v = Endianness::hton(static_cast<int32_t>(val));
-                                std::memcpy(buf.bkv + buf.head, &val, sizeof(int32_t));
+                                std::memcpy(buf.bkv + buf.head, &v, sizeof(int32_t));
+                                buf.head += sizeof(int32_t);
                             }
                         }
                     }
-                    buf.head += size;
                     // Start again now that we have a number
                     parse(buf, c);
                 } break;
@@ -126,7 +128,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         uint8_t v = Endianness::hton(static_cast<uint8_t>(val));
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(uint8_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(uint8_t));
                     } else {
                         int64_t val = std::strtoll(numBuf_, nullptr, 10);
                         // Make sure value doesn't overflow or underflow
@@ -142,29 +144,13 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         int8_t v = Endianness::hton(static_cast<int8_t>(val));
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(int8_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(int8_t));
                     }
                     buf.head++;
                 } break;
                 case 'D':
                 case 'd': {
-                    buf.tag |= BKV::BKV_DOUBLE;
-                    long double val = std::strtold(numBuf_, nullptr);
-                    // Make sure value doesn't overflow or underflow
-                    if ((val <= LDBL_MIN) || (val == -HUGE_VALL)) {
-                        reset();
-                        std::stringstream msg;
-                        msg << "BKV value underflows double: " << val << " <= " << LDBL_MIN << ".";
-                        throw std::underflow_error(msg.str());
-                    } else if ((val >= LDBL_MAX) || (val == HUGE_VALL)) {
-                        reset();
-                        std::stringstream msg;
-                        msg << "BKV value overflows double: " << val << " >= " << LDBL_MAX << ".";
-                        throw std::overflow_error(msg.str());
-                    }
-                    long double v = Endianness::htond(val);
-                    std::memcpy(buf.bkv + buf.head, &val, sizeof(long double));
-                    buf.head += sizeof(long double);
+                    parseDouble(buf);
                 } break;
                 case 'F':
                 case 'f': {
@@ -183,7 +169,7 @@ namespace game {
                         throw std::overflow_error(msg.str());
                     }
                     float v = Endianness::htonf(static_cast<float>(val));
-                    std::memcpy(buf.bkv + buf.head, &val, sizeof(float));
+                    std::memcpy(buf.bkv + buf.head, &v, sizeof(float));
                     buf.head += sizeof(float);
                 } break;
                 case 'I':
@@ -199,7 +185,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         uint32_t v = Endianness::hton(static_cast<uint32_t>(val));
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(uint32_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(uint32_t));
                     } else {
                         int64_t val = std::strtoll(numBuf_, nullptr, 10);
                         // Make sure value doesn't overflow or underflow
@@ -215,7 +201,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         int32_t v = Endianness::hton(static_cast<int32_t>(val));
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(int32_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(int32_t));
                     }
                     buf.head += sizeof(uint32_t);
                 } break;
@@ -232,7 +218,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         uint64_t v = Endianness::hton(val);
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(uint64_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(uint64_t));
                     } else {
                         int64_t val = std::strtoll(numBuf_, nullptr, 10);
                         // Make sure value doesn't overflow or underflow
@@ -248,7 +234,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         int64_t v = Endianness::hton(val);
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(int64_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(int64_t));
                     }
                     buf.head += sizeof(uint64_t);
                 } break;
@@ -265,7 +251,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         uint16_t v = Endianness::hton(static_cast<int16_t>(val));
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(uint16_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(uint16_t));
                     } else {
                         int64_t val = std::strtoll(numBuf_, nullptr, 10);
                         // Make sure value doesn't overflow or underflow
@@ -281,7 +267,7 @@ namespace game {
                             throw std::overflow_error(msg.str());
                         }
                         int16_t v = Endianness::hton(static_cast<int16_t>(val));
-                        std::memcpy(buf.bkv + buf.head, &val, sizeof(int16_t));
+                        std::memcpy(buf.bkv + buf.head, &v, sizeof(int16_t));
                     }
                     buf.head += sizeof(uint16_t);
                 } break;

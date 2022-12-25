@@ -15,6 +15,9 @@ namespace game {
             virtual void parse(BKV_Buffer& buf, const char c);
 
         private:
+            // Functions
+            void parseDouble(BKV_Buffer& buf);
+
             // Variables
             char numBuf_[UINT8_MAX];
             size_t bufLen_ = 0;
