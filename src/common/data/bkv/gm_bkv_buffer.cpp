@@ -46,7 +46,7 @@ namespace game {
                     throw e;
                 }
             }
-            buf.state = BKV_State::nameState();
+            buf.state = BKV_State::keyState();
             buf.tagHead = buf.head;
             buf.tag = 0;
         }

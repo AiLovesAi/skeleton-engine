@@ -28,7 +28,7 @@ namespace game {
                 msg << "Reached maximum compound depth in BKV at index " << buf.head + 1 << ": " << buf.depth << "/255.";
                 throw std::overflow_error(msg.str());
             }
-            buf.state = BKV_State::nameState();
+            buf.state = BKV_State::keyState();
         } else if (std::isalnum(c)) {
             // String that only allows ASCII
             parseStr(buf, c);
