@@ -33,7 +33,11 @@ namespace game {
         if (buf.tag & ~(BKV::BKV_ARRAY | BKV::BKV_UNSIGNED)) {
             if ((c == '}') || (c == ',') || ((buf.tag & BKV::BKV_ARRAY) && (c == ']'))) {
                 reset();
-                buf.endKV(buf, c);
+                try {
+                    buf.endKV(buf, c);
+                } catch (std::overflow_error e) {
+                    throw e;
+                }
             } else {
                 reset();
                 std::stringstream msg;

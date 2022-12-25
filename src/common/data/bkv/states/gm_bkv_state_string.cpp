@@ -92,7 +92,11 @@ namespace game {
         }
 
         reset();
-        buf.endKV(buf, c);
+        try {
+            buf.endKV(buf, c);
+        } catch (std::overflow_error e) {
+            throw e;
+        }
     }
     
     void BKV_State_String::parse(BKV_Buffer& buf, const char c) {
