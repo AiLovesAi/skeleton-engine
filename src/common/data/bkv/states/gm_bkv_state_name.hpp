@@ -17,7 +17,7 @@ namespace game {
         private:
             // Variables
             static constexpr char DEFAULT_CHAR = -1;
-            uint8_t name_[0xff];
+            uint8_t name_[UINT8_MAX];
             size_t nameLen_ = 0;
             char lastChar_ = DEFAULT_CHAR;
     };

@@ -59,19 +59,6 @@ namespace game {
         head_ = resultHead;
     }
 
-    inline void BufferMemory::checkResize(uint8_t*& ptr, const size_t head, size_t& capacity) {
-        if (head > capacity) {
-            capacity <<= 1;
-            ptr = static_cast<uint8_t*>(std::realloc(ptr, capacity));
-        }
-    }
-    inline void BufferMemory::checkResize(char*& ptr, const size_t head, size_t& capacity) {
-        if (head > capacity) {
-            capacity <<= 1;
-            ptr = static_cast<char*>(std::realloc(ptr, capacity));
-        }
-    }
-
     template <typename T>
     void setValueSBKV(const uint8_t* data, char*& sbkv, size_t& i, size_t& head, size_t& capacity) {
         // Val
@@ -143,7 +130,7 @@ namespace game {
                     sbkv[head - 1] = '}'; // Replace last comma with close brace
                     break;
                 case BKV_COMPOUND: // Name:{
-                    BufferMemory::checkResize(sbkv, head + data[i] + 3, capacity);
+                    BufferMemory::checkResize(sbkv, head + data[i] + 3, head, capacity);
 
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
@@ -220,7 +207,7 @@ namespace game {
                     std::memcpy(&len, data + i + 1 + data[i], sizeof(uint16_t));
                     len = Endianness::ntoh(len);
 
-                    BufferMemory::checkResize(sbkv, head + data[i] + len + 2, capacity);
+                    BufferMemory::checkResize(sbkv, head + data[i] + len + 2, head, capacity);
 
                     // Name
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
@@ -236,7 +223,7 @@ namespace game {
                 } break;
                 case BKV_STR_ARRAY: { // Name:[Str1,Str2,Str3],
                     // Name
-                    BufferMemory::checkResize(sbkv, head + data[i] + 2, capacity);
+                    BufferMemory::checkResize(sbkv, head + data[i] + 2, head, capacity);
                     std::memcpy(sbkv + head, data + i + 1, data[i]);
                     head += data[i];
                     i += 1 + data[i];
@@ -257,7 +244,7 @@ namespace game {
                         i += sizeof(uint16_t);
                         len = Endianness::ntoh(len);
 
-                        BufferMemory::checkResize(sbkv, head + len + 2, capacity);
+                        BufferMemory::checkResize(sbkv, head + len + 2, head, capacity);
                         std::memcpy(sbkv + head, data + i, len);
                         head += len;
                         i += len;
@@ -299,7 +286,7 @@ namespace game {
             if (inName) { // Get name
                 if (c == ':') {
                     inName = false;
-                    BufferMemory::checkResize(buf.bkv, head + 2 + nameLen, buf.capacity);
+                    BufferMemory::checkResize(buf.bkv, head + 2 + nameLen, head, buf.capacity);
                     buf.bkv[head + 1] = nameLen;
                     std::memcpy(buf.bkv + head + 2, str, nameLen); // Copy name after tag and name length
                     continue;
@@ -315,7 +302,7 @@ namespace game {
                         strChar = 0;
                         if (!isArray) {
                             // Finished string
-                            BufferMemory::checkResize(bkv, head + 2 + nameLen + sizeof(uint16_t) + strLen, capacity);
+                            BufferMemory::checkResize(bkv, head + 2 + nameLen + sizeof(uint16_t) + strLen, head, capacity);
                             bkv[head] = BKV_STR;
                             head += 2 + nameLen;
                             strLen = Endianness::hton(strLen);
@@ -332,7 +319,7 @@ namespace game {
                         continue;
                     } else {
                         str[strLen++] = c;
-                        BufferMemory::checkResize(str, strLen, strCapacity);
+                        BufferMemory::checkResize(str, strLen, strLen - 1, strCapacity);
                         continue;
                     }
                 } else {

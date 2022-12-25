@@ -45,6 +45,7 @@ namespace game {
                 // Data types:
                 BKV_END, // End of compound (does not have a name)
                 BKV_COMPOUND, // List of tags, closed by BKV_END
+                BKV_BOOL, // 1B Unsigned Int (0 or 1)
                 BKV_I8, // 1B Signed Int
                 BKV_I16, // 2B Signed Int
                 BKV_I32, // 4B Signed Int

@@ -8,12 +8,5 @@ namespace game {
         public:
             // Functions
             virtual void parse(BKV_Buffer& buf, const char c);
-            void reset() {
-                len_ = 0;
-            }
-        
-        private:
-            // Variables
-            size_t len_ = 0;
     };
 }

@@ -20,13 +20,14 @@ namespace game {
             void reset() {
                 strLen_ = 0;
                 strChar_ = DEFAULT_CHAR;
-                lastChar_ = DEFAULT_CHAR;
+                breakChar_ = false;
             }
             virtual void parse(BKV_Buffer& buf, const char c);
             
         private:
             // Functions
             void continueStr(BKV_Buffer& buf, const char c);
+            void completeStr(BKV_Buffer& buf, const char c);
             
             // Variables
             static constexpr char DEFAULT_CHAR = -1;
@@ -35,6 +36,6 @@ namespace game {
             size_t strCapacity_ = 0;
             size_t strLen_ = 0;
             char strChar_ = DEFAULT_CHAR;
-            char lastChar_ = DEFAULT_CHAR;
+            bool breakChar_ = false;
     };
 }

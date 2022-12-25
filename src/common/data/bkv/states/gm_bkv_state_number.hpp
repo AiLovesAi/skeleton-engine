@@ -7,13 +7,6 @@
 namespace game {
     class BKV_State_Number : public BKV_State { 
         public:
-            // Constructors
-            BKV_State_Number() {
-                bufCapacity_ = BUFSIZ;
-                numBuf_ = static_cast<char*>(std::malloc(bufCapacity_));
-            }
-            ~BKV_State_Number() { std::free(numBuf_); }
-            
             // Functions
             void reset() {
                 bufLen_ = 0;
@@ -23,8 +16,7 @@ namespace game {
 
         private:
             // Variables
-            char *numBuf_;
-            size_t bufCapacity_ = 0;
+            char numBuf_[UINT8_MAX];
             size_t bufLen_ = 0;
             bool hasDecimal_ = false;
     };
