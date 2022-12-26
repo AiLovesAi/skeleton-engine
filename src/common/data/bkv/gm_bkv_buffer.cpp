@@ -16,7 +16,7 @@ namespace game {
 
         try {
             BufferMemory::checkResize(bkv, head + 1, head, capacity);
-        } catch (std::overflow_error e) {
+        } catch (std::exception e) {
             throw e;
         }
 
@@ -36,13 +36,17 @@ namespace game {
                 throw std::invalid_argument(msg.str());
             }
             buf.state = BKV_State::arrayState();
-            buf.state->parse(buf, c);
+            try {
+                buf.state->parse(buf, c);
+            } catch (std::exception e) {
+                throw e;
+            }
         } else {
             buf.bkv[buf.tagHead] = buf.tag;
             if (c == '}') {
                 try {
                     buf.endCompound();
-                } catch (std::overflow_error e) {
+                } catch (std::exception e) {
                     throw e;
                 }
             }

@@ -18,7 +18,7 @@ namespace game {
 
         try {
             BufferMemory::checkResize(str_, strLen_ + 1, strLen_, strCapacity_);
-        } catch (std::overflow_error e) {
+        } catch (std::exception e) {
             reset();
             throw e;
         }
@@ -46,7 +46,7 @@ namespace game {
                 buf.tag = BKV::BKV_BOOL;
                 try {
                     BufferMemory::checkResize(buf.bkv, buf.head + 1, buf.head, buf.capacity);
-                } catch (std::overflow_error e) {
+                } catch (std::exception e) {
                     reset();
                     throw e;
                 }
@@ -64,7 +64,7 @@ namespace game {
                 buf.tag = BKV::BKV_BOOL;
                 try {
                     BufferMemory::checkResize(buf.bkv, buf.head + 1, buf.head, buf.capacity);
-                } catch (std::overflow_error e) {
+                } catch (std::exception e) {
                     reset();
                     throw e;
                 }
@@ -80,7 +80,7 @@ namespace game {
             const size_t len = Endianness::hton(strLen_);
             try {
                 BufferMemory::checkResize(buf.bkv, buf.head + sizeof(uint16_t) + strLen_, buf.head, buf.capacity);
-            } catch (std::overflow_error e) {
+            } catch (std::exception e) {
                 reset();
                 throw e;
             }
@@ -94,7 +94,7 @@ namespace game {
         reset();
         try {
             buf.endKV(buf, c);
-        } catch (std::overflow_error e) {
+        } catch (std::exception e) {
             throw e;
         }
     }

@@ -12,7 +12,7 @@ namespace game {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
             try {
                 buf.endCompound();
-            } catch (std::overflow_error e) {
+            } catch (std::exception e) {
                 throw e;
             }
         } else if (std::isalpha(c) || (lastChar_ != DEFAULT_CHAR && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
@@ -33,7 +33,7 @@ namespace game {
 
             try {
                 BufferMemory::checkResize(buf.bkv, buf.head + 2 + keyLen_, buf.head, buf.capacity);
-            } catch (std::overflow_error e) {
+            } catch (std::exception e) {
                 throw e;
             }
             std::memcpy(buf.bkv + buf.head + 1, &len, sizeof(uint8_t));

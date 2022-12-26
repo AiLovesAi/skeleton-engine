@@ -35,7 +35,7 @@ namespace game {
                 reset();
                 try {
                     buf.endKV(buf, c);
-                } catch (std::overflow_error e) {
+                } catch (std::exception e) {
                     throw e;
                 }
             } else {
@@ -117,7 +117,12 @@ namespace game {
                         }
                     }
                     // Start again now that we have a number
-                    parse(buf, c);
+                    try {
+                        parse(buf, c);
+                    } catch (std::exception e) {
+                        reset();
+                        throw e;
+                    }
                 } break;
                 case 'B':
                 case 'b': {

@@ -10,15 +10,17 @@ namespace game {
             // Functions
             void reset() {
                 size_ =  0;
+                arrayTagHead_ = 0;
                 arrayStart_ = 0;
-                lastTag_ = 0;
+                arrayTag_ = 0;
             }
             virtual void parse(BKV_Buffer& buf, const char c);
 
         private:
             // Variables
             size_t size_ = 0;
+            size_t arrayTagHead_ = 0;
             size_t arrayStart_ = 0;
-            uint8_t lastTag_ = 0;
+            uint8_t arrayTag_ = 0;
     };
 }

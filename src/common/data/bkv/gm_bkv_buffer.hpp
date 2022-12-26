@@ -44,6 +44,7 @@ namespace game {
             size_t tagHead  = 1; // Starts at current tagID and flushes with head when the keyv/value pair is completed
             size_t valHead  = 1; // Starts at current value, just after name, and flushes with head when the keyv/value pair is completed
             size_t depth    = 1; // Current compound depth
-            BKV_State* state = BKV_State::keyState();
+            BKV_State* state = BKV_State::keyState(); // The state that will get called on next parse() call
+            BKV_State* parentState = state; // The state that an array state should return to on each index
     };
 }
