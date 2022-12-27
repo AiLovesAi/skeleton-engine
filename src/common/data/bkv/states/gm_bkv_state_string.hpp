@@ -27,6 +27,7 @@ namespace game {
         private:
             // Functions
             void continueStr(BKV_Buffer& buf, const char c);
+            void checkForBool(BKV_Buffer& buf);
             void completeStr(BKV_Buffer& buf, const char c);
             
             // Variables

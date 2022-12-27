@@ -34,7 +34,7 @@ namespace game {
         }
     }
 
-    void BKV_State_String::completeStr(BKV_Buffer& buf, const char c) {
+    void BKV_State_String::checkForBool(BKV_Buffer& buf) {
         if (!(buf.tag & BKV::BKV_ARRAY)) {
             // Check if this is a boolean "true" or "false"
             if ((strLen_ == 4) && (
@@ -74,6 +74,11 @@ namespace game {
                 buf.head++;
             }
         }
+    }
+
+    void BKV_State_String::completeStr(BKV_Buffer& buf, const char c) {
+        try { checkForBool(buf); } catch (std::exception e) { throw e; }
+
         if (buf.tag != BKV::BKV_BOOL) {
             // Must be string, copy to buffer
             buf.tag |= BKV::BKV_STR;
