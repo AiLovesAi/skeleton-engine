@@ -18,7 +18,7 @@ namespace game {
                 throw e;
             }
             buf.head += sizeof(uint32_t);
-        } else if (buf.tag & ~(BKV::BKV_ARRAY | BKV::BKV_UNSIGNED)) {
+        } else if (buf.tag & ~BKV::BKV_FLAGS_ALL) {
             // Tag is found, make sure it has not changed
             if (!arrayTag_) {
                 arrayTag_ = buf.tag;

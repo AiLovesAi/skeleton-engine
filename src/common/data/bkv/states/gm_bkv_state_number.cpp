@@ -119,8 +119,8 @@ namespace game {
     }
 
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
-        // Check if number has been completed and a tag is assigned
-        if (buf.tag & ~(BKV::BKV_ARRAY | BKV::BKV_UNSIGNED)) {
+        if (buf.tag & ~BKV::BKV_FLAGS_ALL) {
+            // Check if number has been completed and a tag is assigned
             if ((c == '}') || (c == ',') || ((buf.tag & BKV::BKV_ARRAY) && (c == ']'))) {
                 reset();
                 try { buf.endKV(c); } catch (std::exception e) { throw e; }

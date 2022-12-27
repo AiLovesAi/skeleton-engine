@@ -43,13 +43,13 @@ namespace game {
         std::memcpy(buffer_, bkv.data.get(), bkv.size);
     }
 
-    void BKV::resizeBuffer(const size_t size) {
+    void BKV::resizeBuffer(const int64_t size) {
         buffer_ = static_cast<uint8_t*>(std::realloc(buffer_, size));
         capacity_ = size;
     }
 
     void BKV::write(const BKV_t& bkv) {
-        size_t resultHead = head_ + bkv.size;
+        int64_t resultHead = head_ + bkv.size;
 
         if (resultHead > capacity_) {
             resizeBuffer(std::max(capacity_ * 2, resultHead));
@@ -60,7 +60,7 @@ namespace game {
     }
 
     template <typename T>
-    void setValueSBKV(const uint8_t* data, char*& sbkv, size_t& i, size_t& head, size_t& capacity) {
+    void setValueSBKV(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         // Val
         T v;
         std::memcpy(&v, data + i + 1 + data[i], sizeof(T));
@@ -83,7 +83,7 @@ namespace game {
         sbkv[head++] = ',';
     }
     template <typename T>
-    void setArraySBKV(const uint8_t* data, char*& sbkv, size_t& i,  size_t& head, size_t& capacity) {
+    void setArraySBKV(const uint8_t* data, char*& sbkv, int64_t& i,  int64_t& head, int64_t& capacity) {
         // Name
         BufferMemory::checkResize(sbkv, head + data[i] + 2, capacity);
         std::memcpy(sbkv + head, data + i + 1, data[i]);
@@ -118,12 +118,12 @@ namespace game {
         sbkv[head++] = ',';
     }
     BKV::UTF8Str BKV::sbkvFromBKV(const BKV_t& bkv) {
-        size_t capacity = bkv.size; // Should be at least bkvSize
+        int64_t capacity = bkv.size; // Should be at least bkvSize
         char* sbkv = static_cast<char*>(std::malloc(capacity));
         sbkv[0] = '{';
 
         const uint8_t* data = bkv.data.get();
-        size_t head, i;
+        int64_t head, i;
         for (head = 0, i = 0; i < bkv.size; i++) {
             switch(data[i++]) {
                 case BKV_END:
@@ -190,7 +190,7 @@ namespace game {
                     setArraySBKV<int64_t>(data, sbkv, i, head, capacity);
                     break;
                 case BKV_FLOAT: // Name:X.f,
-                    setValueSBKV<float>(data, sbkv, i, head, capacity);
+                    setValueSBKV<float>(data, sbkv, i, head, capacity); // TODO Need to do ntohf/ntohd for floating point values
                     break;
                 case BKV_FLOAT_ARRAY: // Name:[X.f,Y.f,Z.f],
                     setArraySBKV<float>(data, sbkv, i, head, capacity);
@@ -203,7 +203,7 @@ namespace game {
                     break;
                 case BKV_STR: { // Name:Str,
                     // Val
-                    size_t len;
+                    uint16_t len;
                     std::memcpy(&len, data + i + 1 + data[i], sizeof(uint16_t));
                     len = Endianness::ntoh(len);
 
@@ -265,89 +265,19 @@ namespace game {
     BKV::BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
         const char* sbkv = stringified.str.get();
         BKV_Buffer buf;
-        buf.capacity = stringified.len; // Starting length
-        buf.bkv = static_cast<uint8_t*>(std::malloc(buf.capacity));
-        
-        char c;
-        for (size_t i = 0; i < stringified.len; i++) {
-            c = sbkv[i];
-            buf.state->parse(buf, c);
+        for (int64_t i = 0; i < stringified.len; i++) {
+            try { buf.state->parse(buf, sbkv[i]); } catch (std::exception e) { throw e; }
         }
-
-        uint8_t nameLen = 0;
-        uint16_t strLen = 0;
-        uint32_t arraySize = 0;
-        size_t strCapacity = BUFSIZ, head = 0; 
-        char* str = static_cast<char*>(std::malloc(strCapacity));
-        bool inName = true, isArray = false, isNumber = false;
-        char strChar = 0, c;
-        for (size_t i = 0; i < stringified.len; i++) {
-            c = sbkv[i];
-            if (inName) { // Get name
-                if (c == ':') {
-                    inName = false;
-                    BufferMemory::checkResize(buf.bkv, head + 2 + nameLen, head, buf.capacity);
-                    buf.bkv[head + 1] = nameLen;
-                    std::memcpy(buf.bkv + head + 2, str, nameLen); // Copy name after tag and name length
-                    continue;
-                } else {
-                    str[nameLen++] = c;
-                    BufferMemory::checkResize(str, nameLen, strCapacity);
-                    continue;
-                }
-                continue;
-            } else { // Record data into string
-                if (strChar) {
-                    if ((c == ',' && strChar == DEFAULT_CHAR) || (c == strChar && sbkv[i - 1] != '\\')) {
-                        strChar = 0;
-                        if (!isArray) {
-                            // Finished string
-                            BufferMemory::checkResize(bkv, head + 2 + nameLen + sizeof(uint16_t) + strLen, head, capacity);
-                            bkv[head] = BKV_STR;
-                            head += 2 + nameLen;
-                            strLen = Endianness::hton(strLen);
-                            std::memcpy(bkv + head, &strLen, sizeof(uint16_t));
-                            head += sizeof(uint16_t);
-                            std::memcpy(bkv + head, str, strLen);
-
-                            // Reset
-                            strLen = 0;
-                            nameLen = 0;
-                            inName = true;
-                            continue;
-                        }
-                        continue;
-                    } else {
-                        str[strLen++] = c;
-                        BufferMemory::checkResize(str, strLen, strLen - 1, strCapacity);
-                        continue;
-                    }
-                } else {
-                    if (c == '[') {
-                        isArray = true;
-                        continue;
-                    } else if (c == '-' || c == '.' || (c >= '0' && c <= '9')) {
-                        isNumber = true;
-                        continue;
-                    } else if (c == '"' || c == '\'') {
-                        strChar = c;
-                        continue;
-                    } else { // Default to unquoted string
-                        strChar = DEFAULT_CHAR;
-                    }
-                }
-            }
-        }
-
-        return BKV_t{};
+        return BKV_t{static_cast<int64_t>(buf.head), std::shared_ptr<uint8_t>(buf.bkv, std::free)};
     }
+
     BKV::BKV_t BKV::bkvCompound(const UTF8Str& name) {
         if (name.len > UINT8_MAX) {
             std::stringstream msg;
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
         }
-        const size_t allocSize = 2 + name.len;
+        const int64_t allocSize = 2 + name.len;
         uint8_t *buffer = new uint8_t[allocSize];
 
         buffer[0] = BKV::BKV_COMPOUND; // ID
@@ -366,7 +296,7 @@ namespace game {
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
         }
-        const size_t allocSize = 2 + name.len + sizeof(T);
+        const int64_t allocSize = 2 + name.len + sizeof(T);
         uint8_t *buffer = new uint8_t[allocSize];
         const T networkData = Endianness::hton(data);
 
@@ -387,8 +317,8 @@ namespace game {
             msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
             throw std::length_error(msg.str());
         }
-        const size_t listStart = 2 + name.len + sizeof(uint32_t);
-        const size_t allocSize = listStart + (sizeof(T) * size);
+        const int64_t listStart = 2 + name.len + sizeof(uint32_t);
+        const int64_t allocSize = listStart + (sizeof(T) * size);
         uint8_t *buffer = new uint8_t[allocSize];
         const uint32_t networkSize = Endianness::hton(size);
 
@@ -397,7 +327,7 @@ namespace game {
         std::memcpy(buffer + 2, name.str.get(), name.len); // Name
         std::memcpy(buffer + listStart - sizeof(uint32_t), &networkSize, sizeof(uint32_t)); // List size
         T networkData;
-        for (size_t i = 0; i < size; i++) {
+        for (int64_t i = 0; i < size; i++) {
             networkData = Endianness::hton(data[i]);
             std::memcpy(buffer + listStart + (i * sizeof(T)), &networkData, sizeof(T)); // Data (after size)
         }
@@ -415,8 +345,8 @@ namespace game {
             msg << "Too many characters in BKV string: " << name.len << "/65535 characters.";
             throw std::length_error(msg.str());
         }
-        const size_t strStart = 2 + name.len + sizeof(uint16_t);
-        const size_t allocSize = strStart + data.len;
+        const int64_t strStart = 2 + name.len + sizeof(uint16_t);
+        const int64_t allocSize = strStart + data.len;
         uint8_t *buffer = new uint8_t[allocSize];
         const uint16_t networkLen = Endianness::hton(data.len);
 
@@ -429,10 +359,10 @@ namespace game {
         return BKV_t{.size = allocSize, .data = std::shared_ptr<uint8_t>(buffer, std::free)};
     }
     BKV::BKV_t BKV::bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size) {
-        const size_t listStart = 2 + name.len + sizeof(uint32_t);
-        size_t allocSize = listStart + (sizeof(uint32_t) * size);
-        for (size_t i = 0; i < size; i++) {
-            if (data[i].len > 0xffff) {
+        const int64_t listStart = 2 + name.len + sizeof(uint32_t);
+        int64_t allocSize = listStart + (sizeof(uint32_t) * size);
+        for (int64_t i = 0; i < size; i++) {
+            if (data[i].len > UINT16_MAX) {
                 std::stringstream msg;
                 msg << "Too many characters in BKV string: " << name.len << "/65535 characters.";
                 throw std::length_error(msg.str());
@@ -446,7 +376,7 @@ namespace game {
         buffer[1] = name.len; // Name length
         std::memcpy(buffer + 2, name.str.get(), name.len); // Name
         std::memcpy(buffer + listStart - sizeof(uint32_t), &networkSize, sizeof(uint32_t)); // List size
-        for (size_t i = 0, head = listStart; i < size; i++) {
+        for (int64_t i = 0, head = listStart; i < size; i++) {
             networkSize = Endianness::hton(data[i].len);
             std::memcpy(buffer + head, &networkSize, sizeof(uint32_t)); // String length
             head += sizeof(uint32_t);

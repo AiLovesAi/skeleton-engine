@@ -16,12 +16,12 @@ namespace game {
             struct BKVSuffixMap { static const char suffix[]; };
             
             typedef struct UTF8Str_ {
-                size_t len;
+                int64_t len;
                 std::shared_ptr<char> str;
             } UTF8Str;
             
             typedef struct BKV_t_ {
-                size_t size;
+                int64_t size;
                 std::shared_ptr<uint8_t> data;
             } BKV_t;
 
@@ -40,6 +40,7 @@ namespace game {
                 
                 // WARNING: Updating the number of flags constrains how many data types there can be.
                 // With two flags, there can be 2^6 (64) data types. Each extra flag halves this.
+                BKV_FLAGS_ALL = BKV_UNSIGNED | BKV_ARRAY,
             };
             enum BKV_Tags {
                 // Data types:
@@ -95,7 +96,7 @@ namespace game {
 
         private:
             // Functions
-            void resizeBuffer(const size_t size);
+            void resizeBuffer(const int64_t size);
             void write(const BKV_t& bkv);
 
             static UTF8Str sbkvFromBKV(const BKV_t& bkv);
@@ -112,7 +113,7 @@ namespace game {
 
             // Variables
             uint8_t* buffer_ = nullptr;
-            size_t head_ = 0;
-            size_t capacity_ = 0;
+            int64_t head_ = 0;
+            int64_t capacity_ = 0;
     };
 }
