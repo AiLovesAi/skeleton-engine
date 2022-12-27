@@ -33,8 +33,8 @@ namespace game {
             static constexpr char DEFAULT_CHAR = -1;
             
             uint8_t* str_ = nullptr;
-            size_t strCapacity_ = 0;
-            size_t strLen_ = 0;
+            int64_t strCapacity_ = 0;
+            int64_t strLen_ = 0;
             char strChar_ = DEFAULT_CHAR;
             bool breakChar_ = false;
     };

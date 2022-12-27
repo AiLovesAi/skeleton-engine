@@ -79,7 +79,7 @@ namespace game {
             buf.tag |= BKV::BKV_STR;
             const size_t len = Endianness::hton(strLen_);
             try {
-                BufferMemory::checkResize(buf.bkv, buf.head + sizeof(uint16_t) + strLen_, buf.head, buf.capacity);
+                BufferMemory::checkResize(buf.bkv, buf.head + (int64_t) sizeof(uint16_t) + strLen_, buf.head, buf.capacity);
             } catch (std::exception e) {
                 reset();
                 throw e;
@@ -92,11 +92,7 @@ namespace game {
         }
 
         reset();
-        try {
-            buf.endKV(buf, c);
-        } catch (std::exception e) {
-            throw e;
-        }
+        try { buf.endKV(c); } catch (std::exception e) { throw e; }
     }
     
     void BKV_State_String::parse(BKV_Buffer& buf, const char c) {

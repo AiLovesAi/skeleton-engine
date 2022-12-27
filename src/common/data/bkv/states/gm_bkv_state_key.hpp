@@ -18,7 +18,7 @@ namespace game {
             // Variables
             static constexpr char DEFAULT_CHAR = -1;
             uint8_t key_[UINT8_MAX];
-            size_t keyLen_ = 0;
+            int64_t keyLen_ = 0;
             char lastChar_ = DEFAULT_CHAR;
     };
 }

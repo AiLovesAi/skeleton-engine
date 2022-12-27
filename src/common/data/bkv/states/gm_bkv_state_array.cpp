@@ -12,7 +12,7 @@ namespace game {
             arrayStart_ = buf.head;
             arrayTagHead_ = buf.tagHead;
             try {
-                BufferMemory::checkResize(buf.bkv, buf.head + sizeof(uint32_t), buf.head, buf.capacity);
+                BufferMemory::checkResize(buf.bkv, buf.head + (int64_t) sizeof(uint32_t), buf.head, buf.capacity);
             } catch (std::exception e) {
                 reset();
                 throw e;

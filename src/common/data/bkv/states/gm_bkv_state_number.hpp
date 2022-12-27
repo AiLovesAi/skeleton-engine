@@ -16,6 +16,8 @@ namespace game {
 
         private:
             // Functions
+            template <typename T>
+            void appendValue(BKV_Buffer& buf, const T value);
             void parseDouble(BKV_Buffer& buf);
 
             // Variables

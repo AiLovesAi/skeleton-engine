@@ -8,13 +8,12 @@
 
 namespace game {
     void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
-        if ((c == '}') && !keyLen_) {
+        if ((c == '{') && !buf.head) {
+            // Opening compound, just ignore
+            return;
+        } else if ((c == '}') && !keyLen_) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
-            try {
-                buf.endCompound();
-            } catch (std::exception e) {
-                throw e;
-            }
+            try { buf.endCompound(); } catch (std::exception e) { throw e; }
         } else if (std::isalpha(c) || (lastChar_ != DEFAULT_CHAR && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
             // TODO Allow for quoted keys
             // Build key
@@ -33,9 +32,7 @@ namespace game {
 
             try {
                 BufferMemory::checkResize(buf.bkv, buf.head + 2 + keyLen_, buf.head, buf.capacity);
-            } catch (std::exception e) {
-                throw e;
-            }
+            } catch (std::exception e) { throw e; }
             std::memcpy(buf.bkv + buf.head + 1, &len, sizeof(uint8_t));
             buf.head += 2; // Add 1 for tag (added later) and 1 for key length
             std::memcpy(buf.bkv + buf.head, key_, keyLen_);
@@ -49,7 +46,7 @@ namespace game {
             std::stringstream msg;
             msg << "Invalid character in BKV key at index " << keyLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
             throw std::invalid_argument(msg.str());
-        }
+        } else return;
         // NOTE: In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
     }
 }
