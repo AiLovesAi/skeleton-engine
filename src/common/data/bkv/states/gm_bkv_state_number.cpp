@@ -10,14 +10,94 @@
 namespace game {
     template <typename T>
     void BKV_State_Number::appendValue(BKV_Buffer& buf, const T value) {
-        uint64_t val = Endianness::hton(value);
+        const T val = Endianness::hton(value);
         try {
             BufferMemory::checkResize(buf.bkv, buf.head + (int64_t) sizeof(T), buf.head, buf.capacity);
         } catch (std::exception e) { throw e; }
         std::memcpy(buf.bkv + buf.head, &val, sizeof(T));
         buf.head += sizeof(T);
     }
+
+    template <typename T, typename TU>
+    void BKV_State_Number::parseInt(BKV_Buffer& buf, const int64_t min, const int64_t max, const uint64_t umax) {
+        if (buf.tag & BKV::BKV_UNSIGNED) {
+            uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+            // Make sure value doesn't overflow
+            if (val > umax) {
+                reset();
+                std::stringstream msg;
+                msg << "BKV value overflows unsigned integer type: " << val << " > " << umax << ".";
+                throw std::overflow_error(msg.str());
+            }
+            try { appendValue(buf, static_cast<TU>(val)); } catch (std::exception e) { throw e; }
+        } else {
+            int64_t val = std::strtoll(numBuf_, nullptr, 10);
+            // Make sure value doesn't overflow or underflow
+            if (val < min) {
+                reset();
+                std::stringstream msg;
+                msg << "BKV value underflows signed integer type: " << val << " < " << min << ".";
+                throw std::underflow_error(msg.str());
+            } else if (val > max) {
+                reset();
+                std::stringstream msg;
+                msg << "BKV value overflows signed integer type: " << val << " > " << max << ".";
+                throw std::overflow_error(msg.str());
+            }
+            try { appendValue(buf, static_cast<T>(val)); } catch (std::exception e) { throw e; }
+        }
+    }
+
+    void BKV_State_Number::parseLong(BKV_Buffer& buf) {
+        buf.tag |= BKV::BKV_I64;
+        if (buf.tag & BKV::BKV_UNSIGNED) {
+            uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+            // Make sure value doesn't overflow
+            if (val == UINT64_MAX) {
+                reset();
+                std::stringstream msg;
+                msg << "BKV value overflows unsigned long type: " << val << " >= " << UINT64_MAX << ".";
+                throw std::overflow_error(msg.str());
+            }
+            try { appendValue(buf, val); } catch (std::exception e) { throw e; }
+        } else {
+            int64_t val = std::strtoll(numBuf_, nullptr, 10);
+            // Make sure value doesn't overflow or underflow
+            if (val == INT64_MIN) {
+                reset();
+                std::stringstream msg;
+                msg << "BKV value underflows signed long type: " << val << " <= " << INT64_MIN << ".";
+                throw std::underflow_error(msg.str());
+            } else if (val == INT64_MAX) {
+                reset();
+                std::stringstream msg;
+                msg << "BKV value overflows signed long type: " << val << " >= " << INT64_MAX << ".";
+                throw std::overflow_error(msg.str());
+            }
+            try { appendValue(buf, val); } catch (std::exception e) { throw e; }
+        }
+    }
     
+    void BKV_State_Number::parseFloat(BKV_Buffer& buf) {
+        buf.tag |= BKV::BKV_FLOAT;
+        long double val = std::strtold(numBuf_, nullptr);
+        // Make sure value doesn't overflow or underflow
+        if ((val < FLT_MIN) || (val == -HUGE_VALL)) {
+            reset();
+            std::stringstream msg;
+            msg << "BKV value underflows float: " << val << " <= " << FLT_MIN << ".";
+            throw std::underflow_error(msg.str());
+        } else if ((val > FLT_MAX) || (val == HUGE_VALL)) {
+            reset();
+            std::stringstream msg;
+            msg << "BKV value overflows float: " << val << " >= " << FLT_MAX << ".";
+            throw std::overflow_error(msg.str());
+        }
+        float v = Endianness::htonf(static_cast<float>(val));
+        std::memcpy(buf.bkv + buf.head, &v, sizeof(float));
+        buf.head += sizeof(float);
+    }
+
     void BKV_State_Number::parseDouble(BKV_Buffer& buf) {
         buf.tag |= BKV::BKV_DOUBLE;
         long double val = std::strtold(numBuf_, nullptr);
@@ -73,7 +153,10 @@ namespace game {
                 case '}': {
                     // Use default (integer if possible, long otherwise)
                     if (hasDecimal_) {
-                        parseDouble(buf);
+                        try { parseDouble(buf); } catch (std::exception e) {
+                            reset();
+                            throw e;
+                        }
                     } else {
                         if (buf.tag & BKV::BKV_UNSIGNED) {
                             uint64_t val = std::strtoull(numBuf_, nullptr, 10);
@@ -123,145 +206,46 @@ namespace game {
                 case 'B':
                 case 'b': {
                     buf.tag |= BKV::BKV_I8;
-                    if (buf.tag & BKV::BKV_UNSIGNED) {
-                        uint64_t val = std::strtoull(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow
-                        if (val > UINT8_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows short: " << val << " > " << UINT8_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
-                    } else {
-                        int64_t val = std::strtoll(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow or underflow
-                        if (val < INT8_MIN) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value underflows short: " << val << " < " << INT8_MIN << ".";
-                            throw std::underflow_error(msg.str());
-                        } else if (val > INT8_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows short: " << val << " > " << INT8_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
+                    try { parseInt<int8_t, uint8_t>(buf, INT8_MIN, INT8_MAX, UINT8_MAX); } catch (std::exception e) {
+                        reset();
+                        throw e;
                     }
                 } break;
                 case 'D':
                 case 'd': {
-                    parseDouble(buf);
+                    try { parseDouble(buf); } catch (std::exception e) {
+                        reset();
+                        throw e;
+                    }
                 } break;
                 case 'F':
                 case 'f': {
-                    buf.tag |= BKV::BKV_FLOAT;
-                    long double val = std::strtold(numBuf_, nullptr);
-                    // Make sure value doesn't overflow or underflow
-                    if ((val < FLT_MIN) || (val == -HUGE_VALL)) {
+                    try { parseFloat(buf); } catch (std::exception e) {
                         reset();
-                        std::stringstream msg;
-                        msg << "BKV value underflows float: " << val << " <= " << FLT_MIN << ".";
-                        throw std::underflow_error(msg.str());
-                    } else if ((val > FLT_MAX) || (val == HUGE_VALL)) {
-                        reset();
-                        std::stringstream msg;
-                        msg << "BKV value overflows float: " << val << " >= " << FLT_MAX << ".";
-                        throw std::overflow_error(msg.str());
+                        throw e;
                     }
-                    float v = Endianness::htonf(static_cast<float>(val));
-                    std::memcpy(buf.bkv + buf.head, &v, sizeof(float));
-                    buf.head += sizeof(float);
                 } break;
                 case 'I':
                 case 'i': {
                     buf.tag |= BKV::BKV_I32;
-                    if (buf.tag & BKV::BKV_UNSIGNED) {
-                        uint64_t val = std::strtoull(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow
-                        if (val > UINT32_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows integer: " << val << " > " << UINT32_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
-                    } else {
-                        int64_t val = std::strtoll(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow or underflow
-                        if (val < INT32_MIN) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value underflows integer: " << val << " < " << INT32_MIN << ".";
-                            throw std::underflow_error(msg.str());
-                        } else if (val > INT32_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows integer: " << val << " > " << INT32_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
+                    try { parseInt<int32_t, uint32_t>(buf, INT32_MIN, INT32_MAX, UINT32_MAX); } catch (std::exception e) {
+                        reset();
+                        throw e;
                     }
                 } break;
                 case 'L':
                 case 'l': {
-                    buf.tag |= BKV::BKV_I64;
-                    if (buf.tag & BKV::BKV_UNSIGNED) {
-                        uint64_t val = std::strtoull(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow
-                        if (val == UINT64_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows long: " << val << " >= " << UINT64_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
-                    } else {
-                        int64_t val = std::strtoll(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow or underflow
-                        if (val == INT64_MIN) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value underflows long: " << val << " <= " << INT64_MIN << ".";
-                            throw std::underflow_error(msg.str());
-                        } else if (val == INT64_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows long: " << val << " >= " << INT64_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
+                    try { parseLong(buf); } catch (std::exception e) {
+                        reset();
+                        throw e;
                     }
                 } break;
                 case 'S':
                 case 's': {
                     buf.tag |= BKV::BKV_I16;
-                    if (buf.tag & BKV::BKV_UNSIGNED) {
-                        uint64_t val = std::strtoull(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow
-                        if (val > UINT16_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows short: " << val << " > " << UINT16_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
-                    } else {
-                        int64_t val = std::strtoll(numBuf_, nullptr, 10);
-                        // Make sure value doesn't overflow or underflow
-                        if (val < INT16_MIN) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value underflows short: " << val << " < " << INT16_MIN << ".";
-                            throw std::underflow_error(msg.str());
-                        } else if (val > INT16_MAX) {
-                            reset();
-                            std::stringstream msg;
-                            msg << "BKV value overflows short: " << val << " > " << INT16_MAX << ".";
-                            throw std::overflow_error(msg.str());
-                        }
-                        try { appendValue(buf, val); } catch (std::exception e) { throw e; }
+                    try { parseInt<int16_t, uint16_t>(buf, INT16_MIN, INT16_MAX, UINT16_MAX); } catch (std::exception e) {
+                        reset();
+                        throw e;
                     }
                 } break;
                 case 'U':

@@ -18,6 +18,10 @@ namespace game {
             // Functions
             template <typename T>
             void appendValue(BKV_Buffer& buf, const T value);
+            template <typename T, typename TU>
+            void parseInt(BKV_Buffer& buf, const int64_t min, const int64_t max, const uint64_t umax);
+            void parseLong(BKV_Buffer& buf);
+            void parseFloat(BKV_Buffer& buf);
             void parseDouble(BKV_Buffer& buf);
 
             // Variables
