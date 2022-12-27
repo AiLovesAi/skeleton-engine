@@ -93,6 +93,8 @@ namespace game {
             
             template<typename T>
             T get(const std::string& name);
+            const uint8_t* get() { return buffer_; }
+            int64_t size() { return head_; }
 
         private:
             // Functions

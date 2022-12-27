@@ -9,11 +9,14 @@
 namespace game {
     void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
         if ((c == '{') && !buf.head) {
-            // Opening compound, just ignore
+            // Opening compound, ignore
             return;
         } else if ((c == '}') && !keyLen_) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
             try { buf.endCompound(); } catch (std::exception e) { throw e; }
+        } else if ((c == ' ') && !keyLen_) {
+            // Whitespace, igore
+            return;
         } else if (std::isalpha(c) || (lastChar_ != DEFAULT_CHAR && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
             // TODO Allow for quoted keys
             // Build key

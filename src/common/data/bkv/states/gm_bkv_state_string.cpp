@@ -108,7 +108,7 @@ namespace game {
                 continueStr(buf, c);
             }
         } else { // Only alphanumeric ASCII allowed
-            if (std::isalnum(c)) {
+            if (std::isalnum(c)) { // TODO Allow for special characters '_-.+'
                 continueStr(buf, c);
             } else if ((c == '}') || (c == ',') || ((buf.tag & BKV::BKV_ARRAY) && (c == ']'))) {
                 completeStr(buf, c);

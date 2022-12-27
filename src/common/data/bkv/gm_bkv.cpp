@@ -268,7 +268,7 @@ namespace game {
         for (int64_t i = 0; i < stringified.len; i++) {
             try { buf.state->parse(buf, sbkv[i]); } catch (std::exception e) { throw e; }
         }
-        return BKV_t{static_cast<int64_t>(buf.head), std::shared_ptr<uint8_t>(buf.bkv, std::free)};
+        return BKV_t{.size = static_cast<int64_t>(buf.head), .data = std::shared_ptr<uint8_t>(buf.bkv, std::free)};
     }
 
     BKV::BKV_t BKV::bkvCompound(const UTF8Str& name) {

@@ -22,11 +22,7 @@ namespace game {
         } else if (std::isdigit(c) || c == '-' || c == '.') {
             buf.state = BKV_State::numberState();
             buf.parentState = BKV_State::numberState();
-            try {
-                buf.state->parse(buf, c);
-            } catch (std::exception e) {
-                throw e;
-            }
+            try { buf.state->parse(buf, c); } catch (std::exception e) { throw e; }
         } else if (c == '[') {
             if (buf.tag & BKV::BKV_ARRAY) {
                 std::stringstream msg;

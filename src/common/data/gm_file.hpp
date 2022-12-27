@@ -10,7 +10,7 @@ namespace game {
             // Types
             typedef struct FileContents_ {
                 size_t len = 0;
-                std::shared_ptr<uint8_t> data = nullptr;
+                std::shared_ptr<const uint8_t> data = nullptr;
             } FileContents;
 
             // Functions
