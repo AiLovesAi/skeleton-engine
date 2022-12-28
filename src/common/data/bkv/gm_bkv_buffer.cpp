@@ -7,13 +7,6 @@
 #include <stdexcept>
 
 namespace game {
-    BKV_State_Key BKV_Buffer::keyState_;
-    BKV_State_String BKV_Buffer::stringState_;
-    BKV_State_Find_Tag BKV_Buffer::findTagState_;
-    //BKV_State_Array BKV_Buffer::arrayState_;
-    BKV_State_Number BKV_Buffer::numberState_;
-    BKV_State_Complete BKV_Buffer::completeState_;
-
     void BKV_Buffer::endCompound() {
         depth_--;
 
