@@ -1,12 +1,13 @@
 #pragma once
 
 #include "gm_bkv_state.hpp"
-#include "../gm_bkv.hpp"
-#include "../gm_bkv_buffer.hpp"
 
 #include <memory>
 
 namespace game {
+    class BKV;
+    class BKV_Buffer;
+
     class BKV_State_String : public BKV_State {
         public:
             // Constructors
@@ -22,6 +23,7 @@ namespace game {
                 strChar_ = DEFAULT_CHAR;
                 breakChar_ = false;
             }
+            static char getBreakChar(const char c);
             virtual void parse(BKV_Buffer& buf, const char c);
             
         private:

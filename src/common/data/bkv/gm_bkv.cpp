@@ -67,7 +67,10 @@ namespace game {
         v = Endianness::ntoh(v);
 
         const std::string val = std::to_string(v);
-        BufferMemory::checkResize(sbkv, head + data[i] + val.length() + sizeof(BKV::BKVSuffixMap<T>::suffix), capacity);
+        BufferMemory::checkResize(sbkv,
+            static_cast<int64_t>(head + data[i] + val.length() + sizeof(BKV::BKVSuffixMap<T>::suffix)),
+            head, capacity
+        );
 
         // Name
         std::memcpy(sbkv + head, data + i + 1, data[i]);
@@ -85,7 +88,7 @@ namespace game {
     template <typename T>
     void setArraySBKV(const uint8_t* data, char*& sbkv, int64_t& i,  int64_t& head, int64_t& capacity) {
         // Name
-        BufferMemory::checkResize(sbkv, head + data[i] + 2, capacity);
+        BufferMemory::checkResize(sbkv, head + data[i] + 2, head, capacity);
         std::memcpy(sbkv + head, data + i + 1, data[i]);
         head += data[i];
         i += 1 + data[i];
@@ -107,7 +110,10 @@ namespace game {
             v = Endianness::ntoh(v);
             val = std::to_string(v);
 
-            BufferMemory::checkResize(sbkv, head + val.length() + sizeof(BKV::BKVSuffixMap<T>::suffix) + 1, capacity);
+            BufferMemory::checkResize(sbkv,
+                static_cast<int64_t>(head + val.length() + sizeof(BKV::BKVSuffixMap<T>::suffix) + 1),
+                head, capacity
+            );
             std::memcpy(sbkv + head, val.c_str(), val.length());
             head += val.length();
             std::memcpy(sbkv + head, BKV::BKVSuffixMap<T>::suffix, sizeof(BKV::BKVSuffixMap<T>::suffix) - 1);
@@ -266,9 +272,9 @@ namespace game {
         const char* sbkv = stringified.str.get();
         BKV_Buffer buf;
         for (int64_t i = 0; i < stringified.len; i++) {
-            try { buf.state->parse(buf, sbkv[i]); } catch (std::exception e) { throw e; }
+            try { buf.state()->parse(buf, sbkv[i]); } catch (std::exception &e) { throw e; }
         }
-        return BKV_t{.size = static_cast<int64_t>(buf.head), .data = std::shared_ptr<uint8_t>(buf.bkv, std::free)};
+        return BKV_t{.size = buf.size(), .data = buf.data()};
     }
 
     BKV::BKV_t BKV::bkvCompound(const UTF8Str& name) {

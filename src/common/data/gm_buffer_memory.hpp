@@ -23,7 +23,7 @@ namespace game {
                 }
                 if (size > capacity) {
                     capacity <<= 1;
-                    ptr = std::realloc(ptr, capacity);
+                    ptr = static_cast<T1*>(std::realloc(ptr, capacity));
                 }
             }
     };

@@ -55,7 +55,6 @@ namespace game {
             
         private:
             // Functions
-            static inline uint8_t swapBytes1(const uint8_t data) { return data; }
             static inline uint16_t swapBytes2(const uint16_t data) {
                 return (data >> 8) | (data << 8);
             }
@@ -96,6 +95,13 @@ namespace game {
 
             // Classes
             template <typename T, size_t tSize> class ByteSwapper;
+            template <typename T> class ByteSwapper<T,1> {
+                public:
+                    T swap(const T data) const {
+                        return data;
+                    }
+            };
+            
             template <typename T> class ByteSwapper<T,2> {
                 public:
                     T swap(const T data) const {
