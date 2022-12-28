@@ -1,6 +1,5 @@
 #include "gm_bkv_state_key.hpp"
 
-#include "gm_bkv_states.hpp"
 #include "gm_bkv_state_string.hpp"
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_buffer.hpp"
@@ -23,7 +22,7 @@ namespace game {
         std::memcpy(buf.bkv_ + buf.head_, key_, keyLen_);
         buf.head_ += keyLen_;
         buf.valHead_ = buf.head_;
-        buf.stateTree_.push(BKV_States::findTagState());
+        buf.stateTree_.push(BKV_Buffer::findTagState());
         reset();
     }
 

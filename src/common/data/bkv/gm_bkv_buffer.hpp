@@ -1,6 +1,7 @@
 #pragma once
 
-#include "states/gm_bkv_states.hpp"
+#include "gm_bkv.hpp"
+#include "states/gm_bkv_state_key.hpp"
 
 #include <cstdint>
 #include <cstring>
@@ -8,9 +9,6 @@
 #include <stack>
 
 namespace game {
-    class BKV;
-    class BKV_State;
-
     class BKV_Buffer {
         public:
             // Constructors
@@ -18,12 +16,12 @@ namespace game {
                 capacity_ = BUFSIZ;
                 bkv_ = static_cast<uint8_t*>(std::malloc(capacity_));
                 bkv_[0] = BKV::BKV_COMPOUND;
-                stateTree_.push(BKV_States::keyState());
+                stateTree_.push(BKV_Buffer::keyState()); // TODO Make these non-static due to dependency loops
             }
             BKV_Buffer(const int64_t capacity) : capacity_{capacity} {
                 bkv_ = static_cast<uint8_t*>(std::malloc(capacity));
                 bkv_[0] = BKV::BKV_COMPOUND;
-                stateTree_.push(BKV_States::keyState());
+                stateTree_.push(BKV_Buffer::keyState());
             }
             
             ~BKV_Buffer() {

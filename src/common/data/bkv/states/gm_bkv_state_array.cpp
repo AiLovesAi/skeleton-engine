@@ -1,9 +1,8 @@
 #include "gm_bkv_state_array.hpp"
 
-#include "gm_bkv_states.hpp"
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_buffer.hpp"
-#include "../gm_buffer_memory.hpp"
+#include "../../gm_buffer_memory.hpp"
 #include "../../gm_endianness.hpp"
 
 #include <sstream>
@@ -56,7 +55,7 @@ namespace game {
                 throw std::invalid_argument(msg.str());
             }
         } else {
-            buf.stateTree_.push(BKV_States::findTagState());
+            buf.stateTree_.push(BKV_Buffer::findTagState());
             try {
                 buf.state()->parse(buf, c);
             } catch (std::exception &e) {
