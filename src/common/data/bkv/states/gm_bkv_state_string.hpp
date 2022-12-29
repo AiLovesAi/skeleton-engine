@@ -1,11 +1,12 @@
 #pragma once
 
 #include "gm_bkv_state.hpp"
-#include "../gm_bkv_buffer.hpp"
 
 #include <memory>
 
 namespace game {
+    class BKV_Buffer;
+    
     class BKV_State_String : public BKV_State {
         public:
             // Constructors

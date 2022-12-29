@@ -1,5 +1,7 @@
 #include "gm_bkv_state_complete.hpp"
 
+#include "../gm_bkv_buffer.hpp"
+
 #include <cctype>
 #include <sstream>
 #include <stdexcept>

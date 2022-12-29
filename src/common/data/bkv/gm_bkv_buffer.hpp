@@ -1,7 +1,12 @@
 #pragma once
 
 #include "gm_bkv.hpp"
+#include "states/gm_bkv_state_array.hpp"
+#include "states/gm_bkv_state_complete.hpp"
+#include "states/gm_bkv_state_find_tag.hpp"
 #include "states/gm_bkv_state_key.hpp"
+#include "states/gm_bkv_state_number.hpp"
+#include "states/gm_bkv_state_string.hpp"
 
 #include <cstdint>
 #include <cstring>
@@ -16,12 +21,12 @@ namespace game {
                 capacity_ = BUFSIZ;
                 bkv_ = static_cast<uint8_t*>(std::malloc(capacity_));
                 bkv_[0] = BKV::BKV_COMPOUND;
-                stateTree_.push(BKV_Buffer::keyState()); // TODO Make these non-static due to dependency loops
+                stateTree_.push(&keyState_);
             }
             BKV_Buffer(const int64_t capacity) : capacity_{capacity} {
                 bkv_ = static_cast<uint8_t*>(std::malloc(capacity));
                 bkv_[0] = BKV::BKV_COMPOUND;
-                stateTree_.push(BKV_Buffer::keyState());
+                stateTree_.push(&keyState_);
             }
             
             ~BKV_Buffer() {
@@ -41,8 +46,8 @@ namespace game {
 
         protected:
             friend class BKV_State;
-            friend class BKV_State_Key;
             friend class BKV_State_Array;
+            friend class BKV_State_Key;
             friend class BKV_State_Number;
             friend class BKV_State_Find_Tag;
             friend class BKV_State_String;
@@ -53,6 +58,13 @@ namespace game {
             void endKV(const char c);
 
             // Variables
+            BKV_State_Array arrayState_;
+            BKV_State_Complete completeState_;
+            BKV_State_Find_Tag findTagState_;
+            BKV_State_Key keyState_;
+            BKV_State_Number numberState_;
+            BKV_State_String stringState_;
+
             uint8_t* bkv_;
             uint8_t tag_ = 0;
             int64_t capacity_ = 0; // Capacity of BKV

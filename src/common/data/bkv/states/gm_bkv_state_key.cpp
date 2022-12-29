@@ -22,7 +22,7 @@ namespace game {
         std::memcpy(buf.bkv_ + buf.head_, key_, keyLen_);
         buf.head_ += keyLen_;
         buf.valHead_ = buf.head_;
-        buf.stateTree_.push(BKV_Buffer::findTagState());
+        buf.stateTree_.push(&buf.findTagState_);
         reset();
     }
 

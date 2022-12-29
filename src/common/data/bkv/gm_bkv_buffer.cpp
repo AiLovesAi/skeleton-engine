@@ -2,6 +2,7 @@
 
 #include "gm_bkv.hpp"
 #include "../gm_buffer_memory.hpp"
+#include "states/gm_bkv_state_complete.hpp"
 
 #include <sstream>
 #include <stdexcept>
@@ -25,7 +26,7 @@ namespace game {
             throw std::out_of_range(msg.str());
         } else if (!depth_) {
             // Depth has returned to zero, meaning the enclosing compound is closed; BKV is now finished.
-            stateTree_.push(BKV_Buffer::completeState());
+            stateTree_.push(&completeState_);
         }
     }
 
@@ -37,7 +38,7 @@ namespace game {
                 msg << "Closing character is '}' when in BKV array at index: " << head_ << ".";
                 throw std::invalid_argument(msg.str());
             }
-            stateTree_.push(BKV_Buffer::arrayState());
+            stateTree_.push(&arrayState_);
             try { state()->parse(*this, c); } catch (std::exception &e) { throw e; }
         } else {
             bkv_[tagHead_] = tag_;

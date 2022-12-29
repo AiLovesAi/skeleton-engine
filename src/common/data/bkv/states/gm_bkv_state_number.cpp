@@ -2,7 +2,7 @@
 
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_buffer.hpp"
-#include "../gm_buffer_memory.hpp"
+#include "../../gm_buffer_memory.hpp"
 #include "../../gm_endianness.hpp"
 
 #include <cfloat>

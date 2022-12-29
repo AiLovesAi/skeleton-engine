@@ -10,7 +10,7 @@ namespace game {
     void BKV_State_Find_Tag::parseStr(BKV_Buffer& buf, const char c) {
         buf.tag_ = BKV::BKV_STR;
         buf.stateTree_.pop();
-        buf.stateTree_.push(BKV_Buffer::stringState());
+        buf.stateTree_.push(&buf.stringState_);
         try {
             buf.state()->parse(buf, c);
         } catch (std::exception &e) {
@@ -24,7 +24,7 @@ namespace game {
             parseStr(buf, c);
         } else if (std::isdigit(c) || c == '-' || c == '.') {
             buf.stateTree_.pop();
-            buf.stateTree_.push(BKV_Buffer::numberState());
+            buf.stateTree_.push(&buf.numberState_);
             try { buf.state()->parse(buf, c); } catch (std::exception &e) { throw e; }
         } else if (c == '[') {
             if (buf.tag_ & BKV::BKV_ARRAY) {
@@ -35,7 +35,7 @@ namespace game {
 
             buf.tag_ |= BKV::BKV_ARRAY;
             buf.stateTree_.pop();
-            buf.stateTree_.push(BKV_Buffer::arrayState());
+            buf.stateTree_.push(&buf.arrayState_);
         } else if (c == '{') {
             if (buf.tag_ & BKV::BKV_ARRAY) {
                 std::stringstream msg;
@@ -53,7 +53,7 @@ namespace game {
             }
 
             buf.stateTree_.pop();
-            buf.stateTree_.push(BKV_Buffer::keyState());
+            buf.stateTree_.push(&buf.keyState_);
         } else if (std::isalnum(c)) {
             // String that only allows ASCII
             parseStr(buf, c);

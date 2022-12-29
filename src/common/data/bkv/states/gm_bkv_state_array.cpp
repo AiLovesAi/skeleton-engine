@@ -55,7 +55,7 @@ namespace game {
                 throw std::invalid_argument(msg.str());
             }
         } else {
-            buf.stateTree_.push(BKV_Buffer::findTagState());
+            buf.stateTree_.push(&buf.findTagState_);
             try {
                 buf.state()->parse(buf, c);
             } catch (std::exception &e) {
