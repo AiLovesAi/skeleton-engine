@@ -24,6 +24,9 @@ namespace game {
     void BKV_State_Number::parseInt(BKV_Buffer& buf, const int64_t min, const int64_t max, const uint64_t umax) {
         if (buf.tag_ & BKV::BKV_UNSIGNED) {
             uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+        std::stringstream m;
+        m << "Number state parsed unsigned int: " << val;
+        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow
             if (val > umax) {
                 reset();
@@ -34,6 +37,9 @@ namespace game {
             try { appendValue(buf, static_cast<TU>(val)); } catch (std::exception &e) { throw e; }
         } else {
             int64_t val = std::strtoll(numBuf_, nullptr, 10);
+        std::stringstream m;
+        m << "Number state parsed int: " << val;
+        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow or underflow
             if (val < min) {
                 reset();
@@ -54,6 +60,9 @@ namespace game {
         buf.tag_ |= BKV::BKV_I64;
         if (buf.tag_ & BKV::BKV_UNSIGNED) {
             uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+        std::stringstream m;
+        m << "Number state parsed unsigned long: " << val;
+        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow
             if (val == UINT64_MAX) {
                 reset();
@@ -64,6 +73,9 @@ namespace game {
             try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
         } else {
             int64_t val = std::strtoll(numBuf_, nullptr, 10);
+        std::stringstream m;
+        m << "Number state parsed long: " << val;
+        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow or underflow
             if (val == INT64_MIN) {
                 reset();
@@ -83,6 +95,9 @@ namespace game {
     void BKV_State_Number::parseFloat(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_FLOAT;
         long double val = std::strtold(numBuf_, nullptr);
+        std::stringstream m;
+        m << "Number state parsed float: " << val;
+        Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
         if ((val < FLT_MIN) || (val == -HUGE_VALL)) {
             reset();
@@ -103,6 +118,9 @@ namespace game {
     void BKV_State_Number::parseDouble(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_DOUBLE;
         long double val = std::strtold(numBuf_, nullptr);
+        std::stringstream m;
+        m << "Number state parsed double: " << val;
+        Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
         if ((val <= LDBL_MIN) || (val == -HUGE_VALL)) {
             reset();
@@ -121,6 +139,9 @@ namespace game {
     }
     
     void BKV_State_Number::endNumber(BKV_Buffer& buf, const char c) {
+        std::stringstream m;
+        m << "Number state ending number with character: " << c;
+        Logger::log(LOG_INFO, m.str());
         reset();
 
         if ((c == '}') || (c == ',') || (c == ']')) {
@@ -136,7 +157,10 @@ namespace game {
         std::stringstream m;
         m << "Number state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
-        if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
+        if (std::isspace(c)) {
+            // Whitespace, ignore
+            return;
+        } else if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
             // Check if number has been completed and a tag is assigned
             try { endNumber(buf, c); } catch (std::exception& e) {
                 reset();
@@ -156,9 +180,6 @@ namespace game {
             }
 
             numBuf_[bufLen_ - 1] = c;
-        } else if (std::isspace(c) && !bufLen_) {
-            // Whitespace, ignore
-            return;
         } else {
             // Terminate number string and search for type
             numBuf_[bufLen_] = '\0';

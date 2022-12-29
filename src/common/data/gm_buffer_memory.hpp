@@ -22,7 +22,7 @@ namespace game {
                     throw std::overflow_error(msg.str());
                 }
                 if (size > capacity) {
-                    capacity <<= 1;
+                    capacity <<= 1; // Capacity doubles
                     ptr = static_cast<T1*>(std::realloc(ptr, capacity));
                 }
             }

@@ -13,6 +13,7 @@ namespace game {
         std::stringstream m;
         m << "Array parsing character: '" << c << "', Array size: " << size_;
         Logger::log(LOG_INFO, m.str());
+
         if (!arrayStart_) {
             arrayStart_ = buf.head_;
             arrayTagHead_ = buf.tagHead_;
@@ -23,22 +24,19 @@ namespace game {
                 throw e;
             }
             buf.head_ += sizeof(uint32_t);
-        }
-        
-        if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
-            // Tag is found, make sure it has not changed
-            if (!arrayTag_) {
-                arrayTag_ = buf.tag_;
-            } else if (buf.tag_ != arrayTag_) {
-                reset();
-                std::stringstream msg;
-                msg << "Array value changed data type at index: " << buf.head_ << ".";
-                throw std::invalid_argument(msg.str());
-            }
-
+            
             size_++;
+            buf.stateTree_.push(&buf.findTagState_);
+            try {
+                buf.state()->parse(buf, c);
+            } catch (std::exception &e) {
+                reset();
+                throw e;
+            }
+        } else {
             if (c == ',') {
                 // Continue array
+                size_++;
                 buf.stateTree_.pop(); // Back to specific tag state
             } else if (c == ']') {
                 // End array
@@ -56,16 +54,8 @@ namespace game {
             } else {
                 reset();
                 std::stringstream msg;
-                msg << "Invalid character in BKV string at index: " << buf.head_ << ".";
+                msg << "Invalid character in BKV array at index: " << buf.head_ << ".";
                 throw std::invalid_argument(msg.str());
-            }
-        } else {
-            buf.stateTree_.push(&buf.findTagState_);
-            try {
-                buf.state()->parse(buf, c);
-            } catch (std::exception &e) {
-                reset();
-                throw e;
             }
         }
     }

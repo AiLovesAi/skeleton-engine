@@ -75,10 +75,10 @@ namespace game {
     void BKV_State_String::checkForBool(BKV_Buffer& buf) {
         // Check if this is a boolean "true" or "false"
         if ((strLen_ == 4) && (
-            std::tolower(str_[0]) == 't' &&
-            std::tolower(str_[1]) == 'r' &&
-            std::tolower(str_[2]) == 'u' &&
-            std::tolower(str_[3]) == 'e'
+            ((str_[0] == 't') || (str_[0] == 'T')) &&
+            ((str_[1] == 'r') || (str_[1] == 'R')) &&
+            ((str_[2] == 'u') || (str_[2] == 'U')) &&
+            ((str_[3] == 'e') || (str_[3] == 'E'))
         )) {
             buf.tag_ &= ~BKV::BKV_STR;
             buf.tag_ |= BKV::BKV_BOOL;
@@ -94,11 +94,11 @@ namespace game {
             buf.head_++;
         Logger::log(LOG_INFO, "String state found true bool.");
         } else if ((strLen_ == 5) && (
-            std::tolower(str_[0]) == 'f' &&
-            std::tolower(str_[1]) == 'a' &&
-            std::tolower(str_[2]) == 'l' &&
-            std::tolower(str_[3]) == 's' &&
-            std::tolower(str_[4]) == 'e'
+            ((str_[0] == 'f') || (str_[0] == 'F')) &&
+            ((str_[1] == 'a') || (str_[1] == 'A')) &&
+            ((str_[2] == 'l') || (str_[2] == 'L')) &&
+            ((str_[3] == 's') || (str_[3] == 'S')) &&
+            ((str_[4] == 'e') || (str_[4] == 'E'))
         )) {
             buf.tag_ &= ~BKV::BKV_STR;
             buf.tag_ |= BKV::BKV_BOOL;
@@ -117,7 +117,10 @@ namespace game {
     }
 
     void BKV_State_String::completeStr(BKV_Buffer& buf, const char c) {
-        try { checkForBool(buf); } catch (std::exception &e) { throw e; }
+        if (!strChar_) {
+            // Only check for bool if it is not a string. "True" is a string and True is a boolean.
+            try { checkForBool(buf); } catch (std::exception &e) { throw e; }
+        }
 
         if (!(buf.tag_ & BKV::BKV_BOOL)) {
             // Must be string, copy to buffer
@@ -164,17 +167,8 @@ namespace game {
             } else if ((c == '}') || (c == ',') || (c == ']')) {
                 completeStr(buf, c);
             } else if (std::isspace(c)) {
-                if (!strLen_) {
-                    // Whitespace, ignore
-                    return;
-                } else {
-                    checkForBool(buf);
-                    if (!(buf.tag_ & BKV::BKV_BOOL)) {
-                        std::stringstream msg;
-                        msg << "Invalid character in BKV string at index " << strLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-                        throw std::invalid_argument(msg.str());
-                    }
-                }
+                // Whitespace, ignore
+                return;
             } else {
                 reset();
                 std::stringstream msg;

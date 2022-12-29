@@ -20,11 +20,15 @@ namespace game {
             }
             virtual void parse(BKV_Buffer& buf, const char c);
 
+        protected:
+            friend class BKV_Buffer;
+            // Variables
+            uint8_t arrayTag_ = 0;
+
         private:
             // Variables
             int64_t size_ = 0;
             int64_t arrayTagHead_ = 0;
             int64_t arrayStart_ = 0;
-            uint8_t arrayTag_ = 0;
     };
 }

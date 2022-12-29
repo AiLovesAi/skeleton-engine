@@ -9,7 +9,6 @@
 
 namespace game {
     void BKV_Buffer::openCompound() {
-        Logger::log(LOG_INFO, "Opening compound.");
         if (tag_ & BKV::BKV_ARRAY) {
             std::stringstream msg;
             msg << "Compound in unclosed BKV array at index " << head_ + 1 << ".";
@@ -26,6 +25,9 @@ namespace game {
         tagHead_ = head_;
         
         depth_++;
+        std::stringstream m;
+        m << "Opening compound with new depth: " << depth_;
+        Logger::log(LOG_INFO, m.str());
         if (depth_ > UINT8_MAX) {
             std::stringstream msg;
             msg << "Reached maximum compound depth in BKV at index " << head_ + 1 << ": " << depth_ << "/255.";
@@ -33,8 +35,10 @@ namespace game {
         }
     }
     void BKV_Buffer::closeCompound() {
-        Logger::log(LOG_INFO, "Closing compound.");
         depth_--;
+        std::stringstream m;
+        m << "Closing compound with new depth: " << depth_;
+        Logger::log(LOG_INFO, m.str());
 
         try {
             BufferMemory::checkResize(bkv_, head_ + 1, head_, capacity_);
@@ -67,6 +71,18 @@ namespace game {
                 msg << "Closing character is '}' when in BKV array at index: " << head_ << ".";
                 throw std::invalid_argument(msg.str());
             }
+
+            // Make sure tag has not changed
+            if (!arrayState_.arrayTag_) {
+                arrayState_.arrayTag_ = tag_;
+            } else if (tag_ != arrayState_.arrayTag_) {
+                reset();
+                std::stringstream msg;
+                msg << "Array value changed data type at index: " << head_ << ".";
+                throw std::invalid_argument(msg.str());
+            }
+
+            tag_ &= BKV::BKV_FLAGS_ALL; // Clear the tag so it can be found again
             stateTree_.push(&arrayState_);
             try { state()->parse(*this, c); } catch (std::exception &e) { throw e; }
         } else {
@@ -80,7 +96,7 @@ namespace game {
             if (c == '}') {
                 try { closeCompound(); } catch (std::exception &e) { throw e; }
             }
-            stateTree_.pop();
+            if (depth_) stateTree_.pop();
             tagHead_ = head_;
             tag_ = 0;
         }
