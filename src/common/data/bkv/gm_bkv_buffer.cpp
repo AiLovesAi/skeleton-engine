@@ -2,6 +2,7 @@
 
 #include "gm_bkv.hpp"
 #include "../gm_buffer_memory.hpp"
+#include "../gm_endianness.hpp"
 #include "states/gm_bkv_state_complete.hpp"
 
 #include <sstream>
@@ -17,43 +18,42 @@ namespace game {
         
         // Increase compound depth and return to name state for next input
         try {
-            BufferMemory::checkResize(bkv_, head_ + 1, head_, capacity_);
+            BufferMemory::checkResize(bkv_, head_ + static_cast<int64_t>(sizeof(uint32_t)) + 1, head_, capacity_);
         } catch (std::exception &e) { throw e; }
         bkv_[tagHead_] = BKV::BKV_COMPOUND;
-        head_++;
+        if (tagHead_ == head_) head_++; // This will be true for the opening compound
+        head_ += sizeof(uint32_t);
+        depth_.push(head_);
         valHead_ = head_;
         tagHead_ = head_;
         
-        depth_++;
         std::stringstream m;
-        m << "Opening compound with new depth: " << depth_;
+        m << "Opening compound with new depth: " << depth_.size();
         Logger::log(LOG_INFO, m.str());
-        if (depth_ > UINT8_MAX) {
+        if (depth_.size() > UINT8_MAX) {
             std::stringstream msg;
-            msg << "Reached maximum compound depth in BKV at index " << head_ + 1 << ": " << depth_ << "/255.";
+            msg << "Reached maximum compound depth in BKV at index " << head_ + 1 << ": " << depth_.size() << "/255.";
             throw std::overflow_error(msg.str());
         }
     }
     void BKV_Buffer::closeCompound() {
-        depth_--;
-        std::stringstream m;
-        m << "Closing compound with new depth: " << depth_;
-        Logger::log(LOG_INFO, m.str());
-
         try {
             BufferMemory::checkResize(bkv_, head_ + 1, head_, capacity_);
         } catch (std::exception &e) { throw e; }
         bkv_[head_] = BKV::BKV_END;
         head_++;
+
+        uint32_t len = Endianness::hton(head_ - depth_.top());
+        std::memcpy(bkv_ + depth_.top() - sizeof(uint32_t), &len, sizeof(uint32_t));
+        depth_.pop();
         valHead_ = head_;
         tagHead_ = head_;
         tag_ = 0;
+        std::stringstream m;
+        m << "Closing compound with new depth: " << depth_.size();
+        Logger::log(LOG_INFO, m.str());
         
-        if (depth_ < 0) {
-            std::stringstream msg;
-            msg << "BKV escaped compound at index " << head_ << ".";
-            throw std::out_of_range(msg.str());
-        } else if (!depth_) {
+        if (!depth_.size()) {
             // Depth has returned to zero, meaning the enclosing compound is closed; BKV is now finished.
             stateTree_.push(&completeState_);
         }
@@ -96,7 +96,7 @@ namespace game {
             if (c == '}') {
                 try { closeCompound(); } catch (std::exception &e) { throw e; }
             }
-            if (depth_) stateTree_.pop();
+            if (depth_.size()) stateTree_.pop();
             tagHead_ = head_;
             tag_ = 0;
         }

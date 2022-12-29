@@ -12,24 +12,27 @@
 namespace game {
     void BKV_State_Key::completeKey(BKV_Buffer& buf, const char c) {
         buf.tagHead_ = buf.head_;
-        const size_t len = Endianness::hton(keyLen_);
+        uint8_t len = static_cast<uint8_t>(keyLen_);
 
         try {
             BufferMemory::checkResize(buf.bkv_, buf.head_ + 2 + keyLen_, buf.head_, buf.capacity_);
         } catch (std::exception &e) { throw e; }
         std::memcpy(buf.bkv_ + buf.head_ + 1, &len, sizeof(uint8_t));
         buf.head_ += 2; // Add 1 for tag (added later) and 1 for key length
+    std::stringstream m;
+    m << "Key putting data at: " << buf.head_;
+    Logger::log(LOG_INFO, m.str());
         std::memcpy(buf.bkv_ + buf.head_, key_, keyLen_);
         buf.head_ += keyLen_;
         buf.valHead_ = buf.head_;
         buf.stateTree_.push(&buf.findTagState_);
 
-        char key[256];
-        std::memcpy(key, key_, keyLen_);
-        key[keyLen_] = '\0';
-        std::stringstream m;
-        m << "Key state finished parsing: " << key;
-        Logger::log(LOG_INFO, m.str());
+    char key[256];
+    std::memcpy(key, key_, keyLen_);
+    key[keyLen_] = '\0';
+    m.str("");
+    m << "Key state finished parsing: " << key;
+    Logger::log(LOG_INFO, m.str());
         reset();
     }
 

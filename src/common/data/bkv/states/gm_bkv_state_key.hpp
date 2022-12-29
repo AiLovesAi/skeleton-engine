@@ -28,7 +28,7 @@ namespace game {
             static constexpr char DEFAULT_CHAR = -1;
             
             uint8_t key_[UINT8_MAX];
-            int64_t keyLen_ = 0;
+            int16_t keyLen_ = 0;
             char strChar_ = DEFAULT_CHAR;
             bool breakChar_ = false;
     };

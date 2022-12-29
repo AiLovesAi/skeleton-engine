@@ -5,6 +5,8 @@
 #include "../gm_buffer_memory.hpp"
 #include "../gm_endianness.hpp"
 
+#include "../gm_file.hpp"
+
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -35,18 +37,29 @@ namespace game {
     template <> const char BKV::BKVSuffixMap<double>::suffix[] = "";
 
     BKV::BKV(const BKV_t& bkv) {
-        resizeBuffer(bkv.size);
+        capacity_ = bkv.size;
+        buffer_ = static_cast<uint8_t*>(std::malloc(capacity_));
         std::memcpy(buffer_, bkv.data.get(), bkv.size);
     }
     BKV::BKV(const UTF8Str& stringified) {
         Logger::log(LOG_INFO, "Reached BKV.");
+        BKV_t bkv;
         try {
-            BKV_t bkv = bkvFromSBKV(stringified);
-            resizeBuffer(bkv.size);
-            std::memcpy(buffer_, bkv.data.get(), bkv.size);
+            bkv = bkvFromSBKV(stringified);
+        Logger::log(LOG_INFO, "Completed BKV parsing.");
         } catch (std::exception& e) {
             Logger::crash(e.what());
         }
+        // TODO Just use original data, and probably don't even store anything in this class locally.
+        // It should be used as a tool, not storage.
+        
+        // buffer_ = bkv.data.get();
+        // capacity_ = bkv.size;
+        // buffer_ = static_cast<uint8_t*>(std::malloc(capacity_));
+        // std::memcpy(buffer_, bkv.data.get(), bkv.size);
+        
+        File::FileContents contents{static_cast<size_t>(bkv.size), bkv.data};
+        File::writeFile("bkv.txt", contents);
     }
 
     void BKV::resizeBuffer(const int64_t size) {
@@ -282,6 +295,7 @@ namespace game {
         for (int64_t i = 0; i < stringified.len; i++) {
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::exception &e) { throw e; }
         }
+        Logger::log(LOG_INFO, "Parsing complete.");
         return BKV_t{.size = buf.size(), .data = buf.data()};
     }
 

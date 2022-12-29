@@ -13,6 +13,7 @@
 #include <cstring>
 #include <memory>
 #include <stack>
+#include <vector>
 
 namespace game {
     class BKV_Buffer {
@@ -30,9 +31,7 @@ namespace game {
                 stateTree_.push(&keyState_);
             }
             
-            ~BKV_Buffer() {
-                std::free(bkv_);
-            }
+            ~BKV_Buffer() { std::free(bkv_); }
 
             // Functions
             void reset() {
@@ -43,7 +42,11 @@ namespace game {
             }
             BKV_State* state() { return stateTree_.top(); }
             int64_t size() { return head_; }
-            std::shared_ptr<uint8_t> data() { return std::shared_ptr<uint8_t>(bkv_, std::free); }
+            std::shared_ptr<uint8_t> data() {
+                std::shared_ptr<uint8_t> data(static_cast<uint8_t*>(std::malloc(head_)), std::free);
+                std::memcpy(data.get(), bkv_, head_);
+                return data;
+            }
 
         protected:
             friend class BKV_State;
@@ -69,11 +72,11 @@ namespace game {
 
             uint8_t* bkv_;
             uint8_t tag_ = 0;
-            int64_t capacity_ = 0; // Capacity of BKV
-            int64_t head_     = 0; // Current index of BKV
-            int64_t tagHead_  = 0; // Starts at current tagID and flushes with head when the keyv/value pair is completed
-            int64_t valHead_  = 0; // Starts at current value, just after name, and flushes with head when the keyv/value pair is completed
-            int32_t depth_    = 0; // Current compound depth
+            int64_t capacity_     = 0; // Capacity of BKV
+            int64_t head_         = 0; // Current index of BKV
+            int64_t tagHead_      = 0; // Starts at current tagID and flushes with head when the key/value pair is completed
+            int64_t valHead_      = 0; // Starts at current value, just after name, and flushes with head when the key/value pair is completed
+            std::stack<int32_t> depth_; // Current compound depth containing the start of the compound that flushes with head when it completes
             std::stack<BKV_State*> stateTree_; // Stack of states, the topmost of which will get called on next parse() call
     };
 }

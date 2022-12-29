@@ -114,7 +114,6 @@ namespace game {
     [[noreturn]] void Logger::crash(const std::string& message) {
         std::time_t t = std::time(0);
         std::tm* now = std::localtime(&t);
-        crashed_ = true;
         
         if (!crashed_) {
             std::stringstream msg;
@@ -138,7 +137,8 @@ namespace game {
             file.close();
             mtx_.unlock();
         }
-
+        
+        crashed_ = true;
         Core::running = false;
         throw std::runtime_error(message);
     }

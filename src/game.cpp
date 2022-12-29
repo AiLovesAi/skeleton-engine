@@ -20,19 +20,7 @@ void test() {
     Logger::log(LOG_INFO, msg.str());
     
     BKV::UTF8Str stringified{sizeof(sbkv), std::shared_ptr<char>(buffer, std::free)};
-    Logger::log(LOG_INFO, "1");
     BKV bkv{stringified};
-    Logger::log(LOG_INFO, "2");
-    const uint8_t* data = bkv.get();
-    const int64_t size = bkv.size();
-    Logger::log(LOG_INFO, "3");
-    uint8_t* copy = static_cast<uint8_t*>(std::malloc(size));
-    std::memcpy(copy, data, size);
-    Logger::log(LOG_INFO, "4");
-    
-    File::FileContents contents{static_cast<size_t>(size), std::shared_ptr<uint8_t>(copy, std::free)};
-    Logger::log(LOG_INFO, "5");
-    File::writeFile("bkv.txt", contents);
     Logger::log(LOG_INFO, "Complete.");
 }
 
