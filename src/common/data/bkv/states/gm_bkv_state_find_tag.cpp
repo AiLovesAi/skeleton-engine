@@ -8,7 +8,7 @@
 
 namespace game {
     void BKV_State_Find_Tag::parseStr(BKV_Buffer& buf, const char c) {
-        buf.tag_ = BKV::BKV_STR;
+        buf.tag_ |= BKV::BKV_STR;
         buf.stateTree_.pop();
         buf.stateTree_.push(&buf.stringState_);
         try {
@@ -19,6 +19,10 @@ namespace game {
     }
     
     void BKV_State_Find_Tag::parse(BKV_Buffer& buf, const char c) {
+        std::stringstream m;
+        m << "Find tag state parsing character: " << c;
+        Logger::log(LOG_INFO, m.str());
+
         if (c == '\'' || c == '"') {
             // String that allows UTF-8 since it must be closed
             parseStr(buf, c);
@@ -37,21 +41,7 @@ namespace game {
             buf.stateTree_.pop();
             buf.stateTree_.push(&buf.arrayState_);
         } else if (c == '{') {
-            if (buf.tag_ & BKV::BKV_ARRAY) {
-                std::stringstream msg;
-                msg << "Compound in unclosed BKV array at index " << buf.head_ + 1 << ".";
-                throw std::invalid_argument(msg.str());
-            }
-            
-            // Increase compound depth and return to name state for next input
-            buf.bkv_[buf.tagHead_] = BKV::BKV_COMPOUND;
-            buf.depth_++;
-            if (buf.depth_ > UINT8_MAX) {
-                std::stringstream msg;
-                msg << "Reached maximum compound depth in BKV at index " << buf.head_ + 1 << ": " << buf.depth_ << "/255.";
-                throw std::overflow_error(msg.str());
-            }
-
+            buf.openCompound();
             buf.stateTree_.pop();
             buf.stateTree_.push(&buf.keyState_);
         } else if (std::isalnum(c)) {

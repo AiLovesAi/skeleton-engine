@@ -50,9 +50,6 @@ namespace game {
             throw e;
         }
 
-        str_[strLen_] = c;
-        strLen_++;
-
         // Toggle break character after it breaks once
         if (breakChar_) {
             breakChar_ = false;
@@ -76,51 +73,53 @@ namespace game {
     }
 
     void BKV_State_String::checkForBool(BKV_Buffer& buf) {
-        if (!(buf.tag_ & BKV::BKV_ARRAY)) {
-            // Check if this is a boolean "true" or "false"
-            if ((strLen_ == 4) && (
-                std::tolower(str_[0]) == 't' &&
-                std::tolower(str_[1]) == 'r' &&
-                std::tolower(str_[2]) == 'u' &&
-                std::tolower(str_[3]) == 'e'
-            )) {
-                buf.tag_ = BKV::BKV_BOOL;
-                try {
-                    BufferMemory::checkResize(buf.bkv_, buf.head_ + 1, buf.head_, buf.capacity_);
-                } catch (std::exception &e) {
-                    reset();
-                    throw e;
-                }
-
-                // 0x01 for true
-                buf.bkv_[buf.head_] = 0x01;
-                buf.head_++;
-            } else if ((strLen_ == 5) && (
-                std::tolower(str_[0]) == 'f' &&
-                std::tolower(str_[1]) == 'a' &&
-                std::tolower(str_[2]) == 'l' &&
-                std::tolower(str_[3]) == 's' &&
-                std::tolower(str_[4]) == 'e'
-            )) {
-                buf.tag_ = BKV::BKV_BOOL;
-                try {
-                    BufferMemory::checkResize(buf.bkv_, buf.head_ + 1, buf.head_, buf.capacity_);
-                } catch (std::exception &e) {
-                    reset();
-                    throw e;
-                }
-
-                // 0x01 for false
-                buf.bkv_[buf.head_] = 0x00;
-                buf.head_++;
+        // Check if this is a boolean "true" or "false"
+        if ((strLen_ == 4) && (
+            std::tolower(str_[0]) == 't' &&
+            std::tolower(str_[1]) == 'r' &&
+            std::tolower(str_[2]) == 'u' &&
+            std::tolower(str_[3]) == 'e'
+        )) {
+            buf.tag_ &= ~BKV::BKV_STR;
+            buf.tag_ |= BKV::BKV_BOOL;
+            try {
+                BufferMemory::checkResize(buf.bkv_, buf.head_ + 1, buf.head_, buf.capacity_);
+            } catch (std::exception &e) {
+                reset();
+                throw e;
             }
+
+            // 0x01 for true
+            buf.bkv_[buf.head_] = 0x01;
+            buf.head_++;
+        Logger::log(LOG_INFO, "String state found true bool.");
+        } else if ((strLen_ == 5) && (
+            std::tolower(str_[0]) == 'f' &&
+            std::tolower(str_[1]) == 'a' &&
+            std::tolower(str_[2]) == 'l' &&
+            std::tolower(str_[3]) == 's' &&
+            std::tolower(str_[4]) == 'e'
+        )) {
+            buf.tag_ &= ~BKV::BKV_STR;
+            buf.tag_ |= BKV::BKV_BOOL;
+            try {
+                BufferMemory::checkResize(buf.bkv_, buf.head_ + 1, buf.head_, buf.capacity_);
+            } catch (std::exception &e) {
+                reset();
+                throw e;
+            }
+
+            // 0x01 for false
+            buf.bkv_[buf.head_] = 0x00;
+            buf.head_++;
+        Logger::log(LOG_INFO, "String state found false bool.");
         }
     }
 
     void BKV_State_String::completeStr(BKV_Buffer& buf, const char c) {
         try { checkForBool(buf); } catch (std::exception &e) { throw e; }
 
-        if (buf.tag_ != BKV::BKV_BOOL) {
+        if (!(buf.tag_ & BKV::BKV_BOOL)) {
             // Must be string, copy to buffer
             buf.tag_ |= BKV::BKV_STR;
             const size_t len = Endianness::hton(strLen_);
@@ -135,6 +134,12 @@ namespace game {
             buf.head_ += sizeof(uint16_t);
             std::memcpy(buf.bkv_ + buf.head_, str_, strLen_);
             buf.head_ += strLen_;
+        char* key = static_cast<char*>(std::malloc(strLen_ + 1));
+        std::memcpy(key, str_, strLen_);
+        key[strLen_] = '\0';
+        std::stringstream m;
+        m << "String state finished parsing: " << key;
+        Logger::log(LOG_INFO, m.str());
         }
 
         reset();
@@ -142,17 +147,34 @@ namespace game {
     }
     
     void BKV_State_String::parse(BKV_Buffer& buf, const char c) {
-        if (strChar_ != DEFAULT_CHAR) { // Any UTF-8 string allowed
+        std::stringstream m;
+        m << "String state parsing character: " << c;
+        Logger::log(LOG_INFO, m.str());
+        if (!strLen_ && ((c == '\'') || (c == '"'))) {
+            strChar_ = c;
+        } else if (strChar_ > 0) { // Any UTF-8 string allowed
             if (c == strChar_ && !breakChar_) {
-                completeStr(buf, c);
+                strChar_ = -1; // Wait for the following KV end character to call complete string
             } else {
                 continueStr(buf, c);
             }
         } else { // Only alphanumeric ASCII allowed
-            if (std::isalnum(c) || std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-') {
+            if (!strChar_ && (std::isalnum(c) || std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-')) {
                 continueStr(buf, c);
-            } else if ((c == '}') || (c == ',') || ((buf.tag_ & BKV::BKV_ARRAY) && (c == ']'))) {
+            } else if ((c == '}') || (c == ',') || (c == ']')) {
                 completeStr(buf, c);
+            } else if (std::isspace(c)) {
+                if (!strLen_) {
+                    // Whitespace, ignore
+                    return;
+                } else {
+                    checkForBool(buf);
+                    if (!(buf.tag_ & BKV::BKV_BOOL)) {
+                        std::stringstream msg;
+                        msg << "Invalid character in BKV string at index " << strLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+                        throw std::invalid_argument(msg.str());
+                    }
+                }
             } else {
                 reset();
                 std::stringstream msg;

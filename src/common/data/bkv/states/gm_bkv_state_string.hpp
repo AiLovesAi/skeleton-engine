@@ -19,7 +19,7 @@ namespace game {
             // Functions
             void reset() {
                 strLen_ = 0;
-                strChar_ = DEFAULT_CHAR;
+                strChar_ = 0;
                 breakChar_ = false;
             }
             static char getBreakChar(const char c);
@@ -32,12 +32,10 @@ namespace game {
             void completeStr(BKV_Buffer& buf, const char c);
             
             // Variables
-            static constexpr char DEFAULT_CHAR = -1;
-            
             uint8_t* str_ = nullptr;
             int64_t strCapacity_ = 0;
             int64_t strLen_ = 0;
-            char strChar_ = DEFAULT_CHAR;
+            char strChar_ = 0;
             bool breakChar_ = false;
     };
 }

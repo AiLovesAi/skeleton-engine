@@ -1,5 +1,6 @@
 #include "gm_bkv.hpp"
 
+#include "../gm_logger.hpp"
 #include "gm_bkv_buffer.hpp"
 #include "../gm_buffer_memory.hpp"
 #include "../gm_endianness.hpp"
@@ -38,9 +39,14 @@ namespace game {
         std::memcpy(buffer_, bkv.data.get(), bkv.size);
     }
     BKV::BKV(const UTF8Str& stringified) {
-        BKV_t bkv = bkvFromSBKV(stringified);
-        resizeBuffer(bkv.size);
-        std::memcpy(buffer_, bkv.data.get(), bkv.size);
+        Logger::log(LOG_INFO, "Reached BKV.");
+        try {
+            BKV_t bkv = bkvFromSBKV(stringified);
+            resizeBuffer(bkv.size);
+            std::memcpy(buffer_, bkv.data.get(), bkv.size);
+        } catch (std::exception& e) {
+            Logger::crash(e.what());
+        }
     }
 
     void BKV::resizeBuffer(const int64_t size) {
@@ -270,7 +276,9 @@ namespace game {
     
     BKV::BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
         const char* sbkv = stringified.str.get();
+        Logger::log(LOG_INFO, "Reached bkvFromSBKV.");
         BKV_Buffer buf;
+        Logger::log(LOG_INFO, "Parsing...");
         for (int64_t i = 0; i < stringified.len; i++) {
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::exception &e) { throw e; }
         }

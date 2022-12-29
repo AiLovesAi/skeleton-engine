@@ -8,7 +8,32 @@
 #include <stdexcept>
 
 namespace game {
-    void BKV_Buffer::endCompound() {
+    void BKV_Buffer::openCompound() {
+        Logger::log(LOG_INFO, "Opening compound.");
+        if (tag_ & BKV::BKV_ARRAY) {
+            std::stringstream msg;
+            msg << "Compound in unclosed BKV array at index " << head_ + 1 << ".";
+            throw std::invalid_argument(msg.str());
+        }
+        
+        // Increase compound depth and return to name state for next input
+        try {
+            BufferMemory::checkResize(bkv_, head_ + 1, head_, capacity_);
+        } catch (std::exception &e) { throw e; }
+        bkv_[tagHead_] = BKV::BKV_COMPOUND;
+        head_++;
+        valHead_ = head_;
+        tagHead_ = head_;
+        
+        depth_++;
+        if (depth_ > UINT8_MAX) {
+            std::stringstream msg;
+            msg << "Reached maximum compound depth in BKV at index " << head_ + 1 << ": " << depth_ << "/255.";
+            throw std::overflow_error(msg.str());
+        }
+    }
+    void BKV_Buffer::closeCompound() {
+        Logger::log(LOG_INFO, "Closing compound.");
         depth_--;
 
         try {
@@ -31,6 +56,10 @@ namespace game {
     }
 
     void BKV_Buffer::endKV(const char c) {
+        std::stringstream m;
+        m << "Ending key value with character: " << c;
+        Logger::log(LOG_INFO, m.str());
+
         valHead_ = head_;
         if (tag_ & BKV::BKV_ARRAY) {
             if (c == '}') {
@@ -41,9 +70,15 @@ namespace game {
             stateTree_.push(&arrayState_);
             try { state()->parse(*this, c); } catch (std::exception &e) { throw e; }
         } else {
+            if (c == ']') {
+                std::stringstream msg;
+                msg << "Closing character is ']' when not in BKV array at index: " << head_ << ".";
+                throw std::invalid_argument(msg.str());
+            }
+            
             bkv_[tagHead_] = tag_;
             if (c == '}') {
-                try { endCompound(); } catch (std::exception &e) { throw e; }
+                try { closeCompound(); } catch (std::exception &e) { throw e; }
             }
             stateTree_.pop();
             tagHead_ = head_;

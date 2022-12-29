@@ -27,6 +27,7 @@ namespace game {
             void parseLong(BKV_Buffer& buf);
             void parseFloat(BKV_Buffer& buf);
             void parseDouble(BKV_Buffer& buf);
+            void endNumber(BKV_Buffer& buf, const char c);
 
             // Variables
             char numBuf_[UINT8_MAX];

@@ -10,7 +10,10 @@
 
 namespace game {
     void BKV_State_Array::parse(BKV_Buffer& buf, const char c) {
-        if (!size_) {
+        std::stringstream m;
+        m << "Array parsing character: '" << c << "', Array size: " << size_;
+        Logger::log(LOG_INFO, m.str());
+        if (!arrayStart_) {
             arrayStart_ = buf.head_;
             arrayTagHead_ = buf.tagHead_;
             try {
@@ -20,7 +23,9 @@ namespace game {
                 throw e;
             }
             buf.head_ += sizeof(uint32_t);
-        } else if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
+        }
+        
+        if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
             // Tag is found, make sure it has not changed
             if (!arrayTag_) {
                 arrayTag_ = buf.tag_;

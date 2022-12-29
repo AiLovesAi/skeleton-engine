@@ -119,18 +119,28 @@ namespace game {
         std::memcpy(buf.bkv_ + buf.head_, &v, sizeof(long double));
         buf.head_ += sizeof(long double);
     }
+    
+    void BKV_State_Number::endNumber(BKV_Buffer& buf, const char c) {
+        reset();
+
+        if ((c == '}') || (c == ',') || (c == ']')) {
+            try { buf.endKV(c); } catch (std::exception &e) { throw e; }
+        } else {
+            std::stringstream msg;
+            msg << "Invalid character in BKV number at index: " << bufLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+            throw std::invalid_argument(msg.str());
+        }
+    }
 
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
+        std::stringstream m;
+        m << "Number state parsing character: " << c;
+        Logger::log(LOG_INFO, m.str());
         if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
             // Check if number has been completed and a tag is assigned
-            if ((c == '}') || (c == ',') || ((buf.tag_ & BKV::BKV_ARRAY) && (c == ']'))) {
+            try { endNumber(buf, c); } catch (std::exception& e) {
                 reset();
-                try { buf.endKV(c); } catch (std::exception &e) { throw e; }
-            } else {
-                reset();
-                std::stringstream msg;
-                msg << "Invalid character in BKV number at index: " << bufLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-                throw std::invalid_argument(msg.str());
+                throw e;
             }
         } else if (std::isdigit(c) || (c == '.' && !hasDecimal_) || (c == '-' && bufLen_ == 0)) {
             // Build number string
@@ -146,6 +156,9 @@ namespace game {
             }
 
             numBuf_[bufLen_ - 1] = c;
+        } else if (std::isspace(c) && !bufLen_) {
+            // Whitespace, ignore
+            return;
         } else {
             // Terminate number string and search for type
             numBuf_[bufLen_] = '\0';
@@ -200,7 +213,7 @@ namespace game {
                         }
                     }
                     // Start again now that we have a number
-                    try { parse(buf, c); } catch (std::exception &e) {
+                    try { endNumber(buf, c); } catch (std::exception &e) {
                         reset();
                         throw e;
                     }

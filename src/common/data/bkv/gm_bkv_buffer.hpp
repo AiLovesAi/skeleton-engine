@@ -7,6 +7,7 @@
 #include "states/gm_bkv_state_key.hpp"
 #include "states/gm_bkv_state_number.hpp"
 #include "states/gm_bkv_state_string.hpp"
+#include "../gm_logger.hpp"
 
 #include <cstdint>
 #include <cstring>
@@ -35,9 +36,9 @@ namespace game {
 
             // Functions
             void reset() {
-                head_ = 1;
-                tagHead_ = 1;
-                valHead_ = 1;
+                head_ = 0;
+                tagHead_ = 0;
+                valHead_ = 0;
                 stateTree_ = std::stack<BKV_State*>();
             }
             BKV_State* state() { return stateTree_.top(); }
@@ -54,7 +55,8 @@ namespace game {
             friend class BKV_State_Complete;
 
             // Functions
-            void endCompound();
+            void openCompound();
+            void closeCompound();
             void endKV(const char c);
 
             // Variables
@@ -68,10 +70,10 @@ namespace game {
             uint8_t* bkv_;
             uint8_t tag_ = 0;
             int64_t capacity_ = 0; // Capacity of BKV
-            int64_t head_     = 1; // Current index of BKV
-            int64_t tagHead_  = 1; // Starts at current tagID and flushes with head when the keyv/value pair is completed
-            int64_t valHead_  = 1; // Starts at current value, just after name, and flushes with head when the keyv/value pair is completed
-            int32_t depth_   = 1; // Current compound depth
+            int64_t head_     = 0; // Current index of BKV
+            int64_t tagHead_  = 0; // Starts at current tagID and flushes with head when the keyv/value pair is completed
+            int64_t valHead_  = 0; // Starts at current value, just after name, and flushes with head when the keyv/value pair is completed
+            int32_t depth_    = 0; // Current compound depth
             std::stack<BKV_State*> stateTree_; // Stack of states, the topmost of which will get called on next parse() call
     };
 }

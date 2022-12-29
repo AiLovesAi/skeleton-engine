@@ -23,6 +23,13 @@ namespace game {
         buf.head_ += keyLen_;
         buf.valHead_ = buf.head_;
         buf.stateTree_.push(&buf.findTagState_);
+
+        char key[256];
+        std::memcpy(key, key_, keyLen_);
+        key[keyLen_] = '\0';
+        std::stringstream m;
+        m << "Key state finished parsing: " << key;
+        Logger::log(LOG_INFO, m.str());
         reset();
     }
 
@@ -58,19 +65,28 @@ namespace game {
     }
 
     void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
-        if (strChar_ != DEFAULT_CHAR) { // Any UTF-8 string allowed
+        std::stringstream m;
+        m << "Key state parsing character: " << c;
+        Logger::log(LOG_INFO, m.str());
+        if (!buf.head_) {
+            // Must open with a compound
+            if (c == '{') {
+                buf.openCompound();
+            } else {
+                std::stringstream msg;
+                msg << "Opening compound not found in BKV, first character was: 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+                throw std::invalid_argument(msg.str());
+            }
+        } else if (strChar_ != DEFAULT_CHAR) { // Any UTF-8 string allowed
             if (c == strChar_ && !breakChar_) {
                 try { completeKey(buf, c); } catch (std::exception &e) { throw e; }
             } else {
                 try { continueKey(buf, c); } catch (std::exception &e) { throw e; }
             }
-        } else if ((c == '{') && !buf.head_) {
-            // Opening compound, ignore
-            return;
         } else if ((c == '}') && !keyLen_) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
-            try { buf.endCompound(); } catch (std::exception &e) { throw e; }
-        } else if (!keyLen_ && std::isspace(c)) {
+            try { buf.closeCompound(); } catch (std::exception &e) { throw e; }
+        } else if (std::isspace(c) && !keyLen_) {
             // Whitespace, igore
             return;
         } else if (((c == '\'') || (c == '"')) && !keyLen_) {
