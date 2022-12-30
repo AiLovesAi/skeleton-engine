@@ -13,6 +13,9 @@ namespace game {
     template <typename T>
     void BKV_State_Number::appendValue(BKV_Buffer& buf, const T value) {
         const T val = Endianness::hton(value);
+        std::stringstream m;
+        m << "Number state parsed net value: " << val;
+        Logger::log(LOG_INFO, m.str());
         try {
             BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(T), buf.head_, buf.capacity_);
         } catch (std::exception &e) { throw e; }
@@ -168,18 +171,16 @@ namespace game {
             }
         } else if (std::isdigit(c) || (c == '.' && !hasDecimal_) || (c == '-' && bufLen_ == 0)) {
             // Build number string
-            if (c == '.') {
-                hasDecimal_ = true;
-            }
-            bufLen_++;
-            if (bufLen_ > UINT8_MAX) {
+            if (c == '.') hasDecimal_ = true;
+            if (bufLen_ >= UINT8_MAX) {
                 reset();
                 std::stringstream msg;
-                msg << "Too many digits in BKV number: " << bufLen_ << "/255 digits.";
+                msg << "Too many digits in BKV number: " << bufLen_ + 1 << "/255 digits.";
                 throw std::length_error(msg.str());
             }
 
-            numBuf_[bufLen_ - 1] = c;
+            numBuf_[bufLen_] = c;
+            bufLen_++;
         } else {
             // Terminate number string and search for type
             numBuf_[bufLen_] = '\0';

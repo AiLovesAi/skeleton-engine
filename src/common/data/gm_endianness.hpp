@@ -55,6 +55,9 @@ namespace game {
             
         private:
             // Functions
+            static inline uint8_t swapBytes1(const uint8_t data) {
+                return data;
+            }
             static inline uint16_t swapBytes2(const uint16_t data) {
                 return (data >> 8) | (data << 8);
             }
@@ -113,16 +116,16 @@ namespace game {
             template <typename T> class ByteSwapper<T,4> {
                 public:
                     T swap(const T data) const {
-                        uint16_t result = swapBytes4(TypeAliaser<T, uint16_t>(data).get());
-                        return TypeAliaser<uint16_t, T>(result).get();
+                        uint32_t result = swapBytes4(TypeAliaser<T, uint32_t>(data).get());
+                        return TypeAliaser<uint32_t, T>(result).get();
                     }
             };
             
             template <typename T> class ByteSwapper<T,8> {
                 public:
                     T swap(const T data) const {
-                        uint16_t result = swapBytes8(TypeAliaser<T, uint16_t>(data).get());
-                        return TypeAliaser<uint16_t, T>(result).get();
+                        uint64_t result = swapBytes8(TypeAliaser<T, uint64_t>(data).get());
+                        return TypeAliaser<uint64_t, T>(result).get();
                     }
             };
     };
