@@ -92,7 +92,6 @@ namespace game {
             // 0x01 for true
             buf.bkv_[buf.head_] = 0x01;
             buf.head_++;
-        Logger::log(LOG_INFO, "String state found true bool.");
         } else if ((strLen_ == 5) && (
             ((str_[0] == 'f') || (str_[0] == 'F')) &&
             ((str_[1] == 'a') || (str_[1] == 'A')) &&
@@ -112,7 +111,6 @@ namespace game {
             // 0x01 for false
             buf.bkv_[buf.head_] = 0x00;
             buf.head_++;
-        Logger::log(LOG_INFO, "String state found false bool.");
         }
     }
 
@@ -137,12 +135,6 @@ namespace game {
             buf.head_ += sizeof(uint16_t);
             std::memcpy(buf.bkv_ + buf.head_, str_, strLen_);
             buf.head_ += strLen_;
-        char* key = static_cast<char*>(std::malloc(strLen_ + 1));
-        std::memcpy(key, str_, strLen_);
-        key[strLen_] = '\0';
-        std::stringstream m;
-        m << "String state finished parsing: " << key << " with net len: " << len;
-        Logger::log(LOG_INFO, m.str());
         }
 
         reset();
@@ -150,9 +142,6 @@ namespace game {
     }
     
     void BKV_State_String::parse(BKV_Buffer& buf, const char c) {
-        std::stringstream m;
-        m << "String state parsing character: " << c;
-        Logger::log(LOG_INFO, m.str());
         buf.charactersRead_++;
         
         if (!strLen_ && ((c == '\'') || (c == '"'))) {

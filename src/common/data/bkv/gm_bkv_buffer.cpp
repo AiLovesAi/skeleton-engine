@@ -31,9 +31,6 @@ namespace game {
         valHead_ = head_;
         tagHead_ = head_;
         
-        std::stringstream m;
-        m << "Opening compound with new depth: " << depth_.size();
-        Logger::log(LOG_INFO, m.str());
         if (depth_.size() > UINT8_MAX) {
             std::stringstream msg;
             msg << "Reached maximum compound depth in BKV at index " << charactersRead_ << ": " << depth_.size() << "/" << UINT8_MAX;
@@ -56,9 +53,7 @@ namespace game {
         }
         uint32_t len = Endianness::hton(static_cast<uint32_t>(size));
         std::memcpy(bkv_ + depth_.top(), &len, sizeof(uint32_t));
-        std::stringstream m;
-        m << "Closing compound with new depth: " << depth_.size() - 1 << " Length of " << size << " (net " << len << ") put at " << depth_.top();
-        Logger::log(LOG_INFO, m.str());
+
         depth_.pop();
         valHead_ = head_;
         tagHead_ = head_;
@@ -71,11 +66,8 @@ namespace game {
     }
 
     void BKV_Buffer::endKV(const char c) {
-        std::stringstream m;
-        m << "Ending key value with character: " << c;
-        Logger::log(LOG_INFO, m.str());
-
         valHead_ = head_;
+        
         if (tag_ & BKV::BKV_ARRAY) {
             if (c == '}') {
                 std::stringstream msg;

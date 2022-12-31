@@ -20,9 +20,6 @@ namespace game {
     }
     
     void BKV_State_Find_Tag::parse(BKV_Buffer& buf, const char c) {
-        std::stringstream m;
-        m << "Find tag state parsing character: " << c;
-        Logger::log(LOG_INFO, m.str());
         buf.charactersRead_++;
 
         if (c == '\'' || c == '"') {

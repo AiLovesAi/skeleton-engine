@@ -10,10 +10,6 @@
 
 namespace game {
     void BKV_State_Array::parse(BKV_Buffer& buf, const char c) {
-        std::stringstream m;
-        m << "Array parsing character: '" << c << "', Array size: " << size_;
-        Logger::log(LOG_INFO, m.str());
-
         if (!arrayStart_) {
             arrayStart_ = buf.head_;
             arrayTagHead_ = buf.tagHead_;

@@ -13,9 +13,6 @@ namespace game {
     template <typename T>
     void BKV_State_Number::appendValue(BKV_Buffer& buf, const T value) {
         const T val = Endianness::hton(value);
-        std::stringstream m;
-        m << "Number state parsed net value: " << static_cast<int64_t>(val) << " to be placed at " << buf.head_ << " with size " << sizeof(T);
-        Logger::log(LOG_INFO, m.str());
         try {
             BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(T), buf.head_, buf.capacity_);
         } catch (std::runtime_error &e) { throw; }
@@ -27,9 +24,7 @@ namespace game {
     void BKV_State_Number::parseInt(BKV_Buffer& buf, const int64_t min, const int64_t max, const uint64_t umax) {
         if (buf.tag_ & BKV::BKV_UNSIGNED) {
             uint64_t val = std::strtoull(numBuf_, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed unsigned int: " << val;
-        Logger::log(LOG_INFO, m.str());
+
             // Make sure value doesn't overflow
             if (val > umax) {
                 std::stringstream msg;
@@ -40,9 +35,7 @@ namespace game {
             try { appendValue(buf, static_cast<TU>(val)); } catch (std::runtime_error &e) { throw; }
         } else {
             int64_t val = std::strtoll(numBuf_, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed int: " << val;
-        Logger::log(LOG_INFO, m.str());
+
             // Make sure value doesn't overflow or underflow
             if (val < min) {
                 std::stringstream msg;
@@ -61,11 +54,9 @@ namespace game {
 
     void BKV_State_Number::parseLong(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_I64;
+
         if (buf.tag_ & BKV::BKV_UNSIGNED) {
             uint64_t val = std::strtoull(numBuf_, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed unsigned long: " << val;
-        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow
             if (val == UINT64_MAX) {
                 std::stringstream msg;
@@ -76,9 +67,6 @@ namespace game {
             try { appendValue(buf, val); } catch (std::runtime_error &e) { throw; }
         } else {
             int64_t val = std::strtoll(numBuf_, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed long: " << val;
-        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow or underflow
             if (val == INT64_MIN) {
                 std::stringstream msg;
@@ -98,9 +86,7 @@ namespace game {
     void BKV_State_Number::parseFloat(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_FLOAT;
         double val = std::strtold(numBuf_, nullptr);
-        std::stringstream m;
-        m << "Number state parsed float: " << val;
-        Logger::log(LOG_INFO, m.str());
+
         // Make sure value doesn't overflow or underflow
         if ((val <= FLT_MIN) && (val >= -FLT_MIN)) {
             val = 0.0;
@@ -123,9 +109,7 @@ namespace game {
     void BKV_State_Number::parseDouble(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_DOUBLE;
         double val = std::strtold(numBuf_, nullptr);
-        std::stringstream m;
-        m << "Number state parsed double at index " << buf.charactersRead_ << ": " << val;
-        Logger::log(LOG_INFO, m.str());
+        
         // Make sure value doesn't overflow or underflow
         if ((val <= DBL_MIN) && (val >= -DBL_MIN)) {
             val = 0.0;
@@ -146,11 +130,8 @@ namespace game {
     }
     
     void BKV_State_Number::endNumber(BKV_Buffer& buf, const char c) {
-        std::stringstream m;
-        m << "Number state ending number with character: " << c;
-        Logger::log(LOG_INFO, m.str());
         reset();
-
+        
         if ((c == '}') || (c == ',') || (c == ']')) {
             try { buf.endKV(c); } catch (std::runtime_error &e) { throw; }
         } else {
@@ -161,9 +142,6 @@ namespace game {
     }
 
     void BKV_State_Number::parse(BKV_Buffer& buf, const char c) {
-        std::stringstream m;
-        m << "Number state parsing character: " << c;
-        Logger::log(LOG_INFO, m.str());
         buf.charactersRead_++;
         
         if (std::isspace(c)) {
