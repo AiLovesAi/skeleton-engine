@@ -12,7 +12,7 @@ using namespace game;
 #include <common/data/gm_file.hpp>
 #include <common/data/bkv/gm_bkv.hpp>
 void test() {
-    char sbkv[] = "{ Test:{ id:1024, names:[\"Tyrone\", 'Momo', Steve], soul:{ personality:happy-go-lucky, lifespan:'3 days to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: 100.2f }";
+    char8_t sbkv[] = u8"{ Test:{ id:-1024, names:[\"Tyrone\", 'Momo', '錯世☺', Steve], soul:{ personality:happy-go-lucky, lifespan:'3 days to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.2f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
     char *buffer = static_cast<char*>(std::malloc(sizeof(sbkv)));
     std::memcpy(buffer, sbkv, sizeof(sbkv));
     std::stringstream msg;

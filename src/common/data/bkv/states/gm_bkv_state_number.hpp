@@ -15,6 +15,7 @@ namespace game {
             void reset() {
                 bufLen_ = 0;
                 hasDecimal_ = false;
+                hasNegative_ = false;
             }
             virtual void parse(BKV_Buffer& buf, const char c);
 
@@ -33,5 +34,6 @@ namespace game {
             char numBuf_[UINT8_MAX];
             size_t bufLen_ = 0;
             bool hasDecimal_ = false;
+            bool hasNegative_ = false;
     };
 }

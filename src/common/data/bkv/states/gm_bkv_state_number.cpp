@@ -14,11 +14,11 @@ namespace game {
     void BKV_State_Number::appendValue(BKV_Buffer& buf, const T value) {
         const T val = Endianness::hton(value);
         std::stringstream m;
-        m << "Number state parsed net value: " << val;
+        m << "Number state parsed net value: " << static_cast<int64_t>(val) << " to be placed at " << buf.head_ << " with size " << sizeof(T);
         Logger::log(LOG_INFO, m.str());
         try {
             BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(T), buf.head_, buf.capacity_);
-        } catch (std::exception &e) { throw e; }
+        } catch (std::runtime_error &e) { throw; }
         std::memcpy(buf.bkv_ + buf.head_, &val, sizeof(T));
         buf.head_ += sizeof(T);
     }
@@ -37,7 +37,7 @@ namespace game {
                 msg << "BKV value overflows unsigned integer type: " << val << " > " << umax << ".";
                 throw std::overflow_error(msg.str());
             }
-            try { appendValue(buf, static_cast<TU>(val)); } catch (std::exception &e) { throw e; }
+            try { appendValue(buf, static_cast<TU>(val)); } catch (std::runtime_error &e) { throw; }
         } else {
             int64_t val = std::strtoll(numBuf_, nullptr, 10);
         std::stringstream m;
@@ -55,7 +55,7 @@ namespace game {
                 msg << "BKV value overflows signed integer type: " << val << " > " << max << ".";
                 throw std::overflow_error(msg.str());
             }
-            try { appendValue(buf, static_cast<T>(val)); } catch (std::exception &e) { throw e; }
+            try { appendValue(buf, static_cast<T>(val)); } catch (std::runtime_error &e) { throw; }
         }
     }
 
@@ -73,7 +73,7 @@ namespace game {
                 msg << "BKV value overflows unsigned long type: " << val << " >= " << UINT64_MAX << ".";
                 throw std::overflow_error(msg.str());
             }
-            try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
+            try { appendValue(buf, val); } catch (std::runtime_error &e) { throw; }
         } else {
             int64_t val = std::strtoll(numBuf_, nullptr, 10);
         std::stringstream m;
@@ -91,23 +91,25 @@ namespace game {
                 msg << "BKV value overflows signed long type: " << val << " >= " << INT64_MAX << ".";
                 throw std::overflow_error(msg.str());
             }
-            try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
+            try { appendValue(buf, val); } catch (std::runtime_error &e) { throw; }
         }
     }
     
     void BKV_State_Number::parseFloat(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_FLOAT;
-        long double val = std::strtold(numBuf_, nullptr);
+        double val = std::strtold(numBuf_, nullptr);
         std::stringstream m;
         m << "Number state parsed float: " << val;
         Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
-        if ((val < FLT_MIN) || (val == -HUGE_VALL)) {
+        if ((val <= FLT_MIN) && (val >= -FLT_MIN)) {
+            val = 0.0;
+        } else if ((val <= -FLT_MAX) || (val == -HUGE_VALL)) {
             reset();
             std::stringstream msg;
             msg << "BKV value underflows float: " << val << " <= " << FLT_MIN << ".";
             throw std::underflow_error(msg.str());
-        } else if ((val > FLT_MAX) || (val == HUGE_VALL)) {
+        } else if ((val >= FLT_MAX) || (val == HUGE_VALL)) {
             reset();
             std::stringstream msg;
             msg << "BKV value overflows float: " << val << " >= " << FLT_MAX << ".";
@@ -120,25 +122,27 @@ namespace game {
 
     void BKV_State_Number::parseDouble(BKV_Buffer& buf) {
         buf.tag_ |= BKV::BKV_DOUBLE;
-        long double val = std::strtold(numBuf_, nullptr);
+        double val = std::strtold(numBuf_, nullptr);
         std::stringstream m;
         m << "Number state parsed double: " << val;
         Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
-        if ((val <= LDBL_MIN) || (val == -HUGE_VALL)) {
+        if ((val <= DBL_MIN) && (val >= -DBL_MIN)) {
+            val = 0.0;
+        } else if ((val <= -DBL_MAX) || (val == -HUGE_VALL)) {
             reset();
             std::stringstream msg;
-            msg << "BKV value underflows double: " << val << " <= " << LDBL_MIN << ".";
+            msg << "BKV value underflows double: " << val << " <= " << DBL_MIN << ".";
             throw std::underflow_error(msg.str());
-        } else if ((val >= LDBL_MAX) || (val == HUGE_VALL)) {
+        } else if ((val >= DBL_MAX) || (val == HUGE_VALL)) {
             reset();
             std::stringstream msg;
-            msg << "BKV value overflows double: " << val << " >= " << LDBL_MAX << ".";
+            msg << "BKV value overflows double: " << val << " >= " << DBL_MAX << ".";
             throw std::overflow_error(msg.str());
         }
-        long double v = Endianness::htond(val);
-        std::memcpy(buf.bkv_ + buf.head_, &v, sizeof(long double));
-        buf.head_ += sizeof(long double);
+        double v = Endianness::htond(val);
+        std::memcpy(buf.bkv_ + buf.head_, &v, sizeof(double));
+        buf.head_ += sizeof(double);
     }
     
     void BKV_State_Number::endNumber(BKV_Buffer& buf, const char c) {
@@ -148,7 +152,7 @@ namespace game {
         reset();
 
         if ((c == '}') || (c == ',') || (c == ']')) {
-            try { buf.endKV(c); } catch (std::exception &e) { throw e; }
+            try { buf.endKV(c); } catch (std::runtime_error &e) { throw; }
         } else {
             std::stringstream msg;
             msg << "Invalid character in BKV number at index: " << bufLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
@@ -165,17 +169,19 @@ namespace game {
             return;
         } else if (buf.tag_ & ~BKV::BKV_FLAGS_ALL) {
             // Check if number has been completed and a tag is assigned
-            try { endNumber(buf, c); } catch (std::exception& e) {
+            try { endNumber(buf, c); } catch (std::runtime_error& e) {
                 reset();
-                throw e;
+                throw;
             }
         } else if (std::isdigit(c) || (c == '.' && !hasDecimal_) || (c == '-' && bufLen_ == 0)) {
             // Build number string
             if (c == '.') hasDecimal_ = true;
+            else if (c == '-') hasNegative_ = true;
+
             if (bufLen_ >= UINT8_MAX) {
                 reset();
                 std::stringstream msg;
-                msg << "Too many digits in BKV number: " << bufLen_ + 1 << "/255 digits.";
+                msg << "Too many digits in BKV number: " << bufLen_ + 1 << "/" << UINT8_MAX << " digits.";
                 throw std::length_error(msg.str());
             }
 
@@ -190,9 +196,9 @@ namespace game {
                 case '}': {
                     // Use default (integer if possible, long otherwise)
                     if (hasDecimal_) {
-                        try { parseDouble(buf); } catch (std::exception &e) {
+                        try { parseDouble(buf); } catch (std::runtime_error &e) {
                             reset();
-                            throw e;
+                            throw;
                         }
                     } else {
                         if (buf.tag_ & BKV::BKV_UNSIGNED) {
@@ -206,10 +212,10 @@ namespace game {
                                     throw std::overflow_error(msg.str());
                                 }
                                 buf.tag_ |= BKV::BKV_I64;
-                                try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
+                                try { appendValue(buf, val); } catch (std::runtime_error &e) { throw; }
                             } else {
                                 buf.tag_ |= BKV::BKV_I32;
-                                try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
+                                try { appendValue(buf, static_cast<uint32_t>(val)); } catch (std::runtime_error &e) { throw; }
                             }
                         } else {
                             int64_t val = std::strtoll(numBuf_, nullptr, 10);
@@ -227,72 +233,78 @@ namespace game {
                                     throw std::overflow_error(msg.str());
                                 }
                                 buf.tag_ |= BKV::BKV_I64;
-                                try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
+                                try { appendValue(buf, val); } catch (std::runtime_error &e) { throw; }
                             } else {
                                 buf.tag_ |= BKV::BKV_I32;
-                                try { appendValue(buf, val); } catch (std::exception &e) { throw e; }
+                                try { appendValue(buf, static_cast<int32_t>(val)); } catch (std::runtime_error &e) { throw; }
                             }
                         }
                     }
                     // Start again now that we have a number
-                    try { endNumber(buf, c); } catch (std::exception &e) {
+                    try { endNumber(buf, c); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'B':
                 case 'b': {
                     buf.tag_ |= BKV::BKV_I8;
-                    try { parseInt<int8_t, uint8_t>(buf, INT8_MIN, INT8_MAX, UINT8_MAX); } catch (std::exception &e) {
+                    try { parseInt<int8_t, uint8_t>(buf, INT8_MIN, INT8_MAX, UINT8_MAX); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'D':
                 case 'd': {
-                    try { parseDouble(buf); } catch (std::exception &e) {
+                    try { parseDouble(buf); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'F':
                 case 'f': {
-                    try { parseFloat(buf); } catch (std::exception &e) {
+                    try { parseFloat(buf); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'I':
                 case 'i': {
                     buf.tag_ |= BKV::BKV_I32;
-                    try { parseInt<int32_t, uint32_t>(buf, INT32_MIN, INT32_MAX, UINT32_MAX); } catch (std::exception &e) {
+                    try { parseInt<int32_t, uint32_t>(buf, INT32_MIN, INT32_MAX, UINT32_MAX); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'L':
                 case 'l': {
-                    try { parseLong(buf); } catch (std::exception &e) {
+                    try { parseLong(buf); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'S':
                 case 's': {
                     buf.tag_ |= BKV::BKV_I16;
-                    try { parseInt<int16_t, uint16_t>(buf, INT16_MIN, INT16_MAX, UINT16_MAX); } catch (std::exception &e) {
+                    try { parseInt<int16_t, uint16_t>(buf, INT16_MIN, INT16_MAX, UINT16_MAX); } catch (std::runtime_error &e) {
                         reset();
-                        throw e;
+                        throw;
                     }
                 } break;
                 case 'U':
                 case 'u': {
+                    if (hasNegative_) {
+                        reset();
+                        std::stringstream msg;
+                        msg << "Negative BKV number is supposed to be unsigned at index: " << bufLen_ + 1;
+                        throw std::invalid_argument(msg.str());
+                    }
                     buf.tag_ |= BKV::BKV_UNSIGNED;
                 } break;
                 default: {
                     reset();
                     std::stringstream msg;
-                    msg << "Invalid character in BKV number at index: " << bufLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+                    msg << "Invalid character in BKV number at index: " << bufLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
                     throw std::invalid_argument(msg.str());
                 }
             }

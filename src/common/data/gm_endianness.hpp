@@ -77,7 +77,7 @@ namespace game {
                     ((data << 40) & 0x00ff000000000000) |
                     ((data << 56) & 0xff00000000000000);
             }
-            static long double swapBytesFloat(const float data) {
+            static double swapBytesFloat(const float data) {
                 float res;
                 const char *src = (const char *) &data;
                 char *dst = (char *) &res;
@@ -86,12 +86,12 @@ namespace game {
                 }
                 return res;
             }
-            static long double swapBytesDouble(const long double data) {
-                long double res;
+            static double swapBytesDouble(const double data) {
+                double res;
                 const char *src = (const char *) &data;
                 char *dst = (char *) &res;
-                for (uint8_t i = 0; i < sizeof(long double); i++) {
-                    dst[i] = src[sizeof(long double) - i - 1];
+                for (uint8_t i = 0; i < sizeof(double); i++) {
+                    dst[i] = src[sizeof(double) - i - 1];
                 }
                 return res;
             }

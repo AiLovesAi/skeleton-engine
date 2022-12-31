@@ -19,9 +19,9 @@ namespace game {
             arrayTagHead_ = buf.tagHead_;
             try {
                 BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(uint32_t), buf.head_, buf.capacity_);
-            } catch (std::exception &e) {
+            } catch (std::runtime_error &e) {
                 reset();
-                throw e;
+                throw;
             }
             buf.head_ += sizeof(uint32_t);
             
@@ -29,12 +29,14 @@ namespace game {
             buf.stateTree_.push(&buf.findTagState_);
             try {
                 buf.state()->parse(buf, c);
-            } catch (std::exception &e) {
+            } catch (std::runtime_error &e) {
                 reset();
-                throw e;
+                throw;
             }
         } else {
             if (c == ',') {
+                buf.tag_ &= BKV::BKV_FLAGS_ALL; // Clear the tag so it can be found again
+                
                 // Continue array
                 size_++;
                 buf.stateTree_.pop(); // Back to specific tag state

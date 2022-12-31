@@ -47,7 +47,7 @@ namespace game {
         try {
             bkv = bkvFromSBKV(stringified);
         Logger::log(LOG_INFO, "Completed BKV parsing.");
-        } catch (std::exception& e) {
+        } catch (std::runtime_error& e) {
             Logger::crash(e.what());
         }
         // TODO Just use original data, and probably don't even store anything in this class locally.
@@ -293,7 +293,7 @@ namespace game {
         BKV_Buffer buf;
         Logger::log(LOG_INFO, "Parsing...");
         for (int64_t i = 0; i < stringified.len; i++) {
-            try { buf.state()->parse(buf, sbkv[i]); } catch (std::exception &e) { throw e; }
+            try { buf.state()->parse(buf, sbkv[i]); } catch (std::runtime_error &e) { throw; }
         }
         Logger::log(LOG_INFO, "Parsing complete.");
         return BKV_t{.size = buf.size(), .data = buf.data()};
@@ -302,7 +302,7 @@ namespace game {
     BKV::BKV_t BKV::bkvCompound(const UTF8Str& name) {
         if (name.len > UINT8_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
+            msg << "Too many characters in BKV name: " << name.len << "/" << UINT8_MAX << " characters.";
             throw std::length_error(msg.str());
         }
         const int64_t allocSize = 2 + name.len;
@@ -321,7 +321,7 @@ namespace game {
 
         if (name.len > UINT8_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
+            msg << "Too many characters in BKV name: " << name.len << "/" << UINT8_MAX << " characters.";
             throw std::length_error(msg.str());
         }
         const int64_t allocSize = 2 + name.len + sizeof(T);
@@ -342,7 +342,7 @@ namespace game {
 
         if (name.len > UINT8_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
+            msg << "Too many characters in BKV name: " << name.len << "/" << UINT8_MAX << " characters.";
             throw std::length_error(msg.str());
         }
         const int64_t listStart = 2 + name.len + sizeof(uint32_t);
@@ -365,7 +365,7 @@ namespace game {
     BKV::BKV_t BKV::bkvStr(const UTF8Str& name, const UTF8Str& data) {
         if (name.len > UINT8_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV name: " << name.len << "/255 characters.";
+            msg << "Too many characters in BKV name: " << name.len << "/" << UINT8_MAX << " characters.";
             throw std::length_error(msg.str());
         }
         if (data.len > UINT16_MAX) {

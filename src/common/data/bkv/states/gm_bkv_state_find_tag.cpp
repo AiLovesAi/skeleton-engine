@@ -13,8 +13,8 @@ namespace game {
         buf.stateTree_.push(&buf.stringState_);
         try {
             buf.state()->parse(buf, c);
-        } catch (std::exception &e) {
-            throw e;
+        } catch (std::runtime_error &e) {
+            throw;
         }
     }
     
@@ -29,7 +29,7 @@ namespace game {
         } else if (std::isdigit(c) || c == '-' || c == '.') {
             buf.stateTree_.pop();
             buf.stateTree_.push(&buf.numberState_);
-            try { buf.state()->parse(buf, c); } catch (std::exception &e) { throw e; }
+            try { buf.state()->parse(buf, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == '[') {
             if (buf.tag_ & BKV::BKV_ARRAY) {
                 std::stringstream msg;

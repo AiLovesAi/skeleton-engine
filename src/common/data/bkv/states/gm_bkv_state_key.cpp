@@ -16,7 +16,7 @@ namespace game {
 
         try {
             BufferMemory::checkResize(buf.bkv_, buf.head_ + 2 + keyLen_, buf.head_, buf.capacity_);
-        } catch (std::exception &e) { throw e; }
+        } catch (std::runtime_error &e) { throw; }
         std::memcpy(buf.bkv_ + buf.head_ + 1, &len, sizeof(uint8_t));
         buf.head_ += 2; // Add 1 for tag (added later) and 1 for key length
     std::stringstream m;
@@ -41,7 +41,7 @@ namespace game {
         if (keyLen_ >= UINT8_MAX) {
             reset();
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << keyLen_ << "/255 characters.";
+            msg << "Too many characters in BKV key: " << keyLen_ + 1 << "/" << UINT8_MAX << " characters.";
             throw std::length_error(msg.str());
         }
 
@@ -53,7 +53,7 @@ namespace game {
             if (b < 0) {
                 reset();
                 std::stringstream msg;
-                msg << "Invalid break character in BKV key at index " << keyLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+                msg << "Invalid break character in BKV key at index " << keyLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
                 throw std::invalid_argument(msg.str());
             }
             
@@ -80,29 +80,29 @@ namespace game {
                 msg << "Opening compound not found in BKV, first character was: 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
                 throw std::invalid_argument(msg.str());
             }
-        } else if (strChar_ != DEFAULT_CHAR) { // Any UTF-8 string allowed
+        } else if (strChar_) { // Any UTF-8 string allowed
             if (c == strChar_ && !breakChar_) {
-                try { completeKey(buf, c); } catch (std::exception &e) { throw e; }
+                try { completeKey(buf, c); } catch (std::runtime_error &e) { throw; }
             } else {
-                try { continueKey(buf, c); } catch (std::exception &e) { throw e; }
+                try { continueKey(buf, c); } catch (std::runtime_error &e) { throw; }
             }
         } else if ((c == '}') && !keyLen_) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
-            try { buf.closeCompound(); } catch (std::exception &e) { throw e; }
+            try { buf.closeCompound(); } catch (std::runtime_error &e) { throw; }
         } else if (std::isspace(c) && !keyLen_) {
             // Whitespace, igore
             return;
         } else if (((c == '\'') || (c == '"')) && !keyLen_) {
             strChar_ = c;
         } else if (std::isalpha(c) || (keyLen_ && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
-            try { continueKey(buf, c); } catch (std::exception &e) { throw e; }
+            try { continueKey(buf, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == ':') {
-            try { completeKey(buf, c); } catch (std::exception &e) { throw e; }
+            try { completeKey(buf, c); } catch (std::runtime_error &e) { throw; }
         } else if (!((c == ',') && !keyLen_)) {
             // If a compound hasn't just ended, this is an unexpected input
             reset();
             std::stringstream msg;
-            msg << "Invalid character in BKV key at index " << keyLen_ << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
+            msg << "Invalid character in BKV key at index: " << keyLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
             throw std::invalid_argument(msg.str());
         } else return;
         // NOTE: In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
