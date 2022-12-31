@@ -11,6 +11,7 @@ namespace game {
         buf.tag_ |= BKV::BKV_STR;
         buf.stateTree_.pop();
         buf.stateTree_.push(&buf.stringState_);
+        buf.charactersRead_--; // String state will increment for us, do not duplicate.
         try {
             buf.state()->parse(buf, c);
         } catch (std::runtime_error &e) {
@@ -22,6 +23,7 @@ namespace game {
         std::stringstream m;
         m << "Find tag state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
+        buf.charactersRead_++;
 
         if (c == '\'' || c == '"') {
             // String that allows UTF-8 since it must be closed
@@ -29,6 +31,7 @@ namespace game {
         } else if (std::isdigit(c) || c == '-' || c == '.') {
             buf.stateTree_.pop();
             buf.stateTree_.push(&buf.numberState_);
+            buf.charactersRead_--; // Number state will increment for us, do not duplicate.
             try { buf.state()->parse(buf, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == '[') {
             if (buf.tag_ & BKV::BKV_ARRAY) {

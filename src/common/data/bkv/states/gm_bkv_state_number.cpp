@@ -33,7 +33,7 @@ namespace game {
             // Make sure value doesn't overflow
             if (val > umax) {
                 std::stringstream msg;
-                msg << "BKV value overflows unsigned integer type: " << val << " > " << umax << ".";
+                msg << "BKV value overflows unsigned integer type at index " << buf.charactersRead_ << ": " << val << " > " << umax << ".";
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -46,12 +46,12 @@ namespace game {
             // Make sure value doesn't overflow or underflow
             if (val < min) {
                 std::stringstream msg;
-                msg << "BKV value underflows signed integer type: " << val << " < " << min << "."; // TODO: "at index " << buf.charactersRead_
+                msg << "BKV value underflows signed integer type at index " << buf.charactersRead_ << ": " << val << " < " << min << ".";
                 reset();
                 throw std::runtime_error(msg.str());
             } else if (val > max) {
                 std::stringstream msg;
-                msg << "BKV value overflows signed integer type: " << val << " > " << max << ".";
+                msg << "BKV value overflows signed integer type at index " << buf.charactersRead_ << ": " << val << " > " << max << ".";
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -69,7 +69,7 @@ namespace game {
             // Make sure value doesn't overflow
             if (val == UINT64_MAX) {
                 std::stringstream msg;
-                msg << "BKV value overflows unsigned long type: " << val << " >= " << UINT64_MAX << ".";
+                msg << "BKV value overflows unsigned long type at index " << buf.charactersRead_ << ": " << val << " >= " << UINT64_MAX << ".";
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -82,12 +82,12 @@ namespace game {
             // Make sure value doesn't overflow or underflow
             if (val == INT64_MIN) {
                 std::stringstream msg;
-                msg << "BKV value underflows signed long type: " << val << " <= " << INT64_MIN << ".";
+                msg << "BKV value underflows signed long type at index " << buf.charactersRead_ << ": " << val << " <= " << INT64_MIN << ".";
                 reset();
                 throw std::runtime_error(msg.str());
             } else if (val == INT64_MAX) {
                 std::stringstream msg;
-                msg << "BKV value overflows signed long type: " << val << " >= " << INT64_MAX << ".";
+                msg << "BKV value overflows signed long type at index " << buf.charactersRead_ << ": " << val << " >= " << INT64_MAX << ".";
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -106,12 +106,12 @@ namespace game {
             val = 0.0;
         } else if ((val <= -FLT_MAX) || (val == -HUGE_VALL)) {
             std::stringstream msg;
-            msg << "BKV value underflows float: " << val << " <= " << FLT_MIN << ".";
+            msg << "BKV value underflows float at index " << buf.charactersRead_ << ": " << val << " <= " << FLT_MIN << ".";
             reset();
             throw std::runtime_error(msg.str());
         } else if ((val >= FLT_MAX) || (val == HUGE_VALL)) {
             std::stringstream msg;
-            msg << "BKV value overflows float: " << val << " >= " << FLT_MAX << ".";
+            msg << "BKV value overflows float at index " << buf.charactersRead_ << ": " << val << " >= " << FLT_MAX << ".";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -124,19 +124,19 @@ namespace game {
         buf.tag_ |= BKV::BKV_DOUBLE;
         double val = std::strtold(numBuf_, nullptr);
         std::stringstream m;
-        m << "Number state parsed double: " << val;
+        m << "Number state parsed double at index " << buf.charactersRead_ << ": " << val;
         Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
         if ((val <= DBL_MIN) && (val >= -DBL_MIN)) {
             val = 0.0;
         } else if ((val <= -DBL_MAX) || (val == -HUGE_VALL)) {
             std::stringstream msg;
-            msg << "BKV value underflows double: " << val << " <= " << DBL_MIN << ".";
+            msg << "BKV value underflows double at index " << buf.charactersRead_ << ": " << val << " <= " << DBL_MIN << ".";
             reset();
             throw std::runtime_error(msg.str());
         } else if ((val >= DBL_MAX) || (val == HUGE_VALL)) {
             std::stringstream msg;
-            msg << "BKV value overflows double: " << val << " >= " << DBL_MAX << ".";
+            msg << "BKV value overflows double at index " << buf.charactersRead_ << ": " << val << " >= " << DBL_MAX << ".";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -164,6 +164,8 @@ namespace game {
         std::stringstream m;
         m << "Number state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
+        buf.charactersRead_++;
+        
         if (std::isspace(c)) {
             // Whitespace, ignore
             return;
@@ -177,7 +179,7 @@ namespace game {
 
             if (bufLen_ >= UINT8_MAX) {
                 std::stringstream msg;
-                msg << "Too many digits in BKV number: " << buf.charactersRead_ << "/" << UINT8_MAX << " digits.";
+                msg << "Too many digits in BKV number at index " << buf.charactersRead_ << ": " << bufLen_ + 1 << "/" << UINT8_MAX << " digits.";
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -207,7 +209,7 @@ namespace game {
                             if (val > UINT32_MAX) {
                                 if (val == UINT64_MAX) {
                                     std::stringstream msg;
-                                    msg << "BKV value overflows long: " << val << " >= " << UINT64_MAX << ".";
+                                    msg << "BKV value overflows long at index " << buf.charactersRead_ << ": " << val << " >= " << UINT64_MAX << ".";
                                     reset();
                                     throw std::runtime_error(msg.str());
                                 }
@@ -223,12 +225,12 @@ namespace game {
                             if ((val < INT32_MIN) || (val > INT32_MAX)) {
                                 if (val == INT64_MIN) {
                                     std::stringstream msg;
-                                    msg << "BKV value underflows long: " << val << " <= " << INT64_MIN << ".";
+                                    msg << "BKV value underflows long at index " << buf.charactersRead_ << ": " << val << " <= " << INT64_MIN << ".";
                                     reset();
                                     throw std::runtime_error(msg.str());
                                 } else if (val == INT64_MAX) {
                                     std::stringstream msg;
-                                    msg << "BKV value overflows long: " << val << " >= " << INT64_MAX << ".";
+                                    msg << "BKV value overflows long at index " << buf.charactersRead_ << ": " << val << " >= " << INT64_MAX << ".";
                                     reset();
                                     throw std::runtime_error(msg.str());
                                 }

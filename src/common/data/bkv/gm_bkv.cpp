@@ -294,6 +294,9 @@ namespace game {
         BKV_Buffer buf;
         Logger::log(LOG_INFO, "Parsing...");
         for (int64_t i = 0; i < stringified.len; i++) {
+        std::stringstream m;
+        m << "Parsing character: " << i;
+        Logger::logSync(LOG_INFO, m.str(), std::this_thread::get_id());
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::runtime_error &e) { throw; }
         }
         Logger::log(LOG_INFO, "Parsing complete.");

@@ -12,7 +12,7 @@ namespace game {
     void BKV_Buffer::openCompound() {
         if (tag_ & BKV::BKV_ARRAY) {
             std::stringstream msg;
-            msg << "Compound in unclosed BKV array at index " << charactersRead_ << ".";
+            msg << "Compound in unclosed BKV array at index " << charactersRead_;
             throw std::runtime_error(msg.str());
         }
         
@@ -36,7 +36,7 @@ namespace game {
         Logger::log(LOG_INFO, m.str());
         if (depth_.size() > UINT8_MAX) {
             std::stringstream msg;
-            msg << "Reached maximum compound depth in BKV at index " << charactersRead_ << ": " << depth_.size() << "/" << UINT8_MAX << ".";
+            msg << "Reached maximum compound depth in BKV at index " << charactersRead_ << ": " << depth_.size() << "/" << UINT8_MAX;
             throw std::runtime_error(msg.str());
         }
     }
@@ -51,7 +51,7 @@ namespace game {
         int64_t size = head_ - depth_.top() + sizeof(uint32_t);
         if ((size <= 0) || (size > UINT32_MAX)) {
             std::stringstream msg;
-            msg << "BKV compound bigger than maximum size at " << depth_.top() << ": " << size << "/" << UINT32_MAX << ".";
+            msg << "BKV compound bigger than maximum size at index" << depth_.top() << ": " << size << "/" << UINT32_MAX;
             throw std::runtime_error(msg.str());
         }
         uint32_t len = Endianness::hton(static_cast<uint32_t>(size));
@@ -79,7 +79,7 @@ namespace game {
         if (tag_ & BKV::BKV_ARRAY) {
             if (c == '}') {
                 std::stringstream msg;
-                msg << "Closing character is '}' when in BKV array at index: " << charactersRead_ << ".";
+                msg << "Closing character is '}' when in BKV array at index: " << charactersRead_;
                 throw std::runtime_error(msg.str());
             }
 
@@ -88,7 +88,7 @@ namespace game {
                 arrayState_.arrayTag_ = tag_;
             } else if (tag_ != arrayState_.arrayTag_) {
                 std::stringstream msg;
-                msg << "Array value changed data type at index: " << charactersRead_ << ".";
+                msg << "Array value changed data type at index: " << charactersRead_;
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -98,7 +98,7 @@ namespace game {
         } else {
             if (c == ']') {
                 std::stringstream msg;
-                msg << "Closing character is ']' when not in BKV array at index: " << charactersRead_ << ".";
+                msg << "Closing character is ']' when not in BKV array at index: " << charactersRead_;
                 throw std::runtime_error(msg.str());
             }
             

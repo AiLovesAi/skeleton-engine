@@ -41,7 +41,7 @@ namespace game {
                 size_++;
                 if (size_ > UINT16_MAX) {
                     std::stringstream msg;
-                    msg << "To many indicies in BKV array at index: " << buf.charactersRead_ << ".";
+                    msg << "Too many indicies in BKV array at index " << buf.charactersRead_ << ": " << size_ << "/" << UINT16_MAX << " indicies.";
                     reset();
                 }
                 buf.stateTree_.pop(); // Back to specific tag state
@@ -60,7 +60,7 @@ namespace game {
                 buf.tag_ = 0;
             } else {
                 std::stringstream msg;
-                msg << "Invalid character in BKV array at index: " << buf.charactersRead_ << ".";
+                msg << "Invalid character in BKV array at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }

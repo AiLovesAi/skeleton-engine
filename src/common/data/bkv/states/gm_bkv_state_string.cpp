@@ -38,7 +38,7 @@ namespace game {
         // Build string
         if (strLen_ >= UINT16_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV string: " << buf.charactersRead_ << "/65535 characters.";
+            msg << "Too many characters in BKV string at index " << buf.charactersRead_ << ": " << strLen_ + 1 << "/" << UINT16_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -153,6 +153,8 @@ namespace game {
         std::stringstream m;
         m << "String state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
+        buf.charactersRead_++;
+        
         if (!strLen_ && ((c == '\'') || (c == '"'))) {
             strChar_ = c;
         } else if (strChar_ > 0) { // Any UTF-8 string allowed

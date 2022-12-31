@@ -40,7 +40,7 @@ namespace game {
         // Build string
         if (keyLen_ >= UINT8_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << buf.charactersRead_ << "/" << UINT8_MAX << " characters.";
+            msg << "Too many characters in BKV key at index " << buf.charactersRead_ << ": " << keyLen_ + 1 << "/" << UINT8_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -68,7 +68,7 @@ namespace game {
     }
 
     void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
-        buf.charactersRead_++; // TODO Put where necessary
+        buf.charactersRead_++;
         std::stringstream m;
         m << "Key state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
