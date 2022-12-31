@@ -56,25 +56,25 @@ namespace game {
                 BKV_STR, // BKV_UI16 (length) + UTF-8 String
 
                 // Combined types (for quick access):
-                BKV_I8_ARRAY = BKV_I8 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_I8
+                BKV_I8_ARRAY = BKV_I8 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_I8
                 BKV_UI8 = BKV_I8 | BKV_UNSIGNED, // 1B Unsigned Int
-                BKV_UI8_ARRAY = BKV_UI8 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_UI8
+                BKV_UI8_ARRAY = BKV_UI8 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_UI8
 
-                BKV_I16_ARRAY = BKV_I16 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_I16
+                BKV_I16_ARRAY = BKV_I16 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_I16
                 BKV_UI16 = BKV_I16 | BKV_UNSIGNED, // 2B Unsigned Int
-                BKV_UI16_ARRAY = BKV_UI16 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_UI16
+                BKV_UI16_ARRAY = BKV_UI16 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_UI16
 
-                BKV_I32_ARRAY = BKV_I32 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_I32
+                BKV_I32_ARRAY = BKV_I32 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_I32
                 BKV_UI32 = BKV_I32 | BKV_UNSIGNED, // 4B Unsigned Int
-                BKV_UI32_ARRAY = BKV_UI32 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_UI32
+                BKV_UI32_ARRAY = BKV_UI32 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_UI32
 
-                BKV_I64_ARRAY = BKV_I64 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_I64
+                BKV_I64_ARRAY = BKV_I64 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_I64
                 BKV_UI64 = BKV_I64 | BKV_UNSIGNED, // 8B Unsigned Int
-                BKV_UI64_ARRAY = BKV_UI64 | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_UI64
+                BKV_UI64_ARRAY = BKV_UI64 | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_UI64
 
-                BKV_FLOAT_ARRAY = BKV_FLOAT | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_FLOAT
-                BKV_DOUBLE_ARRAY = BKV_DOUBLE | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_DOUBLE
-                BKV_STR_ARRAY = BKV_STR | BKV_ARRAY, // BKV_UI32 (size) + Array of BKV_STR
+                BKV_FLOAT_ARRAY = BKV_FLOAT | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_FLOAT
+                BKV_DOUBLE_ARRAY = BKV_DOUBLE | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_DOUBLE
+                BKV_STR_ARRAY = BKV_STR | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_STR
             };
 
             // Constructors

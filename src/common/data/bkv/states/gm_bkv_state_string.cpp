@@ -37,10 +37,10 @@ namespace game {
     void BKV_State_String::continueStr(BKV_Buffer& buf, const char c) {
         // Build string
         if (strLen_ >= UINT16_MAX) {
-            reset();
             std::stringstream msg;
-            msg << "Too many characters in BKV string: " << strLen_ + 1 << "/65535 characters.";
-            throw std::length_error(msg.str());
+            msg << "Too many characters in BKV string: " << buf.charactersRead_ << "/65535 characters.";
+            reset();
+            throw std::runtime_error(msg.str());
         }
 
         try {
@@ -56,10 +56,10 @@ namespace game {
 
             char b = BKV_State_String::getBreakChar(c);
             if (b < 0) {
-                reset();
                 std::stringstream msg;
-                msg << "Invalid break character in BKV string at index " << strLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-                throw std::invalid_argument(msg.str());
+                msg << "Invalid break character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                reset();
+                throw std::runtime_error(msg.str());
             }
             
             str_[strLen_] = c;
@@ -156,6 +156,8 @@ namespace game {
         if (!strLen_ && ((c == '\'') || (c == '"'))) {
             strChar_ = c;
         } else if (strChar_ > 0) { // Any UTF-8 string allowed
+            // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
+            // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
             if (c == strChar_ && !breakChar_) {
                 strChar_ = -1; // Wait for the following KV end character to call complete string
             } else {
@@ -165,15 +167,21 @@ namespace game {
             if (!strChar_ && (std::isalnum(c) || std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-')) {
                 continueStr(buf, c);
             } else if ((c == '}') || (c == ',') || (c == ']')) {
+                if (!strLen_) {
+                    std::stringstream msg;
+                    msg << "Empty BKV string at index: " << buf.charactersRead_;
+                    reset();
+                    throw std::runtime_error(msg.str());
+                }
                 completeStr(buf, c);
             } else if (std::isspace(c)) {
                 // Whitespace, ignore
                 return;
             } else {
-                reset();
                 std::stringstream msg;
-                msg << "Invalid character in BKV string at index " << strLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-                throw std::invalid_argument(msg.str());
+                msg << "Invalid character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                reset();
+                throw std::runtime_error(msg.str());
             }
         }
     }

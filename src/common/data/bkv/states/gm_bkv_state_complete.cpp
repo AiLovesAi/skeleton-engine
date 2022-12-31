@@ -13,7 +13,7 @@ namespace game {
         } else {
             std::stringstream msg;
             msg << "Enclosing BKV compound has already been closed and the bkv is finished at index: " << buf.head_ << ".";
-            throw std::invalid_argument(msg.str());
+            throw std::runtime_error(msg.str());
         }
     }
 }

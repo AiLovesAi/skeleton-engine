@@ -19,7 +19,7 @@ namespace game {
                 if (size < prevSize) {
                     std::stringstream msg;
                     msg << "New buffer size overflows to a number less than the previous: " << size << " < " << prevSize << ".";
-                    throw std::overflow_error(msg.str());
+                    throw std::runtime_error(msg.str());
                 }
                 if (size > capacity) {
                     capacity <<= 1; // Capacity doubles

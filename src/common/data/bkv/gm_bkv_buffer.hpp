@@ -35,6 +35,7 @@ namespace game {
 
             // Functions
             void reset() {
+                charactersRead_ = 0;
                 head_ = 0;
                 tagHead_ = 0;
                 valHead_ = 0;
@@ -70,6 +71,7 @@ namespace game {
             BKV_State_Number numberState_;
             BKV_State_String stringState_;
 
+            int64_t charactersRead_ = 0;
             uint8_t* bkv_;
             uint8_t tag_ = 0;
             int64_t capacity_     = 0; // Capacity of BKV

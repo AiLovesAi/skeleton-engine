@@ -33,8 +33,8 @@ namespace game {
         } else if (c == '[') {
             if (buf.tag_ & BKV::BKV_ARRAY) {
                 std::stringstream msg;
-                msg << "New array in unclosed BKV array at index " << buf.head_ + 1 << ".";
-                throw std::invalid_argument(msg.str());
+                msg << "New array in unclosed BKV array at index " << buf.charactersRead_ << ".";
+                throw std::runtime_error(msg.str());
             }
 
             buf.tag_ |= BKV::BKV_ARRAY;
@@ -52,8 +52,8 @@ namespace game {
             return;
         } else {
             std::stringstream msg;
-            msg << "Invalid character in BKV string at index " << buf.head_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-            throw std::invalid_argument(msg.str());
+            msg << "Invalid character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            throw std::runtime_error(msg.str());
         }
     }
 }

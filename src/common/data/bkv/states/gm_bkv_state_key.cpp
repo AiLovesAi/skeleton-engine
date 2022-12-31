@@ -39,10 +39,10 @@ namespace game {
     void BKV_State_Key::continueKey(BKV_Buffer& buf, const char c) {
         // Build string
         if (keyLen_ >= UINT8_MAX) {
-            reset();
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << keyLen_ + 1 << "/" << UINT8_MAX << " characters.";
-            throw std::length_error(msg.str());
+            msg << "Too many characters in BKV key: " << buf.charactersRead_ << "/" << UINT8_MAX << " characters.";
+            reset();
+            throw std::runtime_error(msg.str());
         }
 
         // Toggle break character after it breaks once
@@ -51,10 +51,10 @@ namespace game {
 
             char b = BKV_State_String::getBreakChar(c);
             if (b < 0) {
-                reset();
                 std::stringstream msg;
-                msg << "Invalid break character in BKV key at index " << keyLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-                throw std::invalid_argument(msg.str());
+                msg << "Invalid break character in BKV key at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                reset();
+                throw std::runtime_error(msg.str());
             }
             
             key_[keyLen_] = b;
@@ -68,6 +68,7 @@ namespace game {
     }
 
     void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
+        buf.charactersRead_++; // TODO Put where necessary
         std::stringstream m;
         m << "Key state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
@@ -77,10 +78,12 @@ namespace game {
                 buf.openCompound();
             } else {
                 std::stringstream msg;
-                msg << "Opening compound not found in BKV, first character was: 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-                throw std::invalid_argument(msg.str());
+                msg << "Opening compound not found in BKV, first character was: 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                throw std::runtime_error(msg.str());
             }
         } else if (strChar_) { // Any UTF-8 string allowed
+            // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
+            // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
             if (c == strChar_ && !breakChar_) {
                 try { completeKey(buf, c); } catch (std::runtime_error &e) { throw; }
             } else {
@@ -89,8 +92,9 @@ namespace game {
         } else if ((c == '}') && !keyLen_) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
             try { buf.closeCompound(); } catch (std::runtime_error &e) { throw; }
-        } else if (std::isspace(c) && !keyLen_) {
-            // Whitespace, igore
+        } else if ((std::isspace(c) || (c == ',')) && !keyLen_) {
+            // Whitespace, igore OR
+            // In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
             return;
         } else if (((c == '\'') || (c == '"')) && !keyLen_) {
             strChar_ = c;
@@ -98,13 +102,12 @@ namespace game {
             try { continueKey(buf, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == ':') {
             try { completeKey(buf, c); } catch (std::runtime_error &e) { throw; }
-        } else if (!((c == ',') && !keyLen_)) {
+        } else {
             // If a compound hasn't just ended, this is an unexpected input
-            reset();
             std::stringstream msg;
-            msg << "Invalid character in BKV key at index: " << keyLen_ + 1 << ": 0x" << ((c & 0xf0) >> 4) << (c & 0xf);
-            throw std::invalid_argument(msg.str());
-        } else return;
-        // NOTE: In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
+            msg << "Invalid character in BKV key at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            reset();
+            throw std::runtime_error(msg.str());
+        }
     }
 }

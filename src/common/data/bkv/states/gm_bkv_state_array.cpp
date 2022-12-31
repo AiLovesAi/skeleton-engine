@@ -18,12 +18,12 @@ namespace game {
             arrayStart_ = buf.head_;
             arrayTagHead_ = buf.tagHead_;
             try {
-                BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(uint32_t), buf.head_, buf.capacity_);
+                BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(uint16_t), buf.head_, buf.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
-            buf.head_ += sizeof(uint32_t);
+            buf.head_ += sizeof(uint16_t);
             
             size_++;
             buf.stateTree_.push(&buf.findTagState_);
@@ -39,12 +39,17 @@ namespace game {
                 
                 // Continue array
                 size_++;
+                if (size_ > UINT16_MAX) {
+                    std::stringstream msg;
+                    msg << "To many indicies in BKV array at index: " << buf.charactersRead_ << ".";
+                    reset();
+                }
                 buf.stateTree_.pop(); // Back to specific tag state
             } else if (c == ']') {
                 // End array
                 buf.bkv_[arrayTagHead_] = buf.tag_;
-                uint32_t val = Endianness::hton(static_cast<uint32_t>(size_));
-                std::memcpy(buf.bkv_ + arrayStart_, &val, sizeof(uint32_t));
+                uint32_t val = Endianness::hton(static_cast<uint16_t>(size_));
+                std::memcpy(buf.bkv_ + arrayStart_, &val, sizeof(uint16_t));
                 
                 reset();
                 buf.valHead_ = buf.head_;
@@ -54,10 +59,10 @@ namespace game {
                 buf.tagHead_ = buf.head_;
                 buf.tag_ = 0;
             } else {
-                reset();
                 std::stringstream msg;
-                msg << "Invalid character in BKV array at index: " << buf.head_ << ".";
-                throw std::invalid_argument(msg.str());
+                msg << "Invalid character in BKV array at index: " << buf.charactersRead_ << ".";
+                reset();
+                throw std::runtime_error(msg.str());
             }
         }
     }
