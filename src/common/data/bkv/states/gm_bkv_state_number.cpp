@@ -155,7 +155,7 @@ namespace game {
             try { buf.endKV(c); } catch (std::runtime_error &e) { throw; }
         } else {
             std::stringstream msg;
-            msg << "Invalid character in BKV number at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            msg << "Invalid character in SBKV number at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
             throw std::runtime_error(msg.str());
         }
     }
@@ -179,7 +179,7 @@ namespace game {
 
             if (bufLen_ >= UINT8_MAX) {
                 std::stringstream msg;
-                msg << "Too many digits in BKV number at index " << buf.charactersRead_ << ": " << bufLen_ + 1 << "/" << UINT8_MAX << " digits.";
+                msg << "Too many digits in SBKV number at index " << buf.charactersRead_ << ": " << bufLen_ + 1 << "/" << UINT8_MAX << " digits.";
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -284,7 +284,7 @@ namespace game {
                 } break;
                 default: {
                     std::stringstream msg;
-                    msg << "Invalid character in BKV number at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                    msg << "Invalid character in SBKV number at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                     reset();
                     throw std::runtime_error(msg.str());
                 }

@@ -31,7 +31,7 @@ namespace game {
     /*BKV_t BKV::bkvCompound(const UTF8Str& key) {
         if (key.len > BKV::BKV_KEY_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
         const int64_t allocSize = 2 + key.len;
@@ -50,7 +50,7 @@ namespace game {
 
         if (key.len > BKV::BKV_KEY_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
         const int64_t allocSize = 2 + key.len + sizeof(T);
@@ -71,7 +71,7 @@ namespace game {
 
         if (key.len > BKV::BKV_KEY_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
         const int64_t listStart = 2 + key.len + sizeof(uint32_t);
@@ -94,12 +94,12 @@ namespace game {
     BKV_t BKV::bkvStr(const UTF8Str& key, const UTF8Str& data) {
         if (key.len > BKV::BKV_KEY_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
         if (data.len > BKV::BKV_STR_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV string: " << key.len << "/" << BKV::BKV_STR_MAX << " characters.";
+            msg << "Too many characters in SBKV string: " << key.len << "/" << BKV::BKV_STR_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
         const int64_t strStart = 2 + key.len + sizeof(uint16_t);
@@ -118,7 +118,7 @@ namespace game {
     BKV_t BKV::bkvStrList(const UTF8Str& key, const UTF8Str* data, const uint32_t size) {
         if (key.len > BKV::BKV_KEY_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
 
@@ -127,7 +127,7 @@ namespace game {
         for (int64_t i = 0; i < size; i++) {
             if (data[i].len > BKV::BKV_STR_MAX) {
                 std::stringstream msg;
-                msg << "Too many characters in BKV string: " << key.len << "/" << BKV::BKV_STR_MAX << " characters.";
+                msg << "Too many characters in SBKV string: " << key.len << "/" << BKV::BKV_STR_MAX << " characters.";
                 throw std::runtime_error(msg.str());
             }
             allocSize += data[i].len;

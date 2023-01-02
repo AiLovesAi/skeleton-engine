@@ -36,7 +36,7 @@ namespace game {
         Logger::log(LOG_INFO, m.str());
         if (depth_.size() > BKV::BKV_COMPOUND_DEPTH_MAX) {
             std::stringstream msg;
-            msg << "Reached maximum compound depth in BKV at index " << charactersRead_ << ": " << depth_.size() << "/" << BKV::BKV_COMPOUND_DEPTH_MAX;
+            msg << "Reached maximum compound depth in SBKV at index " << charactersRead_ << ": " << depth_.size() << "/" << BKV::BKV_COMPOUND_DEPTH_MAX;
             throw std::runtime_error(msg.str());
         }
     }
@@ -81,7 +81,7 @@ namespace game {
         if (tag_ & BKV::BKV_ARRAY) {
             if (c == '}') {
                 std::stringstream msg;
-                msg << "Closing character is '}' when in BKV array at index: " << charactersRead_;
+                msg << "Closing character is '}' when in SBKV array at index: " << charactersRead_;
                 throw std::runtime_error(msg.str());
             }
 
@@ -100,7 +100,7 @@ namespace game {
         } else {
             if (c == ']') {
                 std::stringstream msg;
-                msg << "Closing character is ']' when not in BKV array at index: " << charactersRead_;
+                msg << "Closing character is ']' when not in SBKV array at index: " << charactersRead_;
                 throw std::runtime_error(msg.str());
             }
             

@@ -40,7 +40,7 @@ namespace game {
         // Build string
         if (keyLen_ >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key at index " << buf.charactersRead_ << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key at index " << buf.charactersRead_ << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -52,7 +52,7 @@ namespace game {
             char b = BKV_State_String::getBreakChar(c);
             if (b < 0) {
                 std::stringstream msg;
-                msg << "Invalid break character in BKV key at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid break character in SBKV key at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -78,7 +78,7 @@ namespace game {
                 buf.openCompound();
             } else {
                 std::stringstream msg;
-                msg << "Opening compound not found in BKV, first character was: 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Opening compound not found in SBKV, first character was: 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 throw std::runtime_error(msg.str());
             }
         } else if (strChar_) { // Any UTF-8 string allowed
@@ -105,7 +105,7 @@ namespace game {
         } else {
             // If a compound hasn't just ended, this is an unexpected input
             std::stringstream msg;
-            msg << "Invalid character in BKV key at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            msg << "Invalid character in SBKV key at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
             reset();
             throw std::runtime_error(msg.str());
         }

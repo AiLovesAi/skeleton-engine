@@ -38,7 +38,7 @@ namespace game {
         // Build string
         if (strLen_ >= BKV::BKV_STR_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV string at index " << buf.charactersRead_ << ": " << strLen_ + 1 << "/" << BKV::BKV_STR_MAX << " characters.";
+            msg << "Too many characters in SBKV string at index " << buf.charactersRead_ << ": " << strLen_ + 1 << "/" << BKV::BKV_STR_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -57,7 +57,7 @@ namespace game {
             char b = BKV_State_String::getBreakChar(c);
             if (b < 0) {
                 std::stringstream msg;
-                msg << "Invalid break character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid break character in SBKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -181,7 +181,7 @@ namespace game {
                 return;
             } else {
                 std::stringstream msg;
-                msg << "Invalid character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid character in SBKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }
