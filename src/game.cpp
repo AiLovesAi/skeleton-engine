@@ -9,7 +9,6 @@ using namespace game;
 #include <common/data/bkv/gm_bkv.hpp>
 #include <common/data/bkv/gm_sbkv.hpp>
 #include <common/data/gm_logger.hpp>
-#include <stdexcept>
 
 int main (int argc, char** argv)
 {
@@ -21,15 +20,9 @@ int main (int argc, char** argv)
     Logger::log(LOG_INFO, buffer);
 
     UTF8Str start = {sizeof(buffer), std::shared_ptr<char>(buffer, std::free)};
-    BKV_t bkv;
-    try {
-        bkv = BKV::bkvFromSBKV(start);
-    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+    BKV_t bkv = BKV::bkvFromSBKV(start);
     Logger::log(LOG_INFO, "BKV Complete");
-    UTF8Str sbkv;
-    try {
-        sbkv = SBKV::sbkvFromBKV(bkv);
-    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+    UTF8Str sbkv = SBKV::sbkvFromBKV(bkv);
     Logger::log(LOG_INFO, "SBKV Complete");
     Logger::log(LOG_INFO, sbkv.str.get());
     

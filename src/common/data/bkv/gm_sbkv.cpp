@@ -3,9 +3,6 @@
 #include "../gm_buffer_memory.hpp"
 #include "../gm_endianness.hpp"
 
-#include "../gm_logger.hpp"
-#include <sstream>
-
 #include <cstring>
 #include <memory>
 #include <stdexcept>
@@ -237,9 +234,6 @@ namespace game {
         const uint8_t* data = bkv.data.get();
         int64_t head, i, depth;
         for (head = 0, i = 0, depth = 0; i < bkv.size; i++) {
-            std::stringstream m;
-            m << "Parsing: " << data[i];
-            Logger::log(LOG_INFO, m.str());
             switch(data[i]) {
                 case BKV::BKV_END:
                     depth--;
