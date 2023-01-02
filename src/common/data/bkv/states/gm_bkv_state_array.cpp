@@ -14,12 +14,12 @@ namespace game {
             arrayStart_ = buf.head_;
             arrayTagHead_ = buf.tagHead_;
             try {
-                BufferMemory::checkResize(buf.bkv_, buf.head_ + BKV::BKV_ARRAY_SIZE, buf.head_, buf.capacity_);
+                BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(uint16_t), buf.head_, buf.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
-            buf.head_ += BKV::BKV_ARRAY_SIZE;
+            buf.head_ += sizeof(uint16_t);
             
             size_++;
             buf.stateTree_.push(&buf.findTagState_);
@@ -35,9 +35,9 @@ namespace game {
                 
                 // Continue array
                 size_++;
-                if (size_ > BKV::BKV_ARRAY_MAX) {
+                if (size_ > UINT16_MAX) {
                     std::stringstream msg;
-                    msg << "Too many indicies in BKV array at index " << buf.charactersRead_ << ": " << size_ << "/" << BKV::BKV_ARRAY_MAX << " indicies.";
+                    msg << "Too many indicies in BKV array at index " << buf.charactersRead_ << ": " << size_ << "/" << UINT16_MAX << " indicies.";
                     reset();
                 }
                 buf.stateTree_.pop(); // Back to specific tag state
@@ -45,7 +45,7 @@ namespace game {
                 // End array
                 buf.bkv_[arrayTagHead_] = buf.tag_;
                 uint32_t val = Endianness::hton(static_cast<uint16_t>(size_));
-                std::memcpy(buf.bkv_ + arrayStart_, &val, BKV::BKV_ARRAY_SIZE);
+                std::memcpy(buf.bkv_ + arrayStart_, &val, sizeof(uint16_t));
                 
                 reset();
                 buf.valHead_ = buf.head_;
