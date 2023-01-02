@@ -23,15 +23,15 @@ namespace game {
     template <> const uint8_t BKV::BKVTypeMap<float>::tagID = BKV_FLOAT;
     template <> const uint8_t BKV::BKVTypeMap<double>::tagID = BKV_DOUBLE;
     
-    template <> const char BKV::BKVSuffixMap<uint8_t>::suffix[] = "ub";
-    template <> const char BKV::BKVSuffixMap<int8_t>::suffix[] = "b";
-    template <> const char BKV::BKVSuffixMap<uint16_t>::suffix[] = "us";
-    template <> const char BKV::BKVSuffixMap<int16_t>::suffix[] = "s";
-    template <> const char BKV::BKVSuffixMap<uint32_t>::suffix[] = "u";
+    template <> const char BKV::BKVSuffixMap<uint8_t>::suffix[] = "UB";
+    template <> const char BKV::BKVSuffixMap<int8_t>::suffix[] = "B";
+    template <> const char BKV::BKVSuffixMap<uint16_t>::suffix[] = "US";
+    template <> const char BKV::BKVSuffixMap<int16_t>::suffix[] = "S";
+    template <> const char BKV::BKVSuffixMap<uint32_t>::suffix[] = "U";
     template <> const char BKV::BKVSuffixMap<int32_t>::suffix[] = "";
-    template <> const char BKV::BKVSuffixMap<uint64_t>::suffix[] = "ul";
-    template <> const char BKV::BKVSuffixMap<int64_t>::suffix[] = "l";
-    template <> const char BKV::BKVSuffixMap<float>::suffix[] = "f";
+    template <> const char BKV::BKVSuffixMap<uint64_t>::suffix[] = "UL";
+    template <> const char BKV::BKVSuffixMap<int64_t>::suffix[] = "L";
+    template <> const char BKV::BKVSuffixMap<float>::suffix[] = "F";
     template <> const char BKV::BKVSuffixMap<double>::suffix[] = "";
 
     template <typename T>
@@ -457,8 +457,10 @@ namespace game {
                     // Value
                     if (data[i]) {
                         std::memcpy(sbkv + head, "true", 4);
+                        head += 4;
                     } else {
                         std::memcpy(sbkv + head, "false", 5);
+                        head += 5;
                     }
                     sbkv[head++] = ',';
                 } break;

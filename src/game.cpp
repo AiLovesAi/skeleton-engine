@@ -38,6 +38,23 @@ void test() {
     msg << sbkv.str.get();
     Logger::log(LOG_INFO, msg.str());
     Logger::log(LOG_INFO, "Complete.");
+    
+    try {
+        bkv = BKV::bkvFromSBKV(stringified);
+    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+    Logger::log(LOG_INFO, "Reparsed BKV.");
+    contents.len = static_cast<size_t>(bkv.size);
+    contents.data = bkv.data;
+    File::writeFile("bkv2.txt", contents);
+    
+    try {
+        sbkv = SBKV::sbkvFromBKV(bkv);
+    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+    Logger::log(LOG_INFO, "Reparsed SBKV.");
+    msg.str("");
+    msg << sbkv.str.get();
+    Logger::log(LOG_INFO, msg.str());
+    
 }
 
 int main (int argc, char** argv)
