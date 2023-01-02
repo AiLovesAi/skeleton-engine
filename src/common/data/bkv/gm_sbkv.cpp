@@ -46,6 +46,9 @@ namespace game {
     template <typename T>
     void setSBKVValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
         T value;
         std::memcpy(&value, data + i + keyLen + 1, sizeof(T));
         value = Endianness::ntoh(value);
@@ -61,21 +64,25 @@ namespace game {
         // Key
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen + sizeof(T);
+        i += BKV::BKV_KEY_SIZE + keyLen + sizeof(T);
         sbkv[head++] = ':';
 
         setSBKVCopyValue<T>(data, sbkv, i, head, val);
+        i--;
     }
 
     template <typename T>
     void setSBKVArray(const uint8_t* data, char*& sbkv, int64_t& i,  int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
         try {
             BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen;
+        i += BKV::BKV_KEY_SIZE + keyLen;
         sbkv[head++] = ':';
         sbkv[head++] = '[';
         
@@ -104,10 +111,14 @@ namespace game {
         }
         sbkv[head - 1] = ']'; // Replace last comma with close bracket
         sbkv[head++] = ',';
+        i--;
     }
 
     void setSBKVValueDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
         double v;
         std::memcpy(&v, data + i + keyLen + 1, sizeof(double));
         v = Endianness::ntohd(v);
@@ -123,7 +134,7 @@ namespace game {
         // Key
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen + sizeof(double);
+        i += keyLen + sizeof(double);
         sbkv[head++] = ':';
 
         // Value
@@ -132,12 +143,15 @@ namespace game {
 
     void setSBKVArrayDouble(const uint8_t* data, char*& sbkv, int64_t& i,  int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
         try {
             BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen;
+        i += BKV::BKV_KEY_SIZE + keyLen;
         sbkv[head++] = ':';
         sbkv[head++] = '[';
         
@@ -170,6 +184,9 @@ namespace game {
 
     void setSBKVValueFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
         float v;
         std::memcpy(&v, data + i + keyLen + 1, sizeof(float));
         v = Endianness::ntohf(v);
@@ -185,21 +202,25 @@ namespace game {
         // Key
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen + sizeof(float);
+        i += BKV::BKV_KEY_SIZE + keyLen + sizeof(float);
         sbkv[head++] = ':';
 
         // Value
         setSBKVCopyValue<float>(data, sbkv, i, head, val);
+        i--;
     }
 
     void setSBKVArrayFloat(const uint8_t* data, char*& sbkv, int64_t& i,  int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
         try {
             BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen;
+        i += BKV::BKV_KEY_SIZE + keyLen;
         sbkv[head++] = ':';
         sbkv[head++] = '[';
         
@@ -242,6 +263,7 @@ namespace game {
             Logger::log(LOG_INFO, m.str());
             switch(data[i]) {
                 case BKV::BKV_END:
+                Logger::log(LOG_INFO, "Closing compound.");
                     depth--;
                     sbkv[head - 1] = '}'; // Replace last comma with close brace
                     if (depth > 0) {
@@ -255,7 +277,7 @@ namespace game {
                     depth++;
                     const uint8_t keyLen = data[++i];
                     m.str("");
-                    m << "Parsing compound with key length: " << keyLen;
+                    m << "Parsing compound with key length: " << std::to_string(keyLen);
                     Logger::log(LOG_INFO, m.str());
                     if (depth <= 1) {
                         try {
@@ -276,7 +298,7 @@ namespace game {
                         sbkv[head++] = '{';
                     }
 
-                    i += BKV::BKV_KEY_SIZE + keyLen + BKV::BKV_COMPOUND_SIZE;
+                    i += keyLen + BKV::BKV_COMPOUND_SIZE;
                 } break;
                 case BKV::BKV_UI8: // Key:Xub
                     Logger::log(LOG_INFO, "Parsing UI8");
@@ -372,7 +394,7 @@ namespace game {
                     // Key
                     std::memcpy(sbkv + head, data + i + 1, keyLen);
                     head += keyLen;
-                    i+= BKV::BKV_KEY_SIZE + keyLen + BKV::BKV_STR_SIZE;
+                    i += BKV::BKV_KEY_SIZE + keyLen + BKV::BKV_STR_SIZE;
                     sbkv[head++] = ':';
 
                     // Value
@@ -380,6 +402,7 @@ namespace game {
                     head += len;
                     i += len;
                     sbkv[head++] = ',';
+                    i--;
                 } break;
                 case BKV::BKV_STR_ARRAY: { // Key:[Str1,Str2,Str3],
                     Logger::log(LOG_INFO, "Parsing String Array");
@@ -389,7 +412,7 @@ namespace game {
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(sbkv + head, data + i + 1, keyLen);
                     head += keyLen;
-                    i+= BKV::BKV_KEY_SIZE + keyLen;
+                    i += BKV::BKV_KEY_SIZE + keyLen;
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
 
@@ -414,6 +437,29 @@ namespace game {
                         sbkv[head++] = ',';
                     }
                     sbkv[head - 1] = ']'; // Replace last comma with close bracket
+                    sbkv[head++] = ',';
+                    i--;
+                } break;
+                case BKV::BKV_BOOL: {
+                    Logger::log(LOG_INFO, "Parsing Boolean");
+                    const uint8_t keyLen = data[++i];
+
+                    try {
+                        BufferMemory::checkResize(sbkv, head + keyLen + 6, head, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+
+                    // Key
+                    std::memcpy(sbkv + head, data + i + 1, keyLen);
+                    head += keyLen;
+                    i += BKV::BKV_KEY_SIZE + keyLen;
+                    sbkv[head++] = ':';
+
+                    // Value
+                    if (data[i]) {
+                        std::memcpy(sbkv + head, "true", 4);
+                    } else {
+                        std::memcpy(sbkv + head, "false", 5);
+                    }
                     sbkv[head++] = ',';
                 } break;
                 default: {
