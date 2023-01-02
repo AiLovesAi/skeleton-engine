@@ -67,6 +67,8 @@ namespace game {
         if (!depth_.size()) {
             // Depth has returned to zero, meaning the enclosing compound is closed; BKV is now finished.
             stateTree_.push(&completeState_);
+            
+            // Reallocate to use only as much memory as necessary
             capacity_ = head_;
             bkv_ = static_cast<uint8_t*>(std::realloc(bkv_, capacity_));
         }
