@@ -5,6 +5,8 @@
 #include "../gm_buffer_memory.hpp"
 #include "../gm_endianness.hpp"
 
+#include "../gm_file.hpp"
+
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -18,6 +20,9 @@ namespace game {
         for (int64_t i = 0; i < stringified.len; i++) {
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::runtime_error &e) { throw; }
         }
+
+        File::FileContents contents{static_cast<size_t>(buf.size()), buf.data()};
+        File::writeFile("bkv.txt", contents);
 
         return BKV_t{.size = buf.size(), .data = buf.data()};
     }
