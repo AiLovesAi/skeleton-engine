@@ -5,11 +5,11 @@
 #include <stdexcept>
 
 namespace game {
-    class BKV_Buffer;
+    class BKV_Parser;
     
-    class BKV_State {
+    class BKV_Parser_State {
         public:
             // Functions
-            virtual void parse(BKV_Buffer& buf, const char c) = 0;
+            virtual void parse(BKV_Parser& parser, const char c) = 0;
     };
 }

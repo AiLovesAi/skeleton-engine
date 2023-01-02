@@ -1,15 +1,15 @@
 #pragma once
 
-#include "gm_bkv_state.hpp"
+#include "gm_bkv_parser_state.hpp"
 
 namespace game {
-    class BKV_Buffer;
+    class BKV_Parser;
     
-    class BKV_State_Array : public BKV_State {
+    class BKV_Parser_State_Array : public BKV_Parser_State {
         public:
             // Constructors
-            BKV_State_Array() {}
-            ~BKV_State_Array() {}
+            BKV_Parser_State_Array() {}
+            ~BKV_Parser_State_Array() {}
 
             // Functions
             void reset() {
@@ -18,10 +18,10 @@ namespace game {
                 arrayStart_ = 0;
                 arrayTag_ = 0;
             }
-            virtual void parse(BKV_Buffer& buf, const char c);
+            virtual void parse(BKV_Parser& parser, const char c);
 
         protected:
-            friend class BKV_Buffer;
+            friend class BKV_Parser;
             // Variables
             uint8_t arrayTag_ = 0;
 

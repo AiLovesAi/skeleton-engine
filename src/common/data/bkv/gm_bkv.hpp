@@ -1,6 +1,6 @@
 #pragma once
 
-#include "states/gm_bkv_state.hpp"
+#include "states/gm_bkv_parser_state.hpp"
 #include "../gm_utf8.hpp"
 
 #include <cstdint>
@@ -85,19 +85,19 @@ namespace game {
             static BKV_t bkvFromSBKV(const UTF8Str& stringified);
             
             template<typename T>
-            void set(const std::string& name, const T data);
+            void set(BKV_t& bkv, const std::string& name, const T data);
             template<typename T>
-            void setList(const std::string& name, const T* data, const uint32_t size);
-            void setStr(const std::string& name, const UTF8Str& data);
-            void setStrList(const std::string& name, const UTF8Str* data, const uint16_t size);
+            void setList(BKV_t& bkv, const std::string& name, const T* data, const uint32_t size);
+            void setStr(BKV_t& bkv, const std::string& name, const UTF8Str& data);
+            void setStrList(BKV_t& bkv, const std::string& name, const UTF8Str* data, const uint16_t size);
 
-            /*static BKV_t bkvCompound(const UTF8Str& name);
+            static BKV_t bkvCompound(const UTF8Str& name);
             static inline uint8_t bkvCompoundEnd() { return BKV::BKV_END; }
             template<typename T>
             static BKV_t bkv(const UTF8Str& name, const T data);
             template<typename T>
             static BKV_t bkvList(const UTF8Str& name, const T* data, const uint32_t size);
             static BKV_t bkvStr(const UTF8Str& name, const UTF8Str& data);
-            static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);*/
+            static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
     };
 }

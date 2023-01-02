@@ -1,10 +1,10 @@
 #include "gm_bkv.hpp"
 
-#include "../gm_logger.hpp"
-#include "gm_bkv_buffer.hpp"
+#include "gm_bkv_parser.hpp"
 #include "../gm_buffer_memory.hpp"
 #include "../gm_endianness.hpp"
 
+#include "../gm_logger.hpp"
 #include "../gm_file.hpp"
 
 #include <cstring>
@@ -28,7 +28,7 @@ namespace game {
     BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
         const char* sbkv = stringified.str.get();
         Logger::log(LOG_INFO, "Reached bkvFromSBKV.");
-        BKV_Buffer buf;
+        BKV_Parser buf;
         Logger::log(LOG_INFO, "Parsing...");
         for (int64_t i = 0; i < stringified.len; i++) {
         std::stringstream m;
@@ -40,14 +40,14 @@ namespace game {
         return BKV_t{.size = buf.size(), .data = buf.data()};
     }
 
-    /*BKV_t BKV::bkvCompound(const UTF8Str& key) {
+    BKV_t BKV::bkvCompound(const UTF8Str& key) { // TODO Go through and verify these functions work as intended
         if (key.len > BKV::BKV_KEY_MAX) {
             std::stringstream msg;
             msg << "Too many characters in SBKV key: " << key.len << "/" << BKV::BKV_KEY_MAX << " characters.";
             throw std::runtime_error(msg.str());
         }
         const int64_t allocSize = 2 + key.len;
-        uint8_t *buffer = new uint8_t[allocSize];
+        uint8_t* buffer = static_cast<uint8_t*>(std::malloc(allocSize));
 
         buffer[0] = BKV::BKV_COMPOUND; // ID
         buffer[1] = key.len; // Key length
@@ -55,7 +55,7 @@ namespace game {
 
         return BKV_t{.size = allocSize, .data = std::shared_ptr<uint8_t>(buffer, std::free)};
     }
-    template<typekey T>
+    template<typename T>
     BKV_t BKV::bkv(const UTF8Str& key, const T data) {
         static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
             "Generic bkv() only supports primitive data types.");
@@ -66,7 +66,7 @@ namespace game {
             throw std::runtime_error(msg.str());
         }
         const int64_t allocSize = 2 + key.len + sizeof(T);
-        uint8_t *buffer = new uint8_t[allocSize];
+        uint8_t* buffer = static_cast<uint8_t*>(std::malloc(allocSize));
         const T networkData = Endianness::hton(data);
 
         buffer[0] = BKV::BKVTypeMap<T>::tagID; // ID
@@ -76,7 +76,7 @@ namespace game {
 
         return BKV_t{.size = allocSize, .data = std::shared_ptr<uint8_t>(buffer, std::free)};
     }
-    template<typekey T>
+    template<typename T>
     BKV_t BKV::bkvList(const UTF8Str& key, const T* data, uint32_t size) {
         static_assert(std::is_arithmetic<T>::value || std::is_enum<T>::value,
             "Generic bkvList() only supports primitive data types.");
@@ -88,7 +88,7 @@ namespace game {
         }
         const int64_t listStart = 2 + key.len + sizeof(uint32_t);
         const int64_t allocSize = listStart + (sizeof(T) * size);
-        uint8_t *buffer = new uint8_t[allocSize];
+        uint8_t* buffer = static_cast<uint8_t*>(std::malloc(allocSize));
         const uint32_t networkSize = Endianness::hton(size);
 
         buffer[0] = BKV::BKVTypeMap<T>::tagID + 1; // ID (TagID + 1 is an array of that type)
@@ -116,7 +116,7 @@ namespace game {
         }
         const int64_t strStart = 2 + key.len + sizeof(uint16_t);
         const int64_t allocSize = strStart + data.len;
-        uint8_t *buffer = new uint8_t[allocSize];
+        uint8_t* buffer = static_cast<uint8_t*>(std::malloc(allocSize));
         const uint16_t networkLen = Endianness::hton(data.len);
 
         buffer[0] = BKV::BKV_STR;
@@ -144,7 +144,7 @@ namespace game {
             }
             allocSize += data[i].len;
         }
-        uint8_t *buffer = new uint8_t[allocSize];
+        uint8_t* buffer = static_cast<uint8_t*>(std::malloc(allocSize));
         uint32_t networkSize = Endianness::hton(size);
 
         buffer[0] = BKV::BKV_STR_ARRAY; // ID
@@ -160,5 +160,5 @@ namespace game {
         }
 
         return BKV_t{.size = allocSize, .data = std::shared_ptr<uint8_t>(buffer, std::free)};
-    }*/
+    }
 }

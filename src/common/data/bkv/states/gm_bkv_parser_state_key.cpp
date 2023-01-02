@@ -1,8 +1,8 @@
-#include "gm_bkv_state_key.hpp"
+#include "gm_bkv_parser_state_key.hpp"
 
-#include "gm_bkv_state_string.hpp"
+#include "gm_bkv_parser_state_string.hpp"
 #include "../gm_bkv.hpp"
-#include "../gm_bkv_buffer.hpp"
+#include "../gm_bkv_parser.hpp"
 #include "../../gm_endianness.hpp"
 #include "../../gm_buffer_memory.hpp"
 
@@ -10,22 +10,22 @@
 #include <stdexcept>
 
 namespace game {
-    void BKV_State_Key::completeKey(BKV_Buffer& buf, const char c) {
-        buf.tagHead_ = buf.head_;
+    void BKV_Parser_State_Key::completeKey(BKV_Parser& parser, const char c) {
+        parser.buffer_.tagHead_ = parser.buffer_.head_;
         uint8_t len = static_cast<uint8_t>(keyLen_);
 
         try {
-            BufferMemory::checkResize(buf.bkv_, buf.head_ + 2 + keyLen_, buf.head_, buf.capacity_);
+            BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 2 + keyLen_, parser.buffer_.head_, parser.buffer_.capacity_);
         } catch (std::runtime_error &e) { throw; }
-        std::memcpy(buf.bkv_ + buf.head_ + 1, &len, BKV::BKV_KEY_SIZE);
-        buf.head_ += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
+        std::memcpy(parser.buffer_.bkv_ + parser.buffer_.head_ + 1, &len, BKV::BKV_KEY_SIZE);
+        parser.buffer_.head_ += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
     std::stringstream m;
-    m << "Key putting data at: " << buf.head_;
+    m << "Key putting data at: " << parser.buffer_.head_;
     Logger::log(LOG_INFO, m.str());
-        std::memcpy(buf.bkv_ + buf.head_, key_, keyLen_);
-        buf.head_ += keyLen_;
-        buf.valHead_ = buf.head_;
-        buf.stateTree_.push(&buf.findTagState_);
+        std::memcpy(parser.buffer_.bkv_ + parser.buffer_.head_, key_, keyLen_);
+        parser.buffer_.head_ += keyLen_;
+        parser.buffer_.valHead_ = parser.buffer_.head_;
+        parser.stateTree_.push(&parser.findTagState_);
 
     char key[256];
     std::memcpy(key, key_, keyLen_);
@@ -36,11 +36,11 @@ namespace game {
         reset();
     }
 
-    void BKV_State_Key::continueKey(BKV_Buffer& buf, const char c) {
+    void BKV_Parser_State_Key::continueKey(BKV_Parser& parser, const char c) {
         // Build string
         if (keyLen_ >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
             std::stringstream msg;
-            msg << "Too many characters in SBKV key at index " << buf.charactersRead_ << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key at index " << parser.charactersRead_ << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -49,10 +49,10 @@ namespace game {
         if (breakChar_) {
             breakChar_ = false;
 
-            char b = BKV_State_String::getBreakChar(c);
+            char b = BKV_Parser_State_String::getBreakChar(c);
             if (b < 0) {
                 std::stringstream msg;
-                msg << "Invalid break character in SBKV key at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid break character in SBKV key at index " << parser.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -67,15 +67,15 @@ namespace game {
         }
     }
 
-    void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
-        buf.charactersRead_++;
+    void BKV_Parser_State_Key::parse(BKV_Parser& parser, const char c) {
+        parser.charactersRead_++;
         std::stringstream m;
         m << "Key state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
-        if (!buf.head_) {
+        if (!parser.buffer_.head_) {
             // Must open with a compound
             if (c == '{') {
-                buf.openCompound();
+                parser.openCompound();
             } else {
                 std::stringstream msg;
                 msg << "Opening compound not found in SBKV, first character was: 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
@@ -85,13 +85,13 @@ namespace game {
             // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
             // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
             if (c == strChar_ && !breakChar_) {
-                try { completeKey(buf, c); } catch (std::runtime_error &e) { throw; }
+                try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }
             } else {
-                try { continueKey(buf, c); } catch (std::runtime_error &e) { throw; }
+                try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }
             }
         } else if ((c == '}') && !keyLen_) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
-            try { buf.closeCompound(); } catch (std::runtime_error &e) { throw; }
+            try { parser.closeCompound(); } catch (std::runtime_error &e) { throw; }
         } else if ((std::isspace(c) || (c == ',')) && !keyLen_) {
             // Whitespace, igore OR
             // In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
@@ -99,13 +99,13 @@ namespace game {
         } else if (((c == '\'') || (c == '"')) && !keyLen_) {
             strChar_ = c;
         } else if (std::isalpha(c) || (keyLen_ && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
-            try { continueKey(buf, c); } catch (std::runtime_error &e) { throw; }
+            try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == ':') {
-            try { completeKey(buf, c); } catch (std::runtime_error &e) { throw; }
+            try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }
         } else {
             // If a compound hasn't just ended, this is an unexpected input
             std::stringstream msg;
-            msg << "Invalid character in SBKV key at index: " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            msg << "Invalid character in SBKV key at index: " << parser.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
             reset();
             throw std::runtime_error(msg.str());
         }

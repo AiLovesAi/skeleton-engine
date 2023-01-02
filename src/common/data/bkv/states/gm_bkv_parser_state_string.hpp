@@ -1,20 +1,20 @@
 #pragma once
 
-#include "gm_bkv_state.hpp"
+#include "gm_bkv_parser_state.hpp"
 
 #include <memory>
 
 namespace game {
-    class BKV_Buffer;
+    class BKV_Parser;
     
-    class BKV_State_String : public BKV_State {
+    class BKV_Parser_State_String : public BKV_Parser_State {
         public:
             // Constructors
-            BKV_State_String() {
+            BKV_Parser_State_String() {
                 strCapacity_ = BUFSIZ;
                 str_ = static_cast<uint8_t*>(std::malloc(strCapacity_));
             }
-            ~BKV_State_String() { std::free(str_); }
+            ~BKV_Parser_State_String() { std::free(str_); }
 
             // Functions
             void reset() {
@@ -23,13 +23,13 @@ namespace game {
                 breakChar_ = false;
             }
             static char getBreakChar(const char c);
-            virtual void parse(BKV_Buffer& buf, const char c);
+            virtual void parse(BKV_Parser& parser, const char c);
             
         private:
             // Functions
-            void continueStr(BKV_Buffer& buf, const char c);
-            void checkForBool(BKV_Buffer& buf);
-            void completeStr(BKV_Buffer& buf, const char c);
+            void continueStr(BKV_Parser& parser, const char c);
+            void checkForBool(BKV_Parser& parser);
+            void completeStr(BKV_Parser& parser, const char c);
             
             // Variables
             uint8_t* str_ = nullptr;
