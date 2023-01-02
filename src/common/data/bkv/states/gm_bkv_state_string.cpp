@@ -36,9 +36,9 @@ namespace game {
     
     void BKV_State_String::continueStr(BKV_Buffer& buf, const char c) {
         // Build string
-        if (strLen_ >= UINT16_MAX) {
+        if (strLen_ >= BKV::BKV_STR_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in BKV string at index " << buf.charactersRead_ << ": " << strLen_ + 1 << "/" << UINT16_MAX << " characters.";
+            msg << "Too many characters in SBKV string at index " << buf.charactersRead_ << ": " << strLen_ + 1 << "/" << BKV::BKV_STR_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -57,7 +57,7 @@ namespace game {
             char b = BKV_State_String::getBreakChar(c);
             if (b < 0) {
                 std::stringstream msg;
-                msg << "Invalid break character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid break character in SBKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -127,14 +127,14 @@ namespace game {
             buf.tag_ |= BKV::BKV_STR;
             const uint16_t len = Endianness::hton(static_cast<uint16_t>(strLen_));
             try {
-                BufferMemory::checkResize(buf.bkv_, buf.head_ + (int64_t) sizeof(uint16_t) + strLen_, buf.head_, buf.capacity_);
+                BufferMemory::checkResize(buf.bkv_, buf.head_ + BKV::BKV_STR_SIZE + strLen_, buf.head_, buf.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
 
-            std::memcpy(buf.bkv_ + buf.head_, &len, sizeof(uint16_t));
-            buf.head_ += sizeof(uint16_t);
+            std::memcpy(buf.bkv_ + buf.head_, &len, BKV::BKV_STR_SIZE);
+            buf.head_ += BKV::BKV_STR_SIZE;
             std::memcpy(buf.bkv_ + buf.head_, str_, strLen_);
             buf.head_ += strLen_;
         char* key = static_cast<char*>(std::malloc(strLen_ + 1));
@@ -181,7 +181,7 @@ namespace game {
                 return;
             } else {
                 std::stringstream msg;
-                msg << "Invalid character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid character in SBKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }

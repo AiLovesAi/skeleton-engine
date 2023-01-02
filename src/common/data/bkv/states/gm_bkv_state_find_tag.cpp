@@ -55,7 +55,7 @@ namespace game {
             return;
         } else {
             std::stringstream msg;
-            msg << "Invalid character in BKV string at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            msg << "Invalid character in SBKV at index " << buf.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
             throw std::runtime_error(msg.str());
         }
     }
