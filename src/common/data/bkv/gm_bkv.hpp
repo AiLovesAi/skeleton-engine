@@ -37,7 +37,7 @@ namespace game {
             };
             enum BKV_Tags {
                 // Data types:
-                BKV_END, // End of compound (does not have a name)
+                BKV_END, // End of compound (does not have a key)
                 BKV_COMPOUND, // Group of tags, closed by BKV_END - BKV_UI32 (length including BKV_END)
                 BKV_BOOL, // 1B Unsigned Int (0 or 1)
                 BKV_I8, // 1B Signed Int
@@ -81,23 +81,8 @@ namespace game {
                 BKV_STR_SIZE = sizeof(uint16_t),
                 BKV_STR_MAX = UINT16_MAX,
             };
+            
             // Functions
             static BKV_t bkvFromSBKV(const UTF8Str& stringified);
-            
-            template<typename T>
-            void set(BKV_t& bkv, const std::string& name, const T data);
-            template<typename T>
-            void setList(BKV_t& bkv, const std::string& name, const T* data, const uint32_t size);
-            void setStr(BKV_t& bkv, const std::string& name, const UTF8Str& data);
-            void setStrList(BKV_t& bkv, const std::string& name, const UTF8Str* data, const uint16_t size);
-
-            static BKV_t bkvCompound(const UTF8Str& name);
-            static inline uint8_t bkvCompoundEnd() { return BKV::BKV_END; }
-            template<typename T>
-            static BKV_t bkv(const UTF8Str& name, const T data);
-            template<typename T>
-            static BKV_t bkvList(const UTF8Str& name, const T* data, const uint32_t size);
-            static BKV_t bkvStr(const UTF8Str& name, const UTF8Str& data);
-            static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
     };
 }
