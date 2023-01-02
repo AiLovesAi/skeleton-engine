@@ -7,6 +7,7 @@
 #include "states/gm_bkv_state_key.hpp"
 #include "states/gm_bkv_state_number.hpp"
 #include "states/gm_bkv_state_string.hpp"
+#include "../gm_logger.hpp"
 
 #include <cstdint>
 #include <cstring>

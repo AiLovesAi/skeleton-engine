@@ -19,11 +19,20 @@ namespace game {
         } catch (std::runtime_error &e) { throw; }
         std::memcpy(buf.bkv_ + buf.head_ + 1, &len, sizeof(uint8_t));
         buf.head_ += 2; // Add 1 for tag (added later) and 1 for key length
+    std::stringstream m;
+    m << "Key putting data at: " << buf.head_;
+    Logger::log(LOG_INFO, m.str());
         std::memcpy(buf.bkv_ + buf.head_, key_, keyLen_);
         buf.head_ += keyLen_;
         buf.valHead_ = buf.head_;
         buf.stateTree_.push(&buf.findTagState_);
 
+    char key[256];
+    std::memcpy(key, key_, keyLen_);
+    key[keyLen_] = '\0';
+    m.str("");
+    m << "Key state finished parsing: " << key;
+    Logger::log(LOG_INFO, m.str());
         reset();
     }
 
@@ -60,7 +69,9 @@ namespace game {
 
     void BKV_State_Key::parse(BKV_Buffer& buf, const char c) {
         buf.charactersRead_++;
-
+        std::stringstream m;
+        m << "Key state parsing character: " << c;
+        Logger::log(LOG_INFO, m.str());
         if (!buf.head_) {
             // Must open with a compound
             if (c == '{') {
