@@ -7,7 +7,6 @@ namespace game {
     class BKV_Builder {
         public:
             // Functions
-            // TODO builder.addCompound("test", builder.addStr("name", "Billy").addIntArray("money", ints, 5).addCompound("boba", builder.addInt("id", 1)).addBool("alive", true)).build();
             BKV_t build();
 
             template<typename T>
