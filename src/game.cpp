@@ -62,9 +62,9 @@ int main (int argc, char** argv)
     Core::init("../logs/latest.log", "../logs/crash.txt");
     
     test();
-    /*Client::init();
+    Client::init();
     Client& client = Client::instance();
-    client.start();*/
+    client.start();
 
     Logger::log(LOG_INFO, "Game exited successfully.");
 

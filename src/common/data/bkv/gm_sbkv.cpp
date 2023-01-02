@@ -11,35 +11,23 @@
 #include <stdexcept>
 
 namespace game {
-    template <> const uint8_t BKV::BKVTypeMap<bool>::tagID = BKV_UI8;
-    template <> const uint8_t BKV::BKVTypeMap<uint8_t>::tagID = BKV_UI8;
-    template <> const uint8_t BKV::BKVTypeMap<int8_t>::tagID = BKV_I8;
-    template <> const uint8_t BKV::BKVTypeMap<uint16_t>::tagID = BKV_UI16;
-    template <> const uint8_t BKV::BKVTypeMap<int16_t>::tagID = BKV_I16;
-    template <> const uint8_t BKV::BKVTypeMap<uint32_t>::tagID = BKV_UI32;
-    template <> const uint8_t BKV::BKVTypeMap<int32_t>::tagID = BKV_I32;
-    template <> const uint8_t BKV::BKVTypeMap<uint64_t>::tagID = BKV_UI64;
-    template <> const uint8_t BKV::BKVTypeMap<int64_t>::tagID = BKV_I64;
-    template <> const uint8_t BKV::BKVTypeMap<float>::tagID = BKV_FLOAT;
-    template <> const uint8_t BKV::BKVTypeMap<double>::tagID = BKV_DOUBLE;
-    
-    template <> const char BKV::BKVSuffixMap<uint8_t>::suffix[] = "UB";
-    template <> const char BKV::BKVSuffixMap<int8_t>::suffix[] = "B";
-    template <> const char BKV::BKVSuffixMap<uint16_t>::suffix[] = "US";
-    template <> const char BKV::BKVSuffixMap<int16_t>::suffix[] = "S";
-    template <> const char BKV::BKVSuffixMap<uint32_t>::suffix[] = "U";
-    template <> const char BKV::BKVSuffixMap<int32_t>::suffix[] = "";
-    template <> const char BKV::BKVSuffixMap<uint64_t>::suffix[] = "UL";
-    template <> const char BKV::BKVSuffixMap<int64_t>::suffix[] = "L";
-    template <> const char BKV::BKVSuffixMap<float>::suffix[] = "F";
-    template <> const char BKV::BKVSuffixMap<double>::suffix[] = "";
+    template <> const char SBKV::BKVSuffixMap<uint8_t>::suffix[] = "UB";
+    template <> const char SBKV::BKVSuffixMap<int8_t>::suffix[] = "B";
+    template <> const char SBKV::BKVSuffixMap<uint16_t>::suffix[] = "US";
+    template <> const char SBKV::BKVSuffixMap<int16_t>::suffix[] = "S";
+    template <> const char SBKV::BKVSuffixMap<uint32_t>::suffix[] = "U";
+    template <> const char SBKV::BKVSuffixMap<int32_t>::suffix[] = "";
+    template <> const char SBKV::BKVSuffixMap<uint64_t>::suffix[] = "UL";
+    template <> const char SBKV::BKVSuffixMap<int64_t>::suffix[] = "L";
+    template <> const char SBKV::BKVSuffixMap<float>::suffix[] = "F";
+    template <> const char SBKV::BKVSuffixMap<double>::suffix[] = "";
 
     template <typename T>
     void setSBKVCopyValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, const std::string& val) {
         std::memcpy(sbkv + head, val.c_str(), val.length());
         head += val.length();
-        std::memcpy(sbkv + head, BKV::BKVSuffixMap<T>::suffix, sizeof(BKV::BKVSuffixMap<T>::suffix) - 1);
-        head += sizeof(BKV::BKVSuffixMap<T>::suffix) - 1;
+        std::memcpy(sbkv + head, SBKV::BKVSuffixMap<T>::suffix, sizeof(SBKV::BKVSuffixMap<T>::suffix) - 1);
+        head += sizeof(SBKV::BKVSuffixMap<T>::suffix) - 1;
         sbkv[head++] = ',';
     }
 
@@ -56,7 +44,7 @@ namespace game {
         const std::string val = std::to_string(value);
         try {
             BufferMemory::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + sizeof(BKV::BKVSuffixMap<T>::suffix)),
+                static_cast<int64_t>(head + keyLen + val.length() + sizeof(SBKV::BKVSuffixMap<T>::suffix)),
                 head, capacity
             );
         } catch (std::runtime_error& e) { throw; }
@@ -103,7 +91,7 @@ namespace game {
 
             try {
                 BufferMemory::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(BKV::BKVSuffixMap<T>::suffix) + 1),
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<T>::suffix) + 1),
                     head, capacity
                 );
             } catch (std::runtime_error& e) { throw; }
@@ -126,7 +114,7 @@ namespace game {
         const std::string val = std::to_string(v);
         try {
             BufferMemory::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + sizeof(BKV::BKVSuffixMap<double>::suffix)),
+                static_cast<int64_t>(head + keyLen + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix)),
                 head, capacity
             );
         } catch (std::runtime_error& e) { throw; }
@@ -172,7 +160,7 @@ namespace game {
 
             try {
                 BufferMemory::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(BKV::BKVSuffixMap<double>::suffix) + 1),
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix) + 1),
                     head, capacity
                 );
             } catch (std::runtime_error& e) { throw; }
@@ -194,7 +182,7 @@ namespace game {
         const std::string val = std::to_string(v);
         try {
             BufferMemory::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + sizeof(BKV::BKVSuffixMap<float>::suffix)),
+                static_cast<int64_t>(head + keyLen + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix)),
                 head, capacity
             );
         } catch (std::runtime_error& e) { throw; }
@@ -241,7 +229,7 @@ namespace game {
 
             try {
                 BufferMemory::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(BKV::BKVSuffixMap<float>::suffix) + 1),
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix) + 1),
                     head, capacity
                 );
             } catch (std::runtime_error& e) { throw; }

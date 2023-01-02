@@ -18,9 +18,6 @@ namespace game {
             template <typename T>
             struct BKVTypeMap { static const uint8_t tagID; };
             
-            template <typename T>
-            struct BKVSuffixMap { static const char suffix[]; };
-
             // Binary Key Value Tags
             // Key/Value format:
             // |===ID===|==================KEY==================|===VALUE===|
