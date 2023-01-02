@@ -58,7 +58,7 @@ namespace game {
         // Key
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen + sizeof(T);
+        i += 1 + keyLen + sizeof(T);
         sbkv[head++] = ':';
 
         setSBKVCopyValue<T>(data, sbkv, i, head, val);
@@ -72,14 +72,14 @@ namespace game {
         } catch (std::runtime_error& e) { throw; }
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen;
+        i += 1 + keyLen;
         sbkv[head++] = ':';
         sbkv[head++] = '[';
         
         // Array size
         uint16_t size;
-        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-        i += BKV::BKV_ARRAY_SIZE;
+        std::memcpy(&size, data + i, sizeof(uint16_t));
+        i += sizeof(uint16_t);
         size = Endianness::ntoh(size);
 
         // Values
@@ -120,7 +120,7 @@ namespace game {
         // Key
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen + sizeof(double);
+        i += 1 + keyLen + sizeof(double);
         sbkv[head++] = ':';
 
         // Value
@@ -134,15 +134,15 @@ namespace game {
         } catch (std::runtime_error& e) { throw; }
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen;
+        i += 1 + keyLen;
         sbkv[head++] = ':';
         sbkv[head++] = '[';
         
         // Array size
         uint16_t size;
-        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-        i += BKV::BKV_ARRAY_SIZE;
-        size = Endianness::ntoh(size);
+        std::memcpy(&size, data + i, sizeof(uint16_t));
+        i += sizeof(uint16_t);
+        size = Endianness::ntohd(size);
 
         // Values
         double v;
@@ -182,7 +182,7 @@ namespace game {
         // Key
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen + sizeof(float);
+        i += 1 + keyLen + sizeof(float);
         sbkv[head++] = ':';
 
         // Value
@@ -196,15 +196,15 @@ namespace game {
         } catch (std::runtime_error& e) { throw; }
         std::memcpy(sbkv + head, data + i + 1, keyLen);
         head += keyLen;
-        i+= BKV::BKV_KEY_SIZE + keyLen;
+        i += 1 + keyLen;
         sbkv[head++] = ':';
         sbkv[head++] = '[';
         
         // Array size
         uint16_t size;
-        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-        i += BKV::BKV_ARRAY_SIZE;
-        size = Endianness::ntoh(size);
+        std::memcpy(&size, data + i, sizeof(uint16_t));
+        i += sizeof(uint16_t);
+        size = Endianness::ntohf(size);
 
         // Values
         float v;
@@ -332,7 +332,7 @@ namespace game {
                 case BKV::BKV_STR: { // Key:Str,
                     const uint8_t keyLen = data[++i];
                     uint16_t len;
-                    std::memcpy(&len, data + i + 1 + keyLen, BKV::BKV_STR_SIZE);
+                    std::memcpy(&len, data + i + 1 + keyLen, sizeof(uint16_t));
                     len = Endianness::ntoh(len);
 
                     try {
@@ -342,7 +342,7 @@ namespace game {
                     // Key
                     std::memcpy(sbkv + head, data + i + 1, keyLen);
                     head += keyLen;
-                    i+= BKV::BKV_KEY_SIZE + keyLen + BKV::BKV_STR_SIZE;
+                    i += 1 + keyLen + sizeof(uint16_t);
                     sbkv[head++] = ':';
 
                     // Value
@@ -358,22 +358,22 @@ namespace game {
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(sbkv + head, data + i + 1, keyLen);
                     head += keyLen;
-                    i+= BKV::BKV_KEY_SIZE + keyLen;
+                    i += 1 + keyLen;
                     sbkv[head++] = ':';
                     sbkv[head++] = '[';
 
                     // Array size
-                    uint16_t size;
-                    std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-                    i += BKV::BKV_ARRAY_SIZE;
+                    uint32_t size;
+                    std::memcpy(&size, data + i, sizeof(uint32_t));
+                    i += sizeof(uint32_t);
                     size = Endianness::ntoh(size);
 
                     // Values
                     uint16_t len;
                     std::string str;
                     for (uint32_t index = 0; index < size; index++) {
-                        std::memcpy(&len, data + i, BKV::BKV_STR_SIZE);
-                        i += BKV::BKV_STR_SIZE;
+                        std::memcpy(&len, data + i, sizeof(uint16_t));
+                        i += sizeof(uint16_t);
                         len = Endianness::ntoh(len);
 
                         BufferMemory::checkResize(sbkv, head + len + 2, head, capacity);

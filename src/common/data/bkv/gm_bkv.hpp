@@ -1,17 +1,11 @@
 #pragma once
 
 #include "states/gm_bkv_state.hpp"
-#include "../gm_utf8.hpp"
 
 #include <cstdint>
 #include <memory>
 
 namespace game {
-    typedef struct BKV_t_ {
-        int64_t size;
-        std::shared_ptr<uint8_t> data;
-    } BKV_t;
-
     class BKV {
         public:
             // Types
@@ -20,6 +14,16 @@ namespace game {
             
             template <typename T>
             struct BKVSuffixMap { static const char suffix[]; };
+            
+            typedef struct UTF8Str_ {
+                int64_t len;
+                std::shared_ptr<char> str;
+            } UTF8Str;
+            
+            typedef struct BKV_t_ {
+                int64_t size;
+                std::shared_ptr<uint8_t> data;
+            } BKV_t;
 
             // Binary Key Value Tags
             // Key/Value format:
@@ -88,13 +92,27 @@ namespace game {
             // Functions
             static BKV_t bkvFromSBKV(const UTF8Str& sbkv);
 
-            /*template<typename T>
+            // Functions
+            template<typename T>
             void set(const std::string& name, const T data);
             template<typename T>
             void setList(const std::string& name, const T* data, const uint32_t size);
             void setStr(const std::string& name, const UTF8Str& data);
             void setStrList(const std::string& name, const UTF8Str* data, const uint16_t size);
+            
+            template<typename T>
+            T get(const std::string& name);
+            const uint8_t* get() { return buffer_; }
+            int64_t size() { return head_; }
 
+        private:
+            // Functions
+            void resizeBuffer(const int64_t size);
+            void write(const BKV_t& bkv);
+
+            static UTF8Str sbkvFromBKV(const BKV_t& bkv);
+
+            static BKV_t bkvFromSBKV(const UTF8Str& stringified);
             static BKV_t bkvCompound(const UTF8Str& name);
             static inline uint8_t bkvCompoundEnd() { return BKV::BKV_END; }
             template<typename T>
@@ -102,6 +120,11 @@ namespace game {
             template<typename T>
             static BKV_t bkvList(const UTF8Str& name, const T* data, const uint32_t size);
             static BKV_t bkvStr(const UTF8Str& name, const UTF8Str& data);
-            static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);*/
+            static BKV_t bkvStrList(const UTF8Str& name, const UTF8Str* data, const uint32_t size);
+
+            // Variables
+            uint8_t* buffer_ = nullptr;
+            int64_t head_ = 0;
+            int64_t capacity_ = 0;
     };
 }
