@@ -17,8 +17,8 @@ namespace game {
         try {
             BufferMemory::checkResize(buf.bkv_, buf.head_ + 2 + keyLen_, buf.head_, buf.capacity_);
         } catch (std::runtime_error &e) { throw; }
-        std::memcpy(buf.bkv_ + buf.head_ + 1, &len, sizeof(uint8_t));
-        buf.head_ += 2; // Add 1 for tag (added later) and 1 for key length
+        std::memcpy(buf.bkv_ + buf.head_ + 1, &len, BKV::BKV_KEY_SIZE);
+        buf.head_ += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
     std::stringstream m;
     m << "Key putting data at: " << buf.head_;
     Logger::log(LOG_INFO, m.str());
@@ -38,9 +38,9 @@ namespace game {
 
     void BKV_State_Key::continueKey(BKV_Buffer& buf, const char c) {
         // Build string
-        if (keyLen_ >= UINT8_MAX) {
+        if (keyLen_ >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
             std::stringstream msg;
-            msg << "Too many characters in BKV key at index " << buf.charactersRead_ << ": " << keyLen_ + 1 << "/" << UINT8_MAX << " characters.";
+            msg << "Too many characters in BKV key at index " << buf.charactersRead_ << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }

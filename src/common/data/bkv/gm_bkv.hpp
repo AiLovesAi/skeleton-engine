@@ -77,6 +77,18 @@ namespace game {
                 BKV_STR_ARRAY = BKV_STR | BKV_ARRAY, // BKV_UI16 (size) + Array of BKV_STR
             };
 
+            enum BKV_Limits {
+                BKV_COMPOUND_SIZE = sizeof(uint32_t),
+                BKV_COMPOUND_MAX = UINT32_MAX,
+                BKV_COMPOUND_DEPTH_MAX = UINT8_MAX,
+                BKV_KEY_SIZE = sizeof(uint8_t),
+                BKV_KEY_MAX = UINT8_MAX,
+                BKV_ARRAY_SIZE = sizeof(uint16_t),
+                BKV_ARRAY_MAX = UINT16_MAX,
+                BKV_STR_SIZE = sizeof(uint16_t),
+                BKV_STR_MAX = UINT16_MAX,
+            };
+
             // Constructors
             BKV() {}
             BKV(const BKV_t& bkv);
