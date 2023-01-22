@@ -22,9 +22,8 @@ namespace game {
             case '5': return '\5';
             case '6': return '\6';
             case '7': return '\7';
-            case 'a': return '\0';
+            case 'a': return '\a';
             case 'b': return '\b';
-            case 'c': return '\6';
             case 'f': return '\f';
             case 'n': return '\n';
             case 'r': return '\r';

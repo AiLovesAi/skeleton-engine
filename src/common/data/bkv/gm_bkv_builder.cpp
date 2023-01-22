@@ -1,11 +1,6 @@
 #include "gm_bkv_builder.hpp"
 
 namespace game {
-    BKV_t BKV_Builder::build() {
-        // TODO
-    }
-
-    
     template<typename T>
     void BKV_Builder::setInt(BKV_t& bkv, const UTF8Str& key, const T  value) {
 
@@ -41,7 +36,7 @@ namespace game {
     }
 
     void BKV_Builder::setStr(BKV_t& bkv, const UTF8Str& key, const UTF8Str& value) {
-
+        
     }
 
     void BKV_Builder::setStrList(BKV_t& bkv, const UTF8Str& key, const UTF8Str* value, const uint16_t size) {
