@@ -31,215 +31,7 @@ namespace game {
         sbkv[head++] = ',';
     }
 
-    template <typename T>
-    inline void setSBKVValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
-        const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
-        T value;
-        std::memcpy(&value, data + i + keyLen + 1, sizeof(T));
-        value = Endianness::ntoh(value);
-
-        const std::string val = std::to_string(value);
-        try {
-            BufferMemory::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + sizeof(SBKV::BKVSuffixMap<T>::suffix)),
-                head, capacity
-            );
-        } catch (std::runtime_error& e) { throw; }
-
-        // Key
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen + sizeof(T);
-        sbkv[head++] = ':';
-
-        setSBKVCopyValue<T>(data, sbkv, i, head, val);
-        i--;
-    }
-
-    template <typename T>
-    inline void setSBKVArray(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
-        const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
-        try {
-            BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
-        } catch (std::runtime_error& e) { throw; }
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen;
-        sbkv[head++] = ':';
-        sbkv[head++] = '[';
-        
-        // Array size
-        uint16_t size;
-        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-        i += BKV::BKV_ARRAY_SIZE;
-        size = Endianness::ntoh(size);
-
-        // Values
-        T v;
-        std::string val;
-        for (uint16_t index = 0; index < size; index++) {
-            std::memcpy(&v, data + i, sizeof(T));
-            i += sizeof(T);
-            v = Endianness::ntoh(v);
-            val = std::to_string(v);
-
-            try {
-                BufferMemory::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<T>::suffix) + 1),
-                    head, capacity
-                );
-            } catch (std::runtime_error& e) { throw; }
-            setSBKVCopyValue<T>(data, sbkv, i, head, val);
-        }
-        sbkv[head - 1] = ']'; // Replace last comma with close bracket
-        sbkv[head++] = ',';
-        i--;
-    }
-
-    inline void setSBKVValueDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
-        const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
-        double v;
-        std::memcpy(&v, data + i + keyLen + 1, sizeof(double));
-        v = Endianness::ntohd(v);
-
-        const std::string val = std::to_string(v);
-        try {
-            BufferMemory::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix)),
-                head, capacity
-            );
-        } catch (std::runtime_error& e) { throw; }
-
-        // Key
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += keyLen + sizeof(double);
-        sbkv[head++] = ':';
-
-        // Value
-        setSBKVCopyValue<double>(data, sbkv, i, head, val);
-    }
-
-    inline void setSBKVArrayDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
-        const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
-        try {
-            BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
-        } catch (std::runtime_error& e) { throw; }
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen;
-        sbkv[head++] = ':';
-        sbkv[head++] = '[';
-        
-        // Array size
-        uint16_t size;
-        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-        i += BKV::BKV_ARRAY_SIZE;
-        size = Endianness::ntoh(size);
-
-        // Values
-        double v;
-        std::string val;
-        for (uint16_t index = 0; index < size; index++) {
-            std::memcpy(&v, data + i, sizeof(double));
-            i += sizeof(double);
-            v = Endianness::ntohd(v);
-            val = std::to_string(v);
-
-            try {
-                BufferMemory::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix) + 1),
-                    head, capacity
-                );
-            } catch (std::runtime_error& e) { throw; }
-            setSBKVCopyValue<double>(data, sbkv, i, head, val);
-        }
-        sbkv[head - 1] = ']'; // Replace last comma with close bracket
-        sbkv[head++] = ',';
-    }
-
-    inline void setSBKVValueFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
-        const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
-        float v;
-        std::memcpy(&v, data + i + keyLen + 1, sizeof(float));
-        v = Endianness::ntohf(v);
-
-        const std::string val = std::to_string(v);
-        try {
-            BufferMemory::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix)),
-                head, capacity
-            );
-        } catch (std::runtime_error& e) { throw; }
-
-        // Key
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen + sizeof(float);
-        sbkv[head++] = ':';
-
-        // Value
-        setSBKVCopyValue<float>(data, sbkv, i, head, val);
-        i--;
-    }
-
-    inline void setSBKVArrayFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
-        const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
-        try {
-            BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
-        } catch (std::runtime_error& e) { throw; }
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen;
-        sbkv[head++] = ':';
-        sbkv[head++] = '[';
-        
-        // Array size
-        uint16_t size;
-        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
-        i += BKV::BKV_ARRAY_SIZE;
-        size = Endianness::ntoh(size);
-
-        // Values
-        float v;
-        std::string val;
-        for (uint16_t index = 0; index < size; index++) {
-            std::memcpy(&v, data + i, sizeof(float));
-            i += sizeof(float);
-            v = Endianness::ntohf(v);
-            val = std::to_string(v);
-
-            try {
-                BufferMemory::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix) + 1),
-                    head, capacity
-                );
-            } catch (std::runtime_error& e) { throw; }
-            setSBKVCopyValue<float>(data, sbkv, i, head, val);
-        }
-        sbkv[head - 1] = ']'; // Replace last comma with close bracket
-        sbkv[head++] = ',';
-    }
-
-    inline char getBreakChar(const char c) {
+    char getBreakChar(const char c) {
         switch (c) {
             case '\"': return '\"';
             case '\'': return '\'';
@@ -286,6 +78,211 @@ namespace game {
         }
         
         sbkv[head++] = '"';
+    }
+
+    template <typename T>
+    inline void setSBKVValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
+        const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
+        T value;
+        std::memcpy(&value, data + i + keyLen + 1, sizeof(T));
+        value = Endianness::ntoh(value);
+
+        const std::string val = std::to_string(value);
+        try {
+            BufferMemory::checkResize(sbkv,
+                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<T>::suffix)),
+                head, capacity
+            );
+        } catch (std::runtime_error& e) { throw; }
+
+        // Key
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        i += sizeof(T);
+        sbkv[head++] = ':';
+
+        setSBKVCopyValue<T>(data, sbkv, i, head, val);
+        i--;
+    }
+
+    template <typename T>
+    inline void setSBKVArray(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
+        const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
+        try {
+            BufferMemory::checkResize(sbkv, head + keyLen + 4, head, capacity);
+        } catch (std::runtime_error& e) { throw; }
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        sbkv[head++] = ':';
+        sbkv[head++] = '[';
+        
+        // Array size
+        uint16_t size;
+        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
+        i += BKV::BKV_ARRAY_SIZE;
+        size = Endianness::ntoh(size);
+
+        // Values
+        T v;
+        std::string val;
+        for (uint16_t index = 0; index < size; index++) {
+            std::memcpy(&v, data + i, sizeof(T));
+            i += sizeof(T);
+            v = Endianness::ntoh(v);
+            val = std::to_string(v);
+
+            try {
+                BufferMemory::checkResize(sbkv,
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<T>::suffix) + 1),
+                    head, capacity
+                );
+            } catch (std::runtime_error& e) { throw; }
+            setSBKVCopyValue<T>(data, sbkv, i, head, val);
+        }
+        sbkv[head - 1] = ']'; // Replace last comma with close bracket
+        sbkv[head++] = ',';
+        i--;
+    }
+
+    inline void setSBKVValueDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
+        const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
+        double v;
+        std::memcpy(&v, data + i + keyLen + 1, sizeof(double));
+        v = Endianness::ntohd(v);
+
+        const std::string val = std::to_string(v);
+        try {
+            BufferMemory::checkResize(sbkv,
+                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<double>::suffix)),
+                head, capacity
+            );
+        } catch (std::runtime_error& e) { throw; }
+
+        // Key
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        i += sizeof(double);
+        sbkv[head++] = ':';
+
+        // Value
+        setSBKVCopyValue<double>(data, sbkv, i, head, val);
+        i--;
+    }
+
+    inline void setSBKVArrayDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
+        const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
+        try {
+            BufferMemory::checkResize(sbkv, head + keyLen + 4, head, capacity);
+        } catch (std::runtime_error& e) { throw; }
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        sbkv[head++] = ':';
+        sbkv[head++] = '[';
+        
+        // Array size
+        uint16_t size;
+        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
+        i += BKV::BKV_ARRAY_SIZE;
+        size = Endianness::ntoh(size);
+
+        // Values
+        double v;
+        std::string val;
+        for (uint16_t index = 0; index < size; index++) {
+            std::memcpy(&v, data + i, sizeof(double));
+            i += sizeof(double);
+            v = Endianness::ntohd(v);
+            val = std::to_string(v);
+
+            try {
+                BufferMemory::checkResize(sbkv,
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix) + 1),
+                    head, capacity
+                );
+            } catch (std::runtime_error& e) { throw; }
+            setSBKVCopyValue<double>(data, sbkv, i, head, val);
+        }
+        sbkv[head - 1] = ']'; // Replace last comma with close bracket
+        sbkv[head++] = ',';
+    }
+
+    inline void setSBKVValueFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
+        const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
+        float v;
+        std::memcpy(&v, data + i + keyLen + 1, sizeof(float));
+        v = Endianness::ntohf(v);
+
+        const std::string val = std::to_string(v);
+        try {
+            BufferMemory::checkResize(sbkv,
+                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float>::suffix)),
+                head, capacity
+            );
+        } catch (std::runtime_error& e) { throw; }
+
+        // Key
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        i += sizeof(float);
+        sbkv[head++] = ':';
+
+        // Value
+        setSBKVCopyValue<float>(data, sbkv, i, head, val);
+        i--;
+    }
+
+    inline void setSBKVArrayFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
+        const uint8_t keyLen = data[++i];
+    std::stringstream m;
+    m << "Key length: " << std::to_string(keyLen);
+    Logger::log(LOG_INFO, m.str());
+        try {
+            BufferMemory::checkResize(sbkv, head + keyLen + 4, head, capacity);
+        } catch (std::runtime_error& e) { throw; }
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        sbkv[head++] = ':';
+        sbkv[head++] = '[';
+        
+        // Array size
+        uint16_t size;
+        std::memcpy(&size, data + i, BKV::BKV_ARRAY_SIZE);
+        i += BKV::BKV_ARRAY_SIZE;
+        size = Endianness::ntoh(size);
+
+        // Values
+        float v;
+        std::string val;
+        for (uint16_t index = 0; index < size; index++) {
+            std::memcpy(&v, data + i, sizeof(float));
+            i += sizeof(float);
+            v = Endianness::ntohf(v);
+            val = std::to_string(v);
+
+            try {
+                BufferMemory::checkResize(sbkv,
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix) + 1),
+                    head, capacity
+                );
+            } catch (std::runtime_error& e) { throw; }
+            setSBKVCopyValue<float>(data, sbkv, i, head, val);
+        }
+        sbkv[head - 1] = ']'; // Replace last comma with close bracket
         sbkv[head++] = ',';
     }
 
@@ -300,9 +297,9 @@ namespace game {
         } catch (std::runtime_error& e) { throw; }
 
         // Key
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen + BKV::BKV_STR_SIZE;
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
+        i += BKV::BKV_STR_SIZE;
         sbkv[head++] = ':';
 
         // Value
@@ -310,17 +307,17 @@ namespace game {
             setStr(data, sbkv, i, head, capacity, len);
         } catch (std::runtime_error& e) { throw; }
 
+        sbkv[head++] = ',';
         i--;
     }
 
     inline void setSBKVArrayString(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
         try {
-            BufferMemory::checkResize(sbkv, head + keyLen + 2, head, capacity);
+            BufferMemory::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
-        std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-        head += keyLen;
-        i += BKV::BKV_KEY_SIZE + keyLen;
+        i += BKV::BKV_KEY_SIZE;
+        setStr(data, sbkv, i, head, capacity, keyLen);
         sbkv[head++] = ':';
         sbkv[head++] = '[';
 
@@ -342,6 +339,7 @@ namespace game {
             try {
                 setStr(data, sbkv, i, head, capacity, len);
             } catch (std::runtime_error& e) { throw; }
+            sbkv[head++] = ',';
         }
         sbkv[head - 1] = ']'; // Replace last comma with close bracket
         sbkv[head++] = ',';
@@ -390,14 +388,15 @@ namespace game {
             } catch (std::runtime_error& e) { throw; }
 
             // Key
-            std::memcpy(sbkv + head, data + i + BKV::BKV_KEY_SIZE, keyLen);
-            head += keyLen;
+            i += BKV::BKV_KEY_SIZE;
+            setStr(data, sbkv, i, head, capacity, keyLen);
 
             sbkv[head++] = ':';
             sbkv[head++] = '{';
+            i--;
         }
 
-        i += keyLen + BKV::BKV_COMPOUND_SIZE;
+        i += BKV::BKV_COMPOUND_SIZE;
     }
 
     inline void closeSBKVCompound(char*& sbkv, int64_t& i, int64_t& head, int64_t& depth, int64_t& capacity) {

@@ -50,8 +50,8 @@ namespace game {
         } else if (std::isalnum(c)) {
             // String that only allows ASCII
             parseStr(parser, c);
-        } else if (std::isspace(c)) {
-            // Whitespace, ignore
+        } else if (std::isspace(c) || c == ':') {
+            // Whitespace or colon, ignore
             return;
         } else {
             std::stringstream msg;
