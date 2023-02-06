@@ -20,7 +20,7 @@ namespace game {
             void reset() {
                 strLen_ = 0;
                 strChar_ = 0;
-                breakChar_ = false;
+                escapeChar_ = false;
             }
             static char getBreakChar(const char c);
             virtual void parse(BKV_Parser& parser, const char c);
@@ -36,6 +36,6 @@ namespace game {
             int64_t strCapacity_ = 0;
             int64_t strLen_ = 0;
             char strChar_ = 0;
-            bool breakChar_ = false;
+            bool escapeChar_ = false;
     };
 }

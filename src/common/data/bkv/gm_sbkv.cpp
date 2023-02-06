@@ -57,21 +57,21 @@ namespace game {
     void setStr(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity, const uint16_t len) {
         sbkv[head++] = '"';
 
-        char c, breakChar = -1;
-        int16_t breakChars = 0;
+        char c, escapeChar = -1;
+        int16_t escapeChars = 0;
         for (int64_t j = 0; j < len; j++) {
             c = data[i++];
-            breakChar = getBreakChar(c);
-            if (breakChar > 0) {
-                breakChars++;
+            escapeChar = getBreakChar(c);
+            if (escapeChar > 0) {
+                escapeChars++;
                 
                 try {
-                    BufferMemory::checkResize(sbkv, head + (len - j) + 2 + breakChars, head, capacity);
+                    BufferMemory::checkResize(sbkv, head + (len - j) + 2 + escapeChars, head, capacity);
                 } catch (std::runtime_error& e) { throw; }
 
                 sbkv[head++] = '\\';
-                sbkv[head++] = breakChar;
-                breakChar = -1;
+                sbkv[head++] = escapeChar;
+                escapeChar = -1;
             } else {
                 sbkv[head++] = c;
             }

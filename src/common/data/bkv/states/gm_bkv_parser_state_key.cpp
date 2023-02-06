@@ -46,8 +46,8 @@ namespace game {
         }
 
         // Toggle break character after it breaks once
-        if (breakChar_) {
-            breakChar_ = false;
+        if (escapeChar_) {
+            escapeChar_ = false;
 
             char b = BKV_Parser_State_String::getBreakChar(c);
             if (b < 0) {
@@ -60,7 +60,7 @@ namespace game {
             key_[keyLen_] = b;
             keyLen_++;
         } else if (c == '\\') {
-            breakChar_ = true;
+            escapeChar_ = true;
         } else {
             key_[keyLen_] = c;
             keyLen_++;
@@ -84,7 +84,7 @@ namespace game {
         } else if (strChar_) { // Any UTF-8 string allowed
             // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
             // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
-            if (c == strChar_ && !breakChar_) {
+            if (c == strChar_ && !escapeChar_) {
                 try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }
             } else {
                 try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }

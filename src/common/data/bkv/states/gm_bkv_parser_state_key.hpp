@@ -15,7 +15,7 @@ namespace game {
             void reset() {
                 keyLen_ = 0;
                 strChar_ = 0;
-                breakChar_ = false;
+                escapeChar_ = false;
             }
             virtual void parse(BKV_Parser& parser, const char c);
             
@@ -28,6 +28,6 @@ namespace game {
             uint8_t key_[UINT8_MAX];
             int16_t keyLen_ = 0;
             char strChar_ = 0;
-            bool breakChar_ = false;
+            bool escapeChar_ = false;
     };
 }
