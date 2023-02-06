@@ -17,6 +17,7 @@ namespace game {
             template <typename T1, typename T2>
             static inline void checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
                 if (size < prevSize) {
+                    // TODO Find a work-around so this can be used in formatString without looping
                     std::stringstream msg;
                     msg << "New buffer size overflows to a number less than the previous: " << size << " < " << prevSize << ".";
                     throw std::runtime_error(msg.str());
