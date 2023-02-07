@@ -6,6 +6,35 @@
 #include <cstring>
 
 namespace game {
+
+    UTF8_Str toStr(const int32_t n, const uint8_t base) {
+        char* str = static_cast<char*>(std::malloc(sizeof(int32_t) * 8));
+        bool neg = false;
+        
+        if (n == 0) {
+            str[i++] = '0';
+            str[i] = '\0';
+        } else {
+            if (n < 0) {
+                neg = true;
+                n = -n;
+            }
+            
+            do {
+                const int32_t rem = n % base;
+                str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0');
+            } while (n != 0);
+            
+            if (neg) str[i++] = '-';
+            str[i] = '\0';
+            
+            std::reverse(str, i);
+        }
+        
+        str = static_cast<char*>(std::realloc(str, i));
+        return UTF8_Str{i, str};
+    }
+    
     inline static void formatStringFormat(const char c, va_list& args,
         char*& dst, size_t& capacity, size_t& len, bool& longChar)
     {
@@ -18,7 +47,7 @@ namespace game {
             case 'i': { // Signed int
                 if (longChar) {
                     long val = va_arg(args, long);
-                    UTF8_Str valStr = toStr(val); // TODO Non-UTF8?
+                    UTF8_Str valStr = toStr(val);
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -26,7 +55,7 @@ namespace game {
                     len += valStr.len;
                 } else {
                     int val = va_arg(args, int);
-                    UTF8_Str valStr = toStr(val); // TODO Non-UTF8?
+                    UTF8_Str valStr = toStr(val);
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
