@@ -18,9 +18,11 @@ namespace game {
             case 'i': { // Signed int
                 if (longChar) {
                     long val = va_arg(args, long);
+                    char* valStr = std::ltoa(val);
                     // TODO
                 } else {
                     int val = va_arg(args, int);
+                    char* valStr = std::itoa(val);
                     // TODO
                 }
             } break;
@@ -83,7 +85,7 @@ namespace game {
         }
     }
 
-    void String::formatString(const char* str, ...) {
+    std::shared_pointer<char> String::formatString(const char* str, ...) {
                 va_list args;
                 va_start(args, str);
 
@@ -117,5 +119,6 @@ namespace game {
                 // TODO
 
                 va_end(args);
+                return std::shared_ptr<char>(dst, std::free);
     }
 }
