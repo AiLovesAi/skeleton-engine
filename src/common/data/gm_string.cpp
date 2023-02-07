@@ -18,12 +18,20 @@ namespace game {
             case 'i': { // Signed int
                 if (longChar) {
                     long val = va_arg(args, long);
-                    char* valStr = std::ltoa(val);
-                    // TODO
+                    UTF8_Str valStr = toStr(val); // TODO Non-UTF8?
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
                 } else {
                     int val = va_arg(args, int);
-                    char* valStr = std::itoa(val);
-                    // TODO
+                    UTF8_Str valStr = toStr(val); // TODO Non-UTF8?
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
                 }
             } break;
             case 'u': { // Unsigned int
