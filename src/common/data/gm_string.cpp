@@ -7,12 +7,13 @@
 
 namespace game {
 
-    UTF8_Str toStr(const int32_t n, const uint8_t base) {
-        char* str = static_cast<char*>(std::malloc(sizeof(int32_t) * 8));
+    UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits) {
+        char* str = static_cast<char*>(std::malloc(sizeof(int32_t) * 3));
         bool neg = false;
         
         if (n == 0) {
             str[i++] = '0';
+            while (i < minDigits) str[i++] = '0';
             str[i] = '\0';
         } else {
             if (n < 0) {
@@ -25,6 +26,8 @@ namespace game {
                 str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0');
             } while (n != 0);
             
+            while (i < minDigits) str[i++] = '0';
+            
             if (neg) str[i++] = '-';
             str[i] = '\0';
             
@@ -32,7 +35,7 @@ namespace game {
         }
         
         str = static_cast<char*>(std::realloc(str, i));
-        return UTF8_Str{i, str};
+        return UTF8_Str{i, std::shared_ptr<char>(str)};
     }
     
     inline static void formatStringFormat(const char c, va_list& args,
@@ -46,16 +49,16 @@ namespace game {
             case 'd':
             case 'i': { // Signed int
                 if (longChar) {
-                    long val = va_arg(args, long);
-                    UTF8_Str valStr = toStr(val);
+                    int64_t val = va_arg(args, int64_t);
+                    UTF8_Str valStr = toStr(val, 10);
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str, valStr.len);
                     len += valStr.len;
                 } else {
-                    int val = va_arg(args, int);
-                    UTF8_Str valStr = toStr(val);
+                    int32_t val = va_arg(args, int32_t);
+                    UTF8_Str valStr = toStr(val, 10);
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -64,13 +67,61 @@ namespace game {
                 }
             } break;
             case 'u': { // Unsigned int
-
+                if (longChar) {
+                    uint64_t val = va_arg(args, uint64_t);
+                    UTF8_Str valStr = toStr(val, 10);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                } else {
+                    uint32_t val = va_arg(args, uint32_t);
+                    UTF8_Str valStr = toStr(val, 10);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                }
             } break;
             case 'o': { // Unsigned octal
-
+                if (longChar) {
+                    uint64_t val = va_arg(args, uint64_t);
+                    UTF8_Str valStr = toStr(val, 8);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                } else {
+                    uint32_t val = va_arg(args, uint32_t);
+                    UTF8_Str valStr = toStr(val, 8);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                }
             } break;
             case 'x': { // Hex
-
+                if (longChar) {
+                    uint64_t val = va_arg(args, uint64_t);
+                    UTF8_Str valStr = toStr(val, 16);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                } else {
+                    uint32_t val = va_arg(args, uint32_t);
+                    UTF8_Str valStr = toStr(val, 16);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                }
             } break;
             case 'X': { // Hex uppercase
 
