@@ -10,6 +10,7 @@ namespace game {
     UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits) {
         char* str = static_cast<char*>(std::malloc(sizeof(int32_t) * 3));
         bool neg = false;
+        size_t i = 0;
         
         if (n == 0) {
             str[i++] = '0';
@@ -38,10 +39,32 @@ namespace game {
         return UTF8_Str{i, std::shared_ptr<char>(str)};
     }
     
+    UTF8_Str toStr(const float n, const uint8_t base, const uint8_t minDigits, const uint8_t precision) {
+        int32_t integer = std::floor(n);
+        float decimal = n - static_cast<float>(integer);
+        
+        const char* intStr = toStr(integer, base, minDigits).str.get();
+        size_t i = intStr.len;
+        char* str; // TODO Allocate
+        
+        str[i++] = '.';
+        
+        if (precision > 0) {
+            // Make precision digits of decimal an integer
+            decimal *= std::pow(base, precision);
+            const char* decimalStr = toStr(static_cast<int32_t>(std::floor(decimal)), base, 0).str.get();
+            // TODO Reallocate and append
+            // TODO Account for unnecessary training 0's
+        }
+        
+        str = static_cast<char*>(std::realloc(str, i));
+        return UTF8_Str{i, std::shared_ptr<char>(str)};
+    }
+    
     inline static void formatStringFormat(const char c, va_list& args,
         char*& dst, size_t& capacity, size_t& len, bool& longChar)
     {
-        switch (c) {
+        switch (c) { // TODO %02lu
             case 'l':
             case 'L': {
                 longChar = true;
@@ -107,7 +130,7 @@ namespace game {
             case 'x': { // Hex
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8_Str valStr = toStr(val, 16);
+                    UTF8_Str valStr = toStr(val, 16); // TODO Caps
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
