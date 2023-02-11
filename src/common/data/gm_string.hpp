@@ -34,11 +34,26 @@ namespace game {
             static inline UTF8_Str toStr(const float n, const uint8_t base) { toStr(n, base, 0); }
             static inline UTF8_Str toStr(const double n, const uint8_t base) { toStr(n, base, 0); }
             
-            static UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits);
-            static UTF8_Str toStr(const uint32_t n, const uint8_t base, const uint8_t minDigits);
-            static UTF8_Str toStr(const int64_t n, const uint8_t base, const uint8_t minDigits);
-            static UTF8_Str toStr(const uint64_t n, const uint8_t base, const uint8_t minDigits);
-            static UTF8_Str toStr(const float n, const uint8_t base, const uint8_t minDigits);
-            static UTF8_Str toStr(const double n, const uint8_t base, const uint8_t minDigits);
+            static inline UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits) { toStr(n, base, minDigits, false); }
+            static inline UTF8_Str toStr(const uint32_t n, const uint8_t base, const uint8_t minDigits) { toStr(n, base, minDigits, false); }
+            static inline UTF8_Str toStr(const int64_t n, const uint8_t base, const uint8_t minDigits) { toStr(n, base, minDigits, false); }
+            static inline UTF8_Str toStr(const uint64_t n, const uint8_t base, const uint8_t minDigits) { toStr(n, base, minDigits, false); }
+            static inline UTF8_Str toStr(const float n, const uint8_t base, uint8_t precision) { toStr(n, base, precision, 0); }
+            static inline UTF8_Str toStr(const double n, const uint8_t base, uint8_t precision) { toStr(n, base, precision, 0); }
+            static inline UTF8_Str toStr(const float n, const uint8_t base, uint8_t precision, const uint8_t minDigits) {
+                toStr(n, base, precision, minDigits, false);
+            }
+            static UTF8_Str toStr(const double n, uint8_t base, const uint8_t precision, const uint8_t minDigits) {
+                toStr(n, base, precision, minDigits, false);
+            }
+            
+            static UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase);
+            static UTF8_Str toStr(const uint32_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase);
+            static UTF8_Str toStr(const int64_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase);
+            static UTF8_Str toStr(const uint64_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase);
+            static inline UTF8_Str toStr(const float n, const uint8_t base, uint8_t precision, const uint8_t minDigits, const bool uppercase) {
+                toStr(static_cast<double>(n), base, precision, minDigits, uppercase);
+            } 
+            static UTF8_Str toStr(const double n, const uint8_t base, uint8_t precision, const uint8_t minDigits, const bool uppercase);
     };
 }

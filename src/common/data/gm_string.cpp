@@ -7,7 +7,7 @@
 
 namespace game {
 
-    UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits) {
+    UTF8_Str toStr(const int32_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase) {
         char* str = static_cast<char*>(std::malloc(sizeof(int32_t) * 3));
         bool neg = false;
         size_t i = 0;
@@ -22,9 +22,14 @@ namespace game {
                 n = -n;
             }
             
+            // Write each digit
             do {
                 const int32_t rem = n % base;
-                str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0');
+                if (base <= 10) {
+                    str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0'); // TODO Test with bases other than 10
+                } else {
+                    // TODO Hex
+                } 
             } while (n != 0);
             
             while (i < minDigits) str[i++] = '0';
@@ -39,9 +44,9 @@ namespace game {
         return UTF8_Str{i, std::shared_ptr<char>(str)};
     }
     
-    UTF8_Str toStr(const float n, const uint8_t base, const uint8_t minDigits, const uint8_t precision) {
+    UTF8_Str toStr(const double n, const uint8_t base, uint8_t precision, const uint8_t minDigits, const bool uppercase) {
         int32_t integer = std::floor(n);
-        float decimal = n - static_cast<float>(integer);
+        double decimal = n - static_cast<double>(integer);
         
         // Get integer part
         const UTF8_Str intStr = toStr(integer, base, minDigits);
@@ -50,6 +55,8 @@ namespace game {
         std::memcpy(str, intStr.str.get(), intStr.len);
         
         str[i++] = '.';
+        
+        if (precision > 15) precision = 15;
         
         // Get decimal part
         if (precision > 0) {
@@ -139,7 +146,7 @@ namespace game {
             case 'x': { // Hex
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8_Str valStr = toStr(val, 16); // TODO Caps
+                    UTF8_Str valStr = toStr(val, 16, 0, false);
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -147,7 +154,7 @@ namespace game {
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8_Str valStr = toStr(val, 16);
+                    UTF8_Str valStr = toStr(val, 16, 0, false);
                     try {
                         BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -156,11 +163,33 @@ namespace game {
                 }
             } break;
             case 'X': { // Hex uppercase
-
+                if (longChar) {
+                    uint64_t val = va_arg(args, uint64_t);
+                    UTF8_Str valStr = toStr(val, 16, 0, true);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                } else {
+                    uint32_t val = va_arg(args, uint32_t);
+                    UTF8_Str valStr = toStr(val, 16, 0, true);
+                    try {
+                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str, valStr.len);
+                    len += valStr.len;
+                }
             } break;
             case 'f':
             case 'F': { // Float
-
+                double val = va_arg(args, double);
+                UTF8_Str valStr = toStr(val, 16, 0, 0, false);
+                try {
+                    BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                } catch (std::runtime_error& e) { throw; }
+                std::memcpy(dst + len, valStr.str, valStr.len);
+                len += valStr.len; 
             } break;
             case 'e': { // Scientific notation
 
