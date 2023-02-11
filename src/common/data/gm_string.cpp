@@ -43,20 +43,29 @@ namespace game {
         int32_t integer = std::floor(n);
         float decimal = n - static_cast<float>(integer);
         
-        const char* intStr = toStr(integer, base, minDigits).str.get();
+        // Get integer part
+        const UTF8_Str intStr = toStr(integer, base, minDigits);
         size_t i = intStr.len;
-        char* str; // TODO Allocate
+        char* str = static_cast<char*>(std::malloc(intStr.len + precision + 2));
+        std::memcpy(str, intStr.str.get(), intStr.len);
         
         str[i++] = '.';
         
+        // Get decimal part
         if (precision > 0) {
             // Make precision digits of decimal an integer
             decimal *= std::pow(base, precision);
-            const char* decimalStr = toStr(static_cast<int32_t>(std::floor(decimal)), base, 0).str.get();
-            // TODO Reallocate and append
-            // TODO Account for unnecessary training 0's
+            const UTF8_Str decimalStr = toStr(static_cast<int32_t>(std::floor(decimal)), base, 0);
+            std::memcpy(str, decimalStr.str.get(), decimalStr.len);
+            i += decimalStr.len;
+            
+            // Truncate trailing 0's
+            while (str[i - 1] == '0') {
+                str[i--] = '\0';
+            }
         }
         
+        str[i] = '\0';
         str = static_cast<char*>(std::realloc(str, i));
         return UTF8_Str{i, std::shared_ptr<char>(str)};
     }
