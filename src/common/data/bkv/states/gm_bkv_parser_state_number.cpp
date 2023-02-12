@@ -2,7 +2,7 @@
 
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
-#include "../../gm_buffer_memory.hpp"
+#include "../../string/gm_string.hpp"
 #include "../../gm_endianness.hpp"
 
 #include <cfloat>
@@ -17,7 +17,7 @@ namespace game {
         m << "Number state parsed net value: " << static_cast<int64_t>(val) << " to be placed at " << parser.buffer_.head_ << " with size " << sizeof(T);
         Logger::log(LOG_INFO, m.str());
         try {
-            BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + (int64_t) sizeof(T), parser.buffer_.head_, parser.buffer_.capacity_);
+            String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + (int64_t) sizeof(T), parser.buffer_.head_, parser.buffer_.capacity_);
         } catch (std::runtime_error &e) { throw; }
         std::memcpy(parser.buffer_.bkv_ + parser.buffer_.head_, &val, sizeof(T));
         parser.buffer_.head_ += sizeof(T);

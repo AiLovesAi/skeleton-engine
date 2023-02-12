@@ -1,7 +1,7 @@
 #pragma once
 
 #include "states/gm_bkv_parser_state.hpp"
-#include "../gm_utf8.hpp"
+#include "../string/gm_utf8.hpp"
 
 #include <cstdint>
 #include <memory>

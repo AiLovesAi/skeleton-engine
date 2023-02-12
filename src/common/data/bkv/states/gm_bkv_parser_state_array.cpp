@@ -2,7 +2,7 @@
 
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
-#include "../../gm_buffer_memory.hpp"
+#include "../../string/gm_string.hpp"
 #include "../../gm_endianness.hpp"
 
 #include <sstream>
@@ -18,7 +18,7 @@ namespace game {
             arrayStart_ = parser.buffer_.head_;
             arrayTagHead_ = parser.buffer_.tagHead_;
             try {
-                BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + BKV::BKV_ARRAY_SIZE, parser.buffer_.head_, parser.buffer_.capacity_);
+                String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + BKV::BKV_ARRAY_SIZE, parser.buffer_.head_, parser.buffer_.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;

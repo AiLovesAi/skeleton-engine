@@ -1,5 +1,5 @@
 #include <common/gm_core.hpp>
-#include <common/data/gm_logger.hpp>
+#include <common/data/file/gm_logger.hpp>
 #include <client/gm_client.hpp>
 
 #include <cstdlib>
@@ -9,7 +9,7 @@ using namespace game;
 
 #include <sstream>
 #include <memory>
-#include <common/data/gm_file.hpp>
+#include <common/data/file/gm_file.hpp>
 #include <common/data/bkv/gm_bkv.hpp>
 #include <common/data/bkv/gm_sbkv.hpp>
 void test() {
@@ -20,7 +20,7 @@ void test() {
     msg << "SBKV: " << buffer;
     Logger::log(LOG_INFO, msg.str());
     
-    UTF8Str stringified{sizeof(data), std::shared_ptr<char>(buffer, std::free)};
+    UTF8Str stringified{sizeof(data), std::shared_ptr<const char>(buffer, std::free)};
     BKV_t bkv;
     try {
         bkv = BKV::bkvFromSBKV(stringified);

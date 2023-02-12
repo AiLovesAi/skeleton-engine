@@ -1,9 +1,9 @@
 #include "gm_logger.hpp"
 
 #include "gm_file.hpp"
-#include "../gm_core.hpp"
-#include "../system/gm_system.hpp"
-#include "../system/gm_threads.hpp"
+#include "../../gm_core.hpp"
+#include "../../system/gm_system.hpp"
+#include "../../system/gm_threads.hpp"
 
 #include <atomic>
 #include <csignal>
@@ -20,11 +20,11 @@
 namespace game {
     static std::mutex mtx_;
     static std::atomic<bool> crashed_ = false;
-    std::string Logger::logPath_ = "latest.log";
-    std::string Logger::crashPath_ = "crash.log";
+    UTF8Str Logger::logPath_ = UTF8Str{sizeof("latest.log") - 1, std::shared_ptr<const char>("latest.log", [](const char*){})};
+    UTF8Str Logger::crashPath_ = UTF8Str{sizeof("crash.log") - 1, std::shared_ptr<const char>("crash.log", [](const char*){})};
     void signalHandler(int signum);
 
-    void Logger::init(const std::string& logPath, const std::string& crashPath) {
+    void Logger::init(const UTF8Str& logPath, const UTF8Str& crashPath) {
         setPaths(logPath, crashPath);
         
         // Set signal handlers
@@ -36,16 +36,26 @@ namespace game {
         std::signal(SIGTERM, signalHandler);
     }
 
-    void Logger::setPaths(const std::string& logPath, const std::string& crashPath) {
+    void Logger::setPaths(const UTF8Str& logPath, const UTF8Str& crashPath) {
         mtx_.lock();
 
-        Logger::logPath_ = File::executableDir() + logPath;
-        Logger::crashPath_ = File::executableDir() + crashPath;
+        int64_t logPathLen = File::executableDir().len + logPath.len;
+        char* logPathStr = static_cast<char*>(std::malloc(logPathLen + 1));
+        std::memcpy(logPathStr, File::executableDir().str.get(), File::executableDir().len);
+        std::memcpy(logPathStr + File::executableDir().len, logPath.str.get(), logPath.len);
+
+        int64_t crashPathLen = File::executableDir().len + crashPath.len;
+        char* crashPathStr = static_cast<char*>(std::malloc(crashPathLen + 1));
+        std::memcpy(crashPathStr, File::executableDir().str.get(), File::executableDir().len);
+        std::memcpy(crashPathStr + File::executableDir().len, crashPath.str.get(), crashPath.len);
+        
+        Logger::logPath_ = UTF8Str{logPathLen, std::shared_ptr<const char>(logPathStr, std::free)};
+        Logger::crashPath_ = UTF8Str{crashPathLen, std::shared_ptr<const char>(crashPathStr, std::free)};
         File::ensureParentDir(Logger::logPath_);
         File::ensureParentDir(Logger::crashPath_);
 
         std::ofstream file;
-        file.open(Logger::logPath_, std::ios::out | std::ios::binary | std::ios::trunc);
+        file.open(Logger::logPath_.str.get(), std::ios::out | std::ios::binary | std::ios::trunc);
         file.close();
 
         mtx_.unlock();
@@ -78,11 +88,11 @@ namespace game {
         }
     }
 
-    void Logger::log(const int logType, const std::string& message) {
-        auto task = std::async(std::launch::async, logSync, logType, message, std::this_thread::get_id());
+    void Logger::log(const int logType, const UTF8Str& message) {
+        auto task = std::async(std::launch::async, logSync_, logType, message, std::this_thread::get_id());
     }
 
-    void Logger::logSync(const int logType, const std::string& message, const std::thread::id& threadId) {
+    void Logger::logSync_(const int logType, const UTF8Str& message, const std::thread::id& threadId) {
         struct timeval tv;
         gettimeofday(&tv, nullptr);
         time_t time = static_cast<time_t>(tv.tv_sec);
@@ -99,10 +109,10 @@ namespace game {
         msg << timeBuffer
             << " ["
             << Threads::threadName(threadId) << "/" << LOG_TYPE_STRINGS[logType] << "]: "
-            << message << "\n";
+            << message.str.get() << "\n";
 
         std::ofstream file;
-        file.open(logPath_, std::ios::out | std::ios::binary | std::ios::app);
+        file.open(logPath_.str.get(), std::ios::out | std::ios::binary | std::ios::app);
         file << msg.str();
         file.close();
         if (logType == LOG_INFO || logType == LOG_MSG) std::cout << msg.str();
@@ -111,7 +121,7 @@ namespace game {
         mtx_.unlock();
     }
 
-    [[noreturn]] void Logger::crash(const std::string& message) {
+    [[noreturn]] void Logger::crash(const UTF8Str& message) {
         std::time_t t = std::time(0);
         std::tm* now = std::localtime(&t);
         
@@ -120,19 +130,19 @@ namespace game {
             msg << "---- Crash Report ----\n";
             msg << "Time: " << (now->tm_mon + 1) << "/" << now->tm_mday << "/" << (now->tm_year - 100) << " "
                 << (now->tm_hour % 12) << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << " " << ((now->tm_hour < 12) ? "AM\n" : "PM\n");
-            msg << "Description: " << message << "\n\n";
+            msg << "Description: " << message.str.get() << "\n\n";
             msg << "--- System Details ---\n";
-            msg << "Operating System: " << System::OS() << "\n";
+            msg << "Operating System: " << System::OS().str.get() << "\n";
             msg << "Physical Memory: " << System::physicalMemory() << "B\n";
-            msg << "CPU: " << System::CPU() << "\n";
+            msg << "CPU: " << System::CPU().str.get() << "\n";
             msg << "CPU Threads: " << System::cpuThreadCount() << "\n";
-            msg << "Graphics Device: " << System::GPU() << "\n";
+            msg << "Graphics Device: " << System::GPU().str.get() << "\n";
             msg << "Crashing Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
             std::cerr << msg.str();
 
             mtx_.lock();
             std::ofstream file;
-            file.open(crashPath_, std::ios::out | std::ios::binary | std::ios::trunc);
+            file.open(crashPath_.str.get(), std::ios::out | std::ios::binary | std::ios::trunc);
             file << msg.str();
             file.close();
             mtx_.unlock();
@@ -140,6 +150,6 @@ namespace game {
         
         crashed_ = true;
         Core::running = false;
-        throw std::runtime_error(message);
+        throw std::runtime_error(message.str.get());
     }
 }

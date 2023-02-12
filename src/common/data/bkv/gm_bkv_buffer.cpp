@@ -1,7 +1,7 @@
 #include "gm_bkv_parser.hpp"
 
 #include "gm_bkv.hpp"
-#include "../gm_buffer_memory.hpp"
+#include "../string/gm_string.hpp"
 #include "../gm_endianness.hpp"
 #include "states/gm_bkv_parser_state_complete.hpp"
 
@@ -18,7 +18,7 @@ namespace game {
         
         // Increase compound depth and return to name state for next input
         try {
-            BufferMemory::checkResize(buffer_.bkv_, buffer_.head_ + BKV::BKV_COMPOUND_SIZE + 1, buffer_.head_, buffer_.capacity_);
+            String::checkResize(buffer_.bkv_, buffer_.head_ + BKV::BKV_COMPOUND_SIZE + 1, buffer_.head_, buffer_.capacity_);
         } catch (std::runtime_error &e) { throw; }
         buffer_.bkv_[buffer_.tagHead_] = BKV::BKV_COMPOUND;
         if (buffer_.tagHead_ == buffer_.head_) { // This will be true for the opening compound
@@ -43,7 +43,7 @@ namespace game {
 
     void BKV_Parser::closeCompound() {
         try {
-            BufferMemory::checkResize(buffer_.bkv_, buffer_.head_ + 1, buffer_.head_, buffer_.capacity_);
+            String::checkResize(buffer_.bkv_, buffer_.head_ + 1, buffer_.head_, buffer_.capacity_);
         } catch (std::runtime_error &e) { throw; }
         buffer_.bkv_[buffer_.head_] = BKV::BKV_END;
         buffer_.head_++;

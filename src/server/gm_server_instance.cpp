@@ -1,7 +1,7 @@
 #include "gm_server_instance.hpp"
 
 #include <common/gm_core.hpp>
-#include <common/data/gm_logger.hpp>
+#include <common/data/file/gm_logger.hpp>
 #include <common/system/gm_threads.hpp>
 
 namespace game {

@@ -1,18 +1,21 @@
 #pragma once
 
+#include "data/string/gm_utf8.hpp"
+
 #include <atomic>
+#include <memory>
 
 namespace game {
     class Core{
         public:
             // Functions
-            static void init(const std::string& logFile, const std::string& crashFile);
+            static void init(const char* logFile, const char* crashFile);
 
             // Variables
-            static constexpr char EMPTYSTR[] = "NULL";
+            static const UTF8Str EMPTYSTR;
             
-            static std::string TITLE;
-            static std::string VERSION;
+            static UTF8Str TITLE;
+            static UTF8Str VERSION;
 
             static constexpr int MS_PER_TICK = 1000 / 20; // 20 TPS
             

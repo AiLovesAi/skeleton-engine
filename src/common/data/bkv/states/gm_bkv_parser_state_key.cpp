@@ -4,7 +4,7 @@
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
 #include "../../gm_endianness.hpp"
-#include "../../gm_buffer_memory.hpp"
+#include "../../string/gm_string.hpp"
 
 #include <sstream>
 #include <stdexcept>
@@ -15,7 +15,7 @@ namespace game {
         uint8_t len = static_cast<uint8_t>(keyLen_);
 
         try {
-            BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 2 + keyLen_, parser.buffer_.head_, parser.buffer_.capacity_);
+            String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 2 + keyLen_, parser.buffer_.head_, parser.buffer_.capacity_);
         } catch (std::runtime_error &e) { throw; }
         std::memcpy(parser.buffer_.bkv_ + parser.buffer_.head_ + 1, &len, BKV::BKV_KEY_SIZE);
         parser.buffer_.head_ += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)

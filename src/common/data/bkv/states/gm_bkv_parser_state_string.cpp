@@ -3,7 +3,7 @@
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
 #include "../../gm_endianness.hpp"
-#include "../../gm_buffer_memory.hpp"
+#include "../../string/gm_string.hpp"
 
 #include <sstream>
 #include <stdexcept>
@@ -43,7 +43,7 @@ namespace game {
         }
 
         try {
-            BufferMemory::checkResize(str_, strLen_ + 1, strLen_, strCapacity_);
+            String::checkResize(str_, strLen_ + 1, strLen_, strCapacity_);
         } catch (std::runtime_error &e) {
             reset();
             throw;
@@ -82,7 +82,7 @@ namespace game {
             parser.tag_ &= ~BKV::BKV_STR;
             parser.tag_ |= BKV::BKV_BOOL;
             try {
-                BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 1, parser.buffer_.head_, parser.buffer_.capacity_);
+                String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 1, parser.buffer_.head_, parser.buffer_.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
@@ -102,7 +102,7 @@ namespace game {
             parser.tag_ &= ~BKV::BKV_STR;
             parser.tag_ |= BKV::BKV_BOOL;
             try {
-                BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 1, parser.buffer_.head_, parser.buffer_.capacity_);
+                String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 1, parser.buffer_.head_, parser.buffer_.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
@@ -126,7 +126,7 @@ namespace game {
             parser.tag_ |= BKV::BKV_STR;
             const uint16_t len = Endianness::hton(static_cast<uint16_t>(strLen_));
             try {
-                BufferMemory::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + BKV::BKV_STR_SIZE + strLen_, parser.buffer_.head_, parser.buffer_.capacity_);
+                String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + BKV::BKV_STR_SIZE + strLen_, parser.buffer_.head_, parser.buffer_.capacity_);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;

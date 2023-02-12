@@ -1,8 +1,8 @@
 #include "gm_system.hpp"
 
 #include "../gm_core.hpp"
-#include "../data/gm_logger.hpp"
-#include "../data/gm_file.hpp"
+#include "../data/file/gm_logger.hpp"
+#include "../data/string/gm_string.hpp"
 
 #include <lzma.h>
 
@@ -24,9 +24,9 @@
 namespace game {
     uint32_t System::CPU_THREAD_COUNT_;
     size_t System::PHYSICAL_MEMORY_;
-    std::string System::OS_ = Core::EMPTYSTR;
-    std::string System::CPU_ = Core::EMPTYSTR;
-    std::string System::GPU_ = Core::EMPTYSTR;
+    UTF8Str System::OS_ = Core::EMPTYSTR;
+    UTF8Str System::CPU_ = Core::EMPTYSTR;
+    UTF8Str System::GPU_ = Core::EMPTYSTR;
 
     void System::init() {
         findOS();
@@ -40,9 +40,12 @@ namespace game {
     }
 
     void System::findOS() {
-        std::string OS;
+        char* OS = static_cast<char*>(std::malloc(BUFSIZ));
+        int64_t len = 0;
 #if defined(_WIN32)
-        OS = "Windows";
+        std::memcpy(OS, "Windows", sizeof("Windows") - 1);
+        len += sizeof("Windows") - 1;
+
         OSVERSIONINFOA versionInfo{};
         versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
         GetVersionExA(&versionInfo);
@@ -51,62 +54,89 @@ namespace game {
             case 10:
                 switch (versionInfo.dwMinorVersion) {
                     case 0:
-                        OS += " 10";
+                        std::memcpy(OS + len, " 10", sizeof(" 10") - 1);
+                        len += sizeof(" 10") - 1;
                     break;
                     default:
-                        OS += " v10 Other";
+                        std::memcpy(OS + len, " v10 Other", sizeof(" v10 Other") - 1);
+                        len += sizeof(" v10 Other") - 1;
                     break;
                 }
             break;
             case 6:
                 switch (versionInfo.dwMinorVersion) {
                     case 3:
-                        OS += " 8.1";
+                        std::memcpy(OS + len, " 8.1", sizeof(" 8.1") - 1);
+                        len += sizeof(" 8.1") - 1;
                     break;
                     case 2:
-                        OS += " 8";
+                        std::memcpy(OS + len, " 8", sizeof(" 8") - 1);
+                        len += sizeof(" 8") - 1;
                     break;
                     case 1:
-                        OS += " 7";
+                        std::memcpy(OS + len, " 7", sizeof(" 7") - 1);
+                        len += sizeof(" 7") - 1;
                     break;
                     case 0:
-                        OS += " Vista";
+                        std::memcpy(OS + len, " Vista", sizeof(" Vista") - 1);
+                        len += sizeof(" Vista") - 1;
                     break;
                     default:
-                        OS += " v6 Other";
+                        std::memcpy(OS + len, " v6 Other", sizeof(" v6 Other") - 1);
+                        len += sizeof(" v6 Other") - 1;
                     break;
                 }
             break;
             case 5:
-                OS += " XP";
+                    std::memcpy(OS + len, " XP", sizeof(" XP") - 1);
+                    len += sizeof(" XP") - 1;
             break;
             default:
-                OS += " Other";
+                    std::memcpy(OS + len, " Other", sizeof(" Other") - 1);
+                    len += sizeof(" Other") - 1;
             break;
         }
 
-        OS += versionInfo.szCSDVersion;
+        int64_t versionLen = std::strlen(versionInfo.szCSDVersion);
+        std::memcpy(OS + len, versionInfo.szCSDVersion, versionLen);
+        len += versionLen;
 #else
         struct utsname unameData;
         uname(&unameData);
-        OS += nameData.sysname;
-        OS += " ";
-        OS += nameData.release;
+        int64_t nameLen = std::strlen(nameData.sysname);
+        std::memcpy(OS + len, nameData.sysname, nameLen);
+        len += nameLen;
+        OS[len++] = ' ';
+        nameLen = std::strlen(nameData.release);
+        std::memcpy(OS + len, nameData.release, nameLen);
+        len += nameLen;
 #endif
-        System::OS_ = OS;
+        System::OS_ = UTF8Str{len, std::shared_ptr<const char>(OS, std::free)};
     }
 
     void System::findCPU() {
-        std::string mModelName;
+        char* mModelName = static_cast<char*>(std::malloc(16 * 3 + 1));
 
-        for(unsigned int i=0x80000002; i<=0x80000004; ++i) {
+        int64_t len = 0;
+        UTF8Str part;
+        for(unsigned int i = 0x80000002; i <= 0x80000004; i++) {
             CPUID cpuID(i, 0);
-            mModelName += File::asAscii(std::string((const char*)&cpuID.RAX(), 4));
-            mModelName += File::asAscii(std::string((const char*)&cpuID.RBX(), 4));
-            mModelName += File::asAscii(std::string((const char*)&cpuID.RCX(), 4));
-            mModelName += File::asAscii(std::string((const char*)&cpuID.RDX(), 4));
+            part = String::asAscii((const char*) &cpuID.RAX(), 4);
+            std::memcpy(mModelName + len, part.str.get(), part.len);
+            len += part.len;
+            part = String::asAscii((const char*) &cpuID.RBX(), 4);
+            std::memcpy(mModelName + len, part.str.get(), part.len);
+            len += part.len;
+            part = String::asAscii((const char*) &cpuID.RCX(), 4);
+            std::memcpy(mModelName + len, part.str.get(), part.len);
+            len += part.len;
+            part = String::asAscii((const char*) &cpuID.RDX(), 4);
+            std::memcpy(mModelName + len, part.str.get(), part.len);
+            len += part.len;
         }
 
-        System::CPU_ = mModelName;
+        mModelName[len] = '\0';
+        mModelName = static_cast<char*>(std::realloc(mModelName, len + 1));
+        System::CPU_ = UTF8Str{len, std::shared_ptr<const char>(mModelName, std::free)};
     }
 }

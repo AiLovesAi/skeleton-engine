@@ -9,7 +9,7 @@
 #include "states/gm_bkv_parser_state_number.hpp"
 #include "states/gm_bkv_parser_state_string.hpp"
 
-#include "../gm_logger.hpp"
+#include "../file/gm_logger.hpp"
 
 #include <cstdint>
 #include <cstring>

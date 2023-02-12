@@ -1,5 +1,7 @@
 #pragma once
 
+#include <common/data/string/gm_utf8.hpp>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -11,8 +13,8 @@ namespace game {
 class Window {
     public:
         // Constructors
-        Window(const std::string& title);
-        Window(int w, int h, const std::string& title);
+        Window(const UTF8Str& title);
+        Window(int w, int h, const UTF8Str& title);
         ~Window();
 
         Window(const Window &) = delete;
@@ -36,7 +38,7 @@ class Window {
     
     private:
         // Functions
-        void createWindow(const std::string& title, const GLFWvidmode* mode);
+        void createWindow(const UTF8Str& title, const GLFWvidmode* mode);
 
         // Callback functions
         static void errorCallback(int error, const char* description);

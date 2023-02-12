@@ -6,6 +6,6 @@
 namespace game {
     typedef struct UTF8Str_ {
         int64_t len;
-        std::shared_ptr<char> str;
+        std::shared_ptr<const char> str;
     } UTF8Str;
 }

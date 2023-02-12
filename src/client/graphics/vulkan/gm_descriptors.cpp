@@ -1,6 +1,6 @@
 #include "gm_descriptors.hpp"
 
-#include <common/data/gm_logger.hpp>
+#include <common/data/file/gm_logger.hpp>
 
 namespace game {
     /* Descriptor Set Layout Builder */

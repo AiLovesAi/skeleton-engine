@@ -1,65 +1,58 @@
+#include "gm_format_string.hpp"
+
 #include "gm_string.hpp"
 
-#include "gm_buffer_memory.hpp"
-
-#include <algorithm>
+#include <cmath>
+#include <cstdarg>
 #include <cstring>
-#include <math.h>
-#include <stdarg.h>
 
 namespace game {
-
-    void String::reverse(char*& str, const int64_t len) {
-        char temp;
-        for (int64_t i = 0; i < len / 2; i++) {
-            temp = str[i];
-            str[i] = str[len - i - 1];
-            str[len - i - 1] = temp;
-        }
-    }
-
-    UTF8Str String::toStr(int32_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase) {
-        char* str = static_cast<char*>(std::malloc(sizeof(int32_t) * 3));
+    template <typename T>
+    UTF8Str FormatString::toStr(T n, uint8_t base, const uint8_t minDigits, const NumberFormat numberFormat) {
+        char* str = static_cast<char*>(std::malloc(sizeof("-9.223372036854775807E18")));
         bool neg = false;
         int64_t i = 0;
-        
-        if (n == 0) {
-            str[i++] = '0';
-            while (i < minDigits) str[i++] = '0';
-            str[i] = '\0';
+
+        if (numberFormat & FORMAT_HEXIDECIMAL) {
+            // TODO Hex
         } else {
-            if (n < 0) {
-                neg = true;
-                n = -n;
+            if (base == 0 || base > 10) base = 10;
+
+            if (n == 0) {
+                str[i++] = '0';
+                while (i < minDigits) str[i++] = '0';
+                str[i] = '\0';
+            } else {
+                if (n < 0) {
+                    neg = true;
+                    n = -n;
+                }
+
+                // Write each digit
+                T rem;
+                do {
+                    rem = n % base;
+                    str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0'); // TODO Test with bases other than 10
+                } while (n != 0);
+                
+                while (i < minDigits) str[i++] = '0';
+                
+                if (neg) str[i++] = '-';
+                str[i] = '\0';
+
+                String::reverse(str, i);
             }
             
-            // Write each digit
-            do {
-                const int32_t rem = n % base;
-                if (base <= 10) {
-                    str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0'); // TODO Test with bases other than 10
-                } else {
-                    // TODO Hex
-                } 
-            } while (n != 0);
-            
-            while (i < minDigits) str[i++] = '0';
-            
-            if (neg) str[i++] = '-';
-            str[i] = '\0';
-            
-            reverse(str, i);
+            if (numberFormat & FORMAT_SCIENTIFIC) {
+                // TODO Add '.' and append 'EXX'
+            }
         }
         
         str = static_cast<char*>(std::realloc(str, i));
-        return UTF8Str{i, std::shared_ptr<char>(str, std::free)};
+        return UTF8Str{i, std::shared_ptr<const char>(str, std::free)};
     }
-
-    UTF8Str String::toStr(uint32_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase) { return UTF8Str{}; }
-    UTF8Str String::toStr(int64_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase) { return UTF8Str{}; }
-    UTF8Str String::toStr(uint64_t n, const uint8_t base, const uint8_t minDigits, const bool uppercase) { return UTF8Str{}; }
     
-    UTF8Str String::toStr(double n, const uint8_t base, uint8_t precision, const uint8_t minDigits, const bool uppercase) {
+    UTF8Str FormatString::toStr(double n, uint8_t base, uint8_t precision, const uint8_t minDigits, const NumberFormat numberFormat) {
         int32_t integer = std::floor(n);
         double decimal = n - static_cast<double>(integer);
         
@@ -89,10 +82,10 @@ namespace game {
         
         str[i] = '\0';
         str = static_cast<char*>(std::realloc(str, i));
-        return UTF8Str{i, std::shared_ptr<char>(str, std::free)};
+        return UTF8Str{i, std::shared_ptr<const char>(str, std::free)};
     }
 
-    UTF8Str String::toStr(const bool b, const StringCases caseType) {
+    UTF8Str FormatString::toStr(const bool b, const StringCases caseType) {
         char* str = static_cast<char*>(std::malloc(sizeof("False")));
         int64_t len;
 
@@ -129,11 +122,11 @@ namespace game {
 
         str[len] = '\0';
         str = static_cast<char*>(std::realloc(str, len + 1));
-        return UTF8Str{len, std::shared_ptr<char>(str, std::free)};
+        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
     
-    inline static void formatStringFormat(const char c, va_list& args,
-        char*& dst, size_t& capacity, size_t& len, bool& longChar)
+    void FormatString::formatStringFormat(const char c, va_list& args, char*& dst,
+        int64_t& capacity, int64_t& len, bool& longChar)
     {
         switch (c) { // TODO %02lu
             case 'l':
@@ -144,17 +137,17 @@ namespace game {
             case 'i': { // Signed int
                 if (longChar) {
                     int64_t val = va_arg(args, int64_t);
-                    UTF8Str valStr = String::toStr(val, 10);
+                    UTF8Str valStr = FormatString::toStr(val, 10);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
                 } else {
                     int32_t val = va_arg(args, int32_t);
-                    UTF8Str valStr = String::toStr(val, 10);
+                    UTF8Str valStr = FormatString::toStr(val, 10);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
@@ -163,17 +156,17 @@ namespace game {
             case 'u': { // Unsigned int
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = String::toStr(val, 10);
+                    UTF8Str valStr = FormatString::toStr(val, 10);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = String::toStr(val, 10);
+                    UTF8Str valStr = FormatString::toStr(val, 10);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
@@ -182,17 +175,17 @@ namespace game {
             case 'o': { // Unsigned octal
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = String::toStr(val, 8);
+                    UTF8Str valStr = FormatString::toStr(val, 8);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = String::toStr(val, 8);
+                    UTF8Str valStr = FormatString::toStr(val, 8);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
@@ -201,17 +194,17 @@ namespace game {
             case 'x': { // Hex
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = String::toStr(val, 16, 0, false);
+                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_LOWERCASE);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = String::toStr(val, 16, 0, false);
+                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_LOWERCASE);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
@@ -220,17 +213,17 @@ namespace game {
             case 'X': { // Hex uppercase
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = String::toStr(val, 16, 0, true);
+                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_UPPERCASE);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = String::toStr(val, 16, 0, true);
+                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_UPPERCASE);
                     try {
-                        BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.str.get(), valStr.len);
                     len += valStr.len;
@@ -239,47 +232,95 @@ namespace game {
             case 'f':
             case 'F': { // Float
                 double val = va_arg(args, double);
-                UTF8Str valStr = String::toStr(val, 16, 0, 0, false);
+                UTF8Str valStr = FormatString::toStr(val, 10);
                 try {
-                    BufferMemory::checkResize(dst, len + valStr.len, len, capacity);
+                    String::checkResize_(dst, len + valStr.len, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.str.get(), valStr.len);
-                len += valStr.len; 
+                len += valStr.len;
             } break;
             case 'e': { // Scientific notation
-
+                if (longChar) {
+                    uint64_t val = va_arg(args, uint64_t);
+                    UTF8Str valStr = FormatString::toStr(val, 10, 0, FORMAT_SCIENTIFIC_LOWERCASE);
+                    try {
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str.get(), valStr.len);
+                    len += valStr.len;
+                } else {
+                    uint32_t val = va_arg(args, uint32_t);
+                    UTF8Str valStr = FormatString::toStr(val, 10, 0, FORMAT_SCIENTIFIC_LOWERCASE);
+                    try {
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str.get(), valStr.len);
+                    len += valStr.len;
+                }
             } break;
             case 'E': { // Scientific notation uppercase
-
+                if (longChar) {
+                    uint64_t val = va_arg(args, uint64_t);
+                    UTF8Str valStr = FormatString::toStr(val, 10, 0, FORMAT_SCIENTIFIC_UPPERCASE);
+                    try {
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str.get(), valStr.len);
+                    len += valStr.len;
+                } else {
+                    uint32_t val = va_arg(args, uint32_t);
+                    UTF8Str valStr = FormatString::toStr(val, 10, 0, FORMAT_SCIENTIFIC_UPPERCASE);
+                    try {
+                        String::checkResize_(dst, len + valStr.len, len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.str.get(), valStr.len);
+                    len += valStr.len;
+                }
             } break;
             case 'g': { // Shortest of %f or %e
-
+                // TODO
             } break;
             case 'G': { // Shortest of %F or %E
-
+                // TODO
             } break;
             case 'a': { // Signed hex float
-
+                double val = va_arg(args, double);
+                UTF8Str valStr = FormatString::toStr(val, 16, 0, 0, FORMAT_HEX_LOWERCASE);
+                try {
+                    String::checkResize_(dst, len + valStr.len, len, capacity);
+                } catch (std::runtime_error& e) { throw; }
+                std::memcpy(dst + len, valStr.str.get(), valStr.len);
+                len += valStr.len;
             } break;
             case 'A': { // Signed hex float uppercase
-
+                double val = va_arg(args, double);
+                UTF8Str valStr = FormatString::toStr(val, 16, 0, 0, FORMAT_HEX_UPPERCASE);
+                try {
+                    String::checkResize_(dst, len + valStr.len, len, capacity);
+                } catch (std::runtime_error& e) { throw; }
+                std::memcpy(dst + len, valStr.str.get(), valStr.len);
+                len += valStr.len;
             } break;
             case 'c': { // Character
-
+                char c = static_cast<char>(va_arg(args, int));
+                try {
+                    String::checkResize_(dst, len + 1, len, capacity);
+                } catch (std::runtime_error& e) { throw; }
+                dst[len++] = c;
             } break;
             case 's': { // String
                 const char* str = va_arg(args, char*);
                 int64_t strLen = std::strlen(str);
                 
                 try {
-                    BufferMemory::checkResize(dst, len + strLen, len, capacity);
+                    String::checkResize_(dst, len + strLen, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
 
                 std::memcpy(dst, str, strLen);
                 len += strLen;
             } break;
             case 'p': { // Pointer address
-
+                // TODO
             } break;
             case 'n': { // Store currently written characters in variable (signed int); print nothing
                     size_t* storage = va_arg(args, size_t*);
@@ -287,7 +328,7 @@ namespace game {
             } break;
             case '%': { // '%'
                 try {
-                    BufferMemory::checkResize(dst, len + 1, len, capacity);
+                    String::checkResize_(dst, len + 1, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 dst[len++] = '%';
             } break;
@@ -297,19 +338,19 @@ namespace game {
         }
     }
 
-    std::shared_ptr<char> String::formatString(const char* str, ...) {
+    UTF8Str FormatString::formatString(const char* str, ...) {
                 va_list args;
                 va_start(args, str);
 
-                const size_t strLen = std::strlen(str);
-                size_t capacity = strLen + 1;
-                size_t len = 0;
+                const int64_t strLen = static_cast<int64_t>(std::strlen(str));
+                int64_t capacity = strLen + 1;
+                int64_t len = 0;
                 char* dst = static_cast<char*>(std::malloc(capacity));
 
                 char c;
                 bool formatChar = false;
                 bool longChar = false;
-                for (size_t i = 0; i < strLen; i++) {
+                for (int64_t i = 0; i < strLen; i++) {
                     c = str[i];
                     if (formatChar) {
                         formatStringFormat(c, args, dst, capacity, len, longChar);
@@ -320,7 +361,7 @@ namespace game {
                             } break;
                             default: { // Copy to dst
                                 try {
-                                    BufferMemory::checkResize(dst, len + 1, len, capacity);
+                                    String::checkResize_(dst, len + 1, len, capacity);
                                 } catch (std::runtime_error& e) { throw; }
                                 dst[len++] = c;
                             } break;
@@ -331,6 +372,6 @@ namespace game {
                 // TODO
 
                 va_end(args);
-                return std::shared_ptr<char>(dst, std::free);
+                return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
     }
 }

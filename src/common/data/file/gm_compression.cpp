@@ -1,129 +1,16 @@
-#include "gm_file.hpp"
+#include "gm_compression.hpp"
 
 #include "gm_logger.hpp"
-#include "../gm_core.hpp"
-#include "../system/gm_system.hpp"
+#include "../../gm_core.hpp"
+#include "../../system/gm_system.hpp"
 
 #include <lzma.h>
 
-#include <algorithm>
-#include <bit>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <filesystem>
 #include <memory>
 #include <mutex>
 #include <sstream>
-#include <vector>
-
-#if defined(_WIN32)
-  #include <windows.h>
-#elif defined(__linux__)
-  #include <sstream>
-  #include <unistd.h>
-  #include <iterator>
-  #include <execinfo.h>
-  #include <stdlib.h>
-#elif defined(__APPLE__)
-  #include <mach-o/dyld.h>
-  #include <iterator>
-  #include <execinfo.h>
-  #include <stdlib.h>
-#endif
-
-namespace fs = std::filesystem;
 
 namespace game {
-    std::string File::executableDir_ = Core::EMPTYSTR;
-    std::mutex mtx;
-
-    void File::init() {
-        findExecutableDir();
-        // TODO Get title and version for Core
-    }
-
-    void const File::ensureParentDir(const std::string& path) {
-        if (!fs::exists(path)) {
-            fs::path p = path;
-            fs::create_directories(p.parent_path());
-        }
-    }
-
-    File::FileContents const File::readFile(const char* filepath) {
-        if (!fs::exists(filepath)) {
-            std::stringstream msg;
-            msg << "File not found: " << filepath;
-            Logger::crash(msg.str());
-        }
-        
-        // Allocate
-        uint8_t buf[BUFSIZ];
-        size_t capacity = sizeof(buf);
-        uint8_t* data = static_cast<uint8_t*>(std::malloc(capacity));
-
-        // Open file
-        mtx.lock();
-        FILE* f = std::fopen(filepath, "rb");
-        if (!f) {
-            std::stringstream msg;
-            msg << "Could not open file: " << filepath;
-            Logger::crash(msg.str());
-        }
-
-        // Read
-        size_t head = 0, c = 0;
-        while ((c = std::fread(buf, 1, sizeof(buf), f)) > 0) {
-            head += c;
-
-            // Resize out buffer if needed
-            if (capacity < head) {
-                capacity <<= 1;
-                data = static_cast<uint8_t*>(std::realloc(data, capacity));
-            }
-
-            std::memcpy(data + (head - c), buf, c);
-        }
-
-        // Close file
-        std::fclose(f);
-        mtx.unlock();
-        data = static_cast<uint8_t*>(std::realloc(data, head));
-
-        return FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};
-    }
-
-    void const File::writeFile(const char* filepath, const FileContents& contents, const bool append) {
-        if (append && !fs::exists(filepath)) {
-            std::stringstream msg;
-            msg << "File not found: " << filepath;
-            Logger::crash(msg.str());
-        }
-
-
-        // Open file
-        mtx.lock();
-        FILE* f = std::fopen(filepath, append ? "ab" : "wb");
-        if (!f) {
-            std::stringstream msg;
-            msg << "Could not open file: " << filepath;
-            Logger::crash(msg.str());
-        }
-
-        // Write
-        const size_t len = contents.len;
-        const uint8_t* data = contents.data.get();
-        size_t c = 0;
-        for (size_t head = 0; head < len; head += c) {
-            c = std::min(static_cast<size_t>(BUFSIZ), len - head);
-            std::fwrite(data + head, 1, c, f);
-        }
-
-        // Close file
-        std::fclose(f);
-        mtx.unlock();
-    }
-
     inline void initDecoder(lzma_stream *stream, const char* filepath) {
         // The .xz format allows concatenating compressed files as is:
         //
@@ -162,13 +49,13 @@ namespace game {
         }
     }
 
-    File::FileContents const File::decompressFile(const char* filepath) {
+    File::FileContents const Compression::decompressFile(const char* filepath) {
         lzma_stream stream = LZMA_STREAM_INIT;
         initDecoder(&stream, filepath);
 	    lzma_action action = LZMA_RUN;
 
         // Open file
-        mtx.lock();
+        File::fileMtx.lock();
         FILE* f = std::fopen(filepath, "rb");
         if (f == nullptr) {
             std::stringstream msg;
@@ -250,10 +137,10 @@ namespace game {
         // Close file
         std::fclose(f);
 	    lzma_end(&stream);
-        mtx.unlock();
+        File::fileMtx.unlock();
 	    data = static_cast<uint8_t*>(std::realloc(data, head));
 
-        return FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};;
+        return File::FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};;
     }
 
     inline void initEncoder(lzma_stream* stream, const char* filepath) {
@@ -292,13 +179,13 @@ namespace game {
         }
     }
 
-    void const File::compressFile(const char* filepath, const FileContents& contents, const bool append) {
+    void const Compression::compressFile(const char* filepath, const File::FileContents& contents, const bool append) {
         lzma_stream stream = LZMA_STREAM_INIT;
         initEncoder(&stream, filepath);
 	    lzma_action action = LZMA_RUN;
 
         // Open file
-        mtx.lock();
+        File::fileMtx.lock();
         FILE* f = fopen(filepath, append ? "ab" : "wb");
         if (f == nullptr) {
             std::stringstream msg;
@@ -370,71 +257,6 @@ namespace game {
         // Close file
         std::fclose(f);
 	    lzma_end(&stream);
-        mtx.unlock();
-    }
-
-    std::string const File::asAscii(const std::string& str) {
-        std::stringstream res;
-
-        char c = '\0';
-        for (size_t i = 0; i < str.length(); i++) {
-            c = str[i];
-            if (c < ' ' || c > '~') break;
-            res << c;
-        }
-
-        return res.str();
-    }
-
-    bool const File::isAscii(const std::string& str) {
-        char c = '\0';
-        for (size_t i = 0; i < str.length(); i++) {
-            c = str[i];
-            if (c < ' ' || c > '~') return false;
-        }
-
-        return true;
-    }
-
-    void File::findExecutableDir()
-    {
-        unsigned int bufferSize = 512;
-        std::vector<char> buffer(bufferSize + 1);
-
-#if defined(_WIN32)
-        ::GetModuleFileNameA(NULL, &buffer[0], bufferSize);
-
-#elif defined(__APPLE__)
-        if(_NSGetExecutablePath(&buffer[0], &bufferSize))
-        {
-            buffer.resize(bufferSize);
-            _NSGetExecutablePath(&buffer[0], &bufferSize);
-        }
-
-#else
-        // Get the process ID.
-        int pid = getpid();
-
-        // Construct a path to the symbolic link pointing to the process executable.
-        // This is at /proc/<pid>/exe on Linux systems (we hope).
-        std::ostringstream oss;
-        oss << "/proc/" << pid << "/exe";
-        std::string link = oss.str();
-
-        // Read the contents of the link.
-        int count = readlink(link.c_str(), &buffer[0], bufferSize);
-        if(count == -1) Logger::crash("Could not read symbolic link");
-        buffer[count] = '\0';
-
-#endif
-
-        std::string path = &buffer[0];
-        fs::path p = path;
-#ifdef __WIN32__
-        path = p.parent_path().string() + "\\";
-#else
-        path = p.parent_path().string() + "/";
-#endif
-        File::executableDir_ = path;
+        File::fileMtx.unlock();
     }
 }

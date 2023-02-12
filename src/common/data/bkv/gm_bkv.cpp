@@ -1,11 +1,11 @@
 #include "gm_bkv.hpp"
 
 #include "gm_bkv_parser.hpp"
-#include "../gm_buffer_memory.hpp"
+#include "../string/gm_string.hpp"
 #include "../gm_endianness.hpp"
 
-#include "../gm_logger.hpp"
-#include "../gm_file.hpp"
+#include "../file/gm_logger.hpp"
+#include "../file/gm_file.hpp"
 
 #include <cstring>
 #include <sstream>
