@@ -43,11 +43,13 @@ namespace game {
         char* logPathStr = static_cast<char*>(std::malloc(logPathLen + 1));
         std::memcpy(logPathStr, File::executableDir().str.get(), File::executableDir().len);
         std::memcpy(logPathStr + File::executableDir().len, logPath.str.get(), logPath.len);
+        logPathStr[logPathLen] = '\0';
 
         int64_t crashPathLen = File::executableDir().len + crashPath.len;
         char* crashPathStr = static_cast<char*>(std::malloc(crashPathLen + 1));
         std::memcpy(crashPathStr, File::executableDir().str.get(), File::executableDir().len);
         std::memcpy(crashPathStr + File::executableDir().len, crashPath.str.get(), crashPath.len);
+        logPathStr[crashPathLen] = '\0';
         
         Logger::logPath_ = UTF8Str{logPathLen, std::shared_ptr<const char>(logPathStr, std::free)};
         Logger::crashPath_ = UTF8Str{crashPathLen, std::shared_ptr<const char>(crashPathStr, std::free)};

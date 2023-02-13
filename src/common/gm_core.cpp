@@ -22,8 +22,8 @@ namespace game {
         System::init();
         File::init();
         Logger::init(
-            UTF8Str{static_cast<int64_t>(strlen(logFile)), std::shared_ptr<const char>(logFile, [](const char*){})},
-            UTF8Str{static_cast<int64_t>(strlen(crashFile)), std::shared_ptr<const char>(crashFile, [](const char*){})}
+            UTF8Str{static_cast<int64_t>(std::strlen(logFile)), std::shared_ptr<const char>(logFile, [](const char*){})},
+            UTF8Str{static_cast<int64_t>(std::strlen(crashFile)), std::shared_ptr<const char>(crashFile, [](const char*){})}
         );
 
         std::stringstream msg;

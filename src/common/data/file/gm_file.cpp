@@ -163,6 +163,7 @@ namespace game {
 #endif
         char* pathStr = static_cast<char*>(std::malloc(path.length() + 1));
         std::memcpy(pathStr, path.c_str(), path.length());
+        pathStr[path.length()] = '\0';
         File::executableDir_ = UTF8Str{static_cast<int64_t>(path.length()), std::shared_ptr<const char>(pathStr, std::free)};
     }
 }
