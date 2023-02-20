@@ -55,7 +55,7 @@ namespace game {
             // Insert characters
             String::insert(str, '.', neg ? 2 : 1);
             len++;
-            str[len++] = 'E';
+            str[len++] = FORMAT_UPPERCASE ? 'E' : 'e';
             
             // Copy to string
             std::memcpy(str + len, digitsStr.str.get(), digitsStr.len);
@@ -209,7 +209,7 @@ namespace game {
             case 'x': { // Hex
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_LOWERCASE);
+                    UTF8Str valStr = FormatString::toStr(val, 16);
                     try {
                         String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -217,7 +217,7 @@ namespace game {
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_LOWERCASE);
+                    UTF8Str valStr = FormatString::toStr(val, 16);
                     try {
                         String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -228,7 +228,7 @@ namespace game {
             case 'X': { // Hex uppercase
                 if (longChar) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_UPPERCASE);
+                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_UPPERCASE);
                     try {
                         String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -236,7 +236,7 @@ namespace game {
                     len += valStr.len;
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_HEX_UPPERCASE);
+                    UTF8Str valStr = FormatString::toStr(val, 16, 0, FORMAT_UPPERCASE);
                     try {
                         String::checkResize_(dst, len + valStr.len, len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -300,7 +300,7 @@ namespace game {
             } break;
             case 'a': { // Signed hex float
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::toStr(val, 16, 0, 0, FORMAT_HEX_LOWERCASE);
+                UTF8Str valStr = FormatString::toStr(val, 16);
                 try {
                     String::checkResize_(dst, len + valStr.len, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
@@ -309,7 +309,7 @@ namespace game {
             } break;
             case 'A': { // Signed hex float uppercase
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::toStr(val, 16, 0, 0, FORMAT_HEX_UPPERCASE);
+                UTF8Str valStr = FormatString::toStr(val, 16, 0, 0, FORMAT_UPPERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.len, len, capacity);
                 } catch (std::runtime_error& e) { throw; }

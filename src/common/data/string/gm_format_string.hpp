@@ -11,15 +11,12 @@ namespace game {
             // Types
             enum NumberFormat {
                 FORMAT_DIGITAL,
-                FORMAT_HEXIDECIMAL,
                 FORMAT_SCIENTIFIC,
 
                 // Flags
                 FORMAT_UPPERCASE = 1 << 7,
 
                 // Combinations
-                FORMAT_HEX_UPPERCASE = FORMAT_HEXIDECIMAL | FORMAT_UPPERCASE,
-                FORMAT_HEX_LOWERCASE = FORMAT_HEXIDECIMAL,
                 FORMAT_SCIENTIFIC_UPPERCASE = FORMAT_SCIENTIFIC | FORMAT_UPPERCASE,
                 FORMAT_SCIENTIFIC_LOWERCASE = FORMAT_SCIENTIFIC,
             };
