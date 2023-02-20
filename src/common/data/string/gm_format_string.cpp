@@ -13,56 +13,54 @@ namespace game {
         bool neg = false;
         int64_t len = 0;
 
-        if (numberFormat & FORMAT_HEXIDECIMAL) {
-            // TODO Hex
+        if (base == 0 || base > 10) base = 10;
+
+        uint8_t digits = 0;
+        T n = num;
+        if (n == 0) {
+            digits = 1;
+            str[len++] = '0';
+            while (len < minDigits) str[len++] = '0';
+            str[len] = '\0';
         } else {
-            if (base == 0 || base > 10) base = 10;
-
-            uint8_t digits = 0;
-            T n = num;
-            if (n == 0) {
-                str[len++] = '0';
-                while (len < minDigits) str[len++] = '0';
-                str[len] = '\0';
-            } else {
-                if (n < 0) {
-                    neg = true;
-                    n = -n;
-                }
-
-                // Write each digit
-                T rem;
-                do {
-                    rem = n % base;
-                    digits++;
-                    str[len++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0'); // TODO Test with bases other than 10
-                    n /= base;
-                } while (n != 0);
-                
-                while (len < minDigits) str[len++] = '0';
-                
-                if (neg) str[len++] = '-';
-                str[len] = '\0';
-
-                String::reverse(str, len);
+            if (n < 0) {
+                neg = true;
+                n = -n;
             }
+
+            // Write each digit
+            const char hexFormatChar = FORMAT_UPPERCASE ? 'A' : 'a';
+            T rem;
+            do {
+                digits++;
+                rem = n % base;
+                str[len++] = (rem < 9) ? ((rem - 10) + hexFormatChar) : (rem + '0');
+                n /= base;
+            } while (n != 0);
             
-            if (numberFormat & FORMAT_SCIENTIFIC) {
-                n = num;
-                if (neg) n = -n;
+            while (len < minDigits) str[len++] = '0';
+            
+            if (neg) str[len++] = '-';
+            str[len] = '\0';
 
-                UTF8Str digitsStr = toStr(digits - 1, base);
+            String::reverse(str, len);
+        }
+        
+        if (numberFormat & FORMAT_SCIENTIFIC) {
+            n = num;
+            if (neg) n = -n;
 
-                // Insert characters
-                String::insert(str, '.', neg ? 2 : 1);
-                len++;
-                str[len++] = 'E';
-                
-                // Copy to string
-                std::memcpy(str + len, digitsStr.str.get(), digitsStr.len);
-                len += digitsStr.len;
-                str[len] = '\0';
-            }
+            UTF8Str digitsStr = toStr(digits - 1, base);
+
+            // Insert characters
+            String::insert(str, '.', neg ? 2 : 1);
+            len++;
+            str[len++] = 'E';
+            
+            // Copy to string
+            std::memcpy(str + len, digitsStr.str.get(), digitsStr.len);
+            len += digitsStr.len;
+            str[len] = '\0';
         }
         
         str = static_cast<char*>(std::realloc(str, len));
