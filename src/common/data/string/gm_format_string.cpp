@@ -13,7 +13,7 @@ namespace game {
         bool neg = false;
         int64_t len = 0;
 
-        if (base == 0 || base > 10) base = 10;
+        if (base == 0 || base > 36) base = 10;
 
         uint8_t digits = 0;
         T n = num;
