@@ -13,7 +13,7 @@ namespace game {
         }
     }
 
-    void insert(char*& str, const int64_t strLen, const char c, const int64_t pos) {
+    void String::insert(char*& str, const int64_t strLen, const char c, const int64_t pos) {
         // Copy character to be replaced
         char temp = str[pos];
 
@@ -31,7 +31,7 @@ namespace game {
         str[strLen + 2] = '\0';
     }
 
-    int64_t insert(char*& str, const int64_t strLen, const char*& insertStr, const int64_t insertStrLen, const int64_t pos) {
+    int64_t String::insert(char*& str, const int64_t strLen, const char*& insertStr, const int64_t insertStrLen, const int64_t pos) {
         // Copy str to buffer after pos
         const int64_t rem = strLen - pos;
         char* buffer = static_cast<char*>(std::malloc(rem));

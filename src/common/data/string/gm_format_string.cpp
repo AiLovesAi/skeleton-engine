@@ -59,14 +59,14 @@ namespace game {
                 str[len++] = 'E';
                 
                 // Copy to string
-                std::memcpy(str + len, digitsStr, digitsStr.len);
+                std::memcpy(str + len, digitsStr.str.get(), digitsStr.len);
                 len += digitsStr.len;
                 str[len] = '\0';
             }
         }
         
-        str = static_cast<char*>(std::realloc(str, i));
-        return UTF8Str{i, std::shared_ptr<const char>(str, std::free)};
+        str = static_cast<char*>(std::realloc(str, len));
+        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
     
     UTF8Str FormatString::toStr(double n, uint8_t base, uint8_t precision, const uint8_t minDigits, const NumberFormat numberFormat) {
@@ -75,11 +75,11 @@ namespace game {
         
         // Get integer part
         const UTF8Str intStr = toStr(integer, base, minDigits);
-        int64_t i = intStr.len;
+        int64_t len = intStr.len;
         char* str = static_cast<char*>(std::malloc(intStr.len + precision + 2));
         std::memcpy(str, intStr.str.get(), intStr.len);
         
-        str[i++] = '.';
+        str[len++] = '.';
         
         if (precision > 15) precision = 15;
         
@@ -89,17 +89,17 @@ namespace game {
             decimal *= std::pow(base, precision);
             const UTF8Str decimalStr = toStr(static_cast<int32_t>(std::floor(decimal)), base, 0);
             std::memcpy(str, decimalStr.str.get(), decimalStr.len);
-            i += decimalStr.len;
+            len += decimalStr.len;
             
             // Truncate trailing 0's
-            while (str[i - 1] == '0') {
-                str[i--] = '\0';
+            while (str[len - 1] == '0') {
+                str[len--] = '\0';
             }
         }
         
-        str[i] = '\0';
-        str = static_cast<char*>(std::realloc(str, i));
-        return UTF8Str{i, std::shared_ptr<const char>(str, std::free)};
+        str[len] = '\0';
+        str = static_cast<char*>(std::realloc(str, len));
+        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
 
     UTF8Str FormatString::toStr(const bool b, const StringCases caseType) {
