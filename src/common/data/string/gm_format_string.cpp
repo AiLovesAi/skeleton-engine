@@ -8,7 +8,7 @@
 
 namespace game {
     template <typename T>
-    UTF8Str FormatString::toStr(const T num, uint8_t base, const uint8_t minDigits, const NumberFormat numberFormat) {
+    UTF8Str FormatString::toStr(T n, uint8_t base, const uint8_t minDigits, const NumberFormat numberFormat) {
         char* str = static_cast<char*>(std::malloc(sizeof("-9.223372036854775807E18")));
         bool neg = false;
         int64_t len = 0;
@@ -16,7 +16,6 @@ namespace game {
         if (base == 0 || base > 36) base = 10;
 
         uint8_t digits = 0;
-        T n = num;
         if (n == 0) {
             digits = 1;
             str[len++] = '0';
@@ -29,7 +28,7 @@ namespace game {
             }
 
             // Write each digit
-            const char hexFormatChar = FORMAT_UPPERCASE ? 'A' : 'a';
+            const char hexFormatChar = (numberFormat & FORMAT_UPPERCASE) ? 'A' : 'a';
             T rem;
             do {
                 digits++;
@@ -47,15 +46,12 @@ namespace game {
         }
         
         if (numberFormat & FORMAT_SCIENTIFIC) {
-            n = num;
-            if (neg) n = -n;
-
             UTF8Str digitsStr = toStr(digits - 1, base);
 
             // Insert characters
             String::insert(str, '.', neg ? 2 : 1);
             len++;
-            str[len++] = FORMAT_UPPERCASE ? 'E' : 'e';
+            str[len++] = (numberFormat & FORMAT_UPPERCASE) ? 'E' : 'e';
             
             // Copy to string
             std::memcpy(str + len, digitsStr.str.get(), digitsStr.len);
