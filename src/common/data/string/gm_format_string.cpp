@@ -8,20 +8,22 @@
 
 namespace game {
     template <typename T>
-    UTF8Str FormatString::toStr(T n, uint8_t base, const uint8_t minDigits, const NumberFormat numberFormat) {
+    UTF8Str FormatString::toStr(const T num, uint8_t base, const uint8_t minDigits, const NumberFormat numberFormat) {
         char* str = static_cast<char*>(std::malloc(sizeof("-9.223372036854775807E18")));
         bool neg = false;
-        int64_t i = 0;
+        int64_t len = 0;
 
         if (numberFormat & FORMAT_HEXIDECIMAL) {
             // TODO Hex
         } else {
             if (base == 0 || base > 10) base = 10;
 
+            uint8_t digits = 0;
+            T n = num;
             if (n == 0) {
-                str[i++] = '0';
-                while (i < minDigits) str[i++] = '0';
-                str[i] = '\0';
+                str[len++] = '0';
+                while (len < minDigits) str[len++] = '0';
+                str[len] = '\0';
             } else {
                 if (n < 0) {
                     neg = true;
@@ -32,19 +34,34 @@ namespace game {
                 T rem;
                 do {
                     rem = n % base;
-                    str[i++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0'); // TODO Test with bases other than 10
+                    digits++;
+                    str[len++] = (rem < 9) ? ((rem - 10) + 'a') : (rem + '0'); // TODO Test with bases other than 10
+                    n /= base;
                 } while (n != 0);
                 
-                while (i < minDigits) str[i++] = '0';
+                while (len < minDigits) str[len++] = '0';
                 
-                if (neg) str[i++] = '-';
-                str[i] = '\0';
+                if (neg) str[len++] = '-';
+                str[len] = '\0';
 
-                String::reverse(str, i);
+                String::reverse(str, len);
             }
             
             if (numberFormat & FORMAT_SCIENTIFIC) {
-                // TODO Add '.' and append 'EXX'
+                n = num;
+                if (neg) n = -n;
+
+                UTF8Str digitsStr = toStr(digits - 1, base);
+
+                // Insert characters
+                String::insert(str, '.', neg ? 2 : 1);
+                len++;
+                str[len++] = 'E';
+                
+                // Copy to string
+                std::memcpy(str + len, digitsStr, digitsStr.len);
+                len += digitsStr.len;
+                str[len] = '\0';
             }
         }
         
