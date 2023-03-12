@@ -140,7 +140,7 @@ namespace game {
         File::fileMtx.unlock();
 	    data = static_cast<uint8_t*>(std::realloc(data, head));
 
-        return File::FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};;
+        return File::FileContents{head, std::shared_ptr<const uint8_t>(data, std::free)};;
     }
 
     inline void initEncoder(lzma_stream* stream, const char* filepath) {
@@ -193,8 +193,8 @@ namespace game {
             Logger::crash(msg.str());
         }
 
-        const size_t len = contents.len;
-        const uint8_t* data = contents.data.get();
+        const size_t len = contents.length();
+        const uint8_t* data = contents.get();
 
         size_t head = 0, c = 0;
         uint8_t buf[BUFSIZ];

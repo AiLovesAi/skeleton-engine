@@ -10,8 +10,22 @@ namespace game {
         public:
             // Types
             typedef struct FileContents_ {
-                size_t len = 0;
-                std::shared_ptr<const uint8_t> data = nullptr;
+                private:
+                    size_t len;
+                    std::shared_ptr<const uint8_t> data;
+                
+                public:
+                    FileContents_() : len{0}, data{nullptr} {}
+                    FileContents_(size_t len, std::shared_ptr<const uint8_t> data) :
+                        len{len}, data{data} {}
+
+                    inline size_t length() const {
+                        return len;
+                    }
+
+                    inline const uint8_t* get() const {
+                        return data.get();
+                    }
             } FileContents;
 
             // Functions

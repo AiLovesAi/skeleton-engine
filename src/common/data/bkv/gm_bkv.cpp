@@ -26,17 +26,17 @@ namespace game {
     template <> const uint8_t BKV::BKVTypeMap<double>::tagID = BKV::BKV_DOUBLE;
 
     BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
-        const char* sbkv = stringified.str.get();
+        const char* sbkv = stringified.get();
         Logger::log(LOG_INFO, "Reached bkvFromSBKV.");
         BKV_Parser buf;
         Logger::log(LOG_INFO, "Parsing...");
-        for (int64_t i = 0; i < stringified.len; i++) {
+        for (int64_t i = 0; i < stringified.length(); i++) {
         std::stringstream m;
         m << "Parsing character: " << i;
         Logger::logSync(LOG_INFO, m.str(), std::this_thread::get_id());
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::runtime_error &e) { throw; }
         }
         Logger::log(LOG_INFO, "Parsing complete.");
-        return BKV_t{.size = buf.size(), .data = buf.data()};
+        return BKV_t{buf.size(), buf.data()};
     }
 }

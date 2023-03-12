@@ -8,8 +8,21 @@
 
 namespace game {
     typedef struct BKV_t_ {
-        int64_t size;
-        std::shared_ptr<uint8_t> data;
+        private:
+            int64_t size;
+            std::shared_ptr<const uint8_t> data;
+
+        public:
+            BKV_t_(int64_t size, std::shared_ptr<const uint8_t> data) :
+                size{size}, data{data} {}
+            
+            int64_t size() const {
+                return size;
+            }
+
+            const uint8_t* get() const {
+                return data.get();
+            }
     } BKV_t;
 
     class BKV {

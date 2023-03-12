@@ -26,7 +26,7 @@ void test() {
         bkv = BKV::bkvFromSBKV(stringified);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
     Logger::log(LOG_INFO, "Parsed BKV.");
-    File::FileContents contents{static_cast<size_t>(bkv.size), bkv.data};
+    File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data};
     File::writeFile("bkv.txt", contents);
 
     UTF8Str sbkv;
@@ -35,7 +35,7 @@ void test() {
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
     Logger::log(LOG_INFO, "Parsed SBKV.");
     msg.str("");
-    msg << sbkv.str.get();
+    msg << sbkv.get();
     Logger::log(LOG_INFO, msg.str());
     Logger::log(LOG_INFO, "Complete.");
     
@@ -43,8 +43,8 @@ void test() {
         bkv = BKV::bkvFromSBKV(stringified);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
     Logger::log(LOG_INFO, "Reparsed BKV.");
-    contents.len = static_cast<size_t>(bkv.size);
-    contents.data = bkv.data;
+    contents.length() = static_cast<size_t>(bkv.size());
+    contents.data = bkv.get();
     File::writeFile("bkv2.txt", contents);
     
     try {
@@ -52,7 +52,7 @@ void test() {
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
     Logger::log(LOG_INFO, "Reparsed SBKV.");
     msg.str("");
-    msg << sbkv.str.get();
+    msg << sbkv.get();
     Logger::log(LOG_INFO, msg.str());
     
 }

@@ -88,7 +88,7 @@ namespace game {
 
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = Core::TITLE.str.get();
+        appInfo.pApplicationName = Core::TITLE.get();
         appInfo.applicationVersion = 0;
         appInfo.pEngineName = "Vulkan";
         appInfo.engineVersion = 0;

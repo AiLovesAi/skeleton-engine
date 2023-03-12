@@ -8,7 +8,7 @@ namespace game {
         public:
             // Functions
             BKV_t build() {
-                std::shared_ptr<uint8_t> data(static_cast<uint8_t*>(std::malloc(buffer_.head_)), std::free);
+                std::shared_ptr<const uint8_t> data(static_cast<uint8_t*>(std::malloc(buffer_.head_)), std::free);
                 std::memcpy(data.get(), buffer_.bkv_, buffer_.head_);
                 return BKV_t{buffer_.head_, data};
             }

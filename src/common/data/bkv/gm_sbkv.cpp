@@ -520,12 +520,12 @@ namespace game {
     }
 
     UTF8Str SBKV::sbkvFromBKV(const BKV_t& bkv) {
-        int64_t capacity = bkv.size; // Should be at least bkvSize
+        int64_t capacity = bkv.size(); // Should be at least bkvSize
         char* sbkv = static_cast<char*>(std::malloc(capacity));
 
-        const uint8_t* data = bkv.data.get();
+        const uint8_t* data = bkv.get();
         int64_t head, i, depth;
-        for (head = 0, i = 0, depth = 0; i < bkv.size; i++) {
+        for (head = 0, i = 0, depth = 0; i < bkv.size(); i++) {
             std::stringstream m;
             m << "Parsing character: 0x" << std::hex << ((data[i] & 0xf0) >> 4) << std::hex << (data[i] & 0xf);
             Logger::log(LOG_INFO, m.str());
@@ -541,6 +541,6 @@ namespace game {
         // Reallocate to use only as much memory as necessary
         capacity = head;
         sbkv = static_cast<char*>(std::realloc(sbkv, capacity));
-        return UTF8Str{.len = capacity, .str = std::shared_ptr<const char>(sbkv, std::free)};
+        return UTF8Str{capacity, std::shared_ptr<const char>(sbkv, std::free)};
     }
 }

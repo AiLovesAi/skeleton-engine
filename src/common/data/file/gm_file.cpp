@@ -42,8 +42,8 @@ namespace game {
     }
 
     void const File::ensureParentDir(const UTF8Str& path) {
-        if (!fs::exists(path.str.get())) {
-            fs::path p = path.str.get();
+        if (!fs::exists(path.get())) {
+            fs::path p = path.get();
             fs::create_directories(p.parent_path());
         }
     }
@@ -88,7 +88,7 @@ namespace game {
         fileMtx.unlock();
         data = static_cast<uint8_t*>(std::realloc(data, head));
 
-        return FileContents{.len = head, .data = std::shared_ptr<uint8_t>(data, std::free)};
+        return FileContents{head, std::shared_ptr<const uint8_t>(data, std::free)};
     }
 
     void const File::writeFile(const char* filepath, const FileContents& contents, const bool append) {
@@ -109,8 +109,8 @@ namespace game {
         }
 
         // Write
-        const size_t len = contents.len;
-        const uint8_t* data = contents.data.get();
+        const size_t len = contents.length();
+        const uint8_t* data = contents.get();
         size_t c = 0;
         for (size_t head = 0; head < len; head += c) {
             c = std::min(static_cast<size_t>(BUFSIZ), len - head);

@@ -56,15 +56,15 @@ namespace game {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     
         // Create window
-        window_ = glfwCreateWindow(width_, height_, title.str.get(), nullptr, nullptr);
+        window_ = glfwCreateWindow(width_, height_, title.get(), nullptr, nullptr);
         glfwSetWindowPos(window_, (mode->width - width_) / 2, (mode->height - height_) / 2);
         glfwSetWindowUserPointer(window_, this);
 
         // Get icon
         GLFWimage icons[1];
-        char* path = static_cast<char*>(std::malloc(File::executableDir().len + sizeof("../assets/icon.png")));
-        std::memcpy(path, File::executableDir().str.get(), File::executableDir().len);
-        std::memcpy(path + File::executableDir().len, "../assets/icon.png", sizeof("../assets/icon.png"));
+        char* path = static_cast<char*>(std::malloc(File::executableDir().length() + sizeof("../assets/icon.png")));
+        std::memcpy(path, File::executableDir().get(), File::executableDir().length());
+        std::memcpy(path + File::executableDir().length(), "../assets/icon.png", sizeof("../assets/icon.png"));
 
         icons[0].pixels = stbi_load(path, &icons[0].width, &icons[0].height, 0, 4);
         std::free(path);

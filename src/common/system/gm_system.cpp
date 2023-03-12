@@ -122,17 +122,17 @@ namespace game {
         for(unsigned int i = 0x80000002; i <= 0x80000004; i++) {
             CPUID cpuID(i, 0);
             part = String::asAscii((const char*) &cpuID.RAX(), 4);
-            std::memcpy(mModelName + len, part.str.get(), part.len);
-            len += part.len;
+            std::memcpy(mModelName + len, part.get(), part.length());
+            len += part.length();
             part = String::asAscii((const char*) &cpuID.RBX(), 4);
-            std::memcpy(mModelName + len, part.str.get(), part.len);
-            len += part.len;
+            std::memcpy(mModelName + len, part.get(), part.length());
+            len += part.length();
             part = String::asAscii((const char*) &cpuID.RCX(), 4);
-            std::memcpy(mModelName + len, part.str.get(), part.len);
-            len += part.len;
+            std::memcpy(mModelName + len, part.get(), part.length());
+            len += part.length();
             part = String::asAscii((const char*) &cpuID.RDX(), 4);
-            std::memcpy(mModelName + len, part.str.get(), part.len);
-            len += part.len;
+            std::memcpy(mModelName + len, part.get(), part.length());
+            len += part.length();
         }
 
         mModelName[len] = '\0';

@@ -34,8 +34,8 @@ namespace game {
             }
             BKV_Parser_State* state() { return stateTree_.top(); }
             int64_t size() { return buffer_.head_; }
-            std::shared_ptr<uint8_t> data() {
-                std::shared_ptr<uint8_t> data(static_cast<uint8_t*>(std::malloc(buffer_.head_)), std::free);
+            std::shared_ptr<const uint8_t> data() {
+                std::shared_ptr<const uint8_t> data(static_cast<uint8_t*>(std::malloc(buffer_.head_)), std::free);
                 std::memcpy(data.get(), buffer_.bkv_, buffer_.head_);
                 return data;
             }

@@ -39,7 +39,7 @@ namespace game {
                     throw std::runtime_error(
                         FormatString::formatString(
                             "New buffer size overflows to a number less than the previous: %ld < %d.", size, prevSize
-                        ).str.get()
+                        ).get()
                     );
                 }
 

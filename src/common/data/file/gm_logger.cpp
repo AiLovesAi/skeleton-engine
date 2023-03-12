@@ -39,16 +39,16 @@ namespace game {
     void Logger::setPaths(const UTF8Str& logPath, const UTF8Str& crashPath) {
         mtx_.lock();
 
-        int64_t logPathLen = File::executableDir().len + logPath.len;
+        int64_t logPathLen = File::executableDir().length() + logPath.length();
         char* logPathStr = static_cast<char*>(std::malloc(logPathLen + 1));
-        std::memcpy(logPathStr, File::executableDir().str.get(), File::executableDir().len);
-        std::memcpy(logPathStr + File::executableDir().len, logPath.str.get(), logPath.len);
+        std::memcpy(logPathStr, File::executableDir().get(), File::executableDir().length());
+        std::memcpy(logPathStr + File::executableDir().length(), logPath.get(), logPath.length());
         logPathStr[logPathLen] = '\0';
 
-        int64_t crashPathLen = File::executableDir().len + crashPath.len;
+        int64_t crashPathLen = File::executableDir().length() + crashPath.length();
         char* crashPathStr = static_cast<char*>(std::malloc(crashPathLen + 1));
-        std::memcpy(crashPathStr, File::executableDir().str.get(), File::executableDir().len);
-        std::memcpy(crashPathStr + File::executableDir().len, crashPath.str.get(), crashPath.len);
+        std::memcpy(crashPathStr, File::executableDir().get(), File::executableDir().length());
+        std::memcpy(crashPathStr + File::executableDir().length(), crashPath.get(), crashPath.length());
         logPathStr[crashPathLen] = '\0';
         
         Logger::logPath_ = UTF8Str{logPathLen, std::shared_ptr<const char>(logPathStr, std::free)};
@@ -57,7 +57,7 @@ namespace game {
         File::ensureParentDir(Logger::crashPath_);
 
         std::ofstream file;
-        file.open(Logger::logPath_.str.get(), std::ios::out | std::ios::binary | std::ios::trunc);
+        file.open(Logger::logPath_.get(), std::ios::out | std::ios::binary | std::ios::trunc);
         file.close();
 
         mtx_.unlock();
@@ -111,10 +111,10 @@ namespace game {
         msg << timeBuffer
             << " ["
             << Threads::threadName(threadId) << "/" << LOG_TYPE_STRINGS[logType] << "]: "
-            << message.str.get() << "\n";
+            << message.get() << "\n";
 
         std::ofstream file;
-        file.open(logPath_.str.get(), std::ios::out | std::ios::binary | std::ios::app);
+        file.open(logPath_.get(), std::ios::out | std::ios::binary | std::ios::app);
         file << msg.str();
         file.close();
         if (logType == LOG_INFO || logType == LOG_MSG) std::cout << msg.str();
@@ -132,19 +132,19 @@ namespace game {
             msg << "---- Crash Report ----\n";
             msg << "Time: " << (now->tm_mon + 1) << "/" << now->tm_mday << "/" << (now->tm_year - 100) << " "
                 << (now->tm_hour % 12) << ((now->tm_min < 10) ? ":0" : ":") << now->tm_min << " " << ((now->tm_hour < 12) ? "AM\n" : "PM\n");
-            msg << "Description: " << message.str.get() << "\n\n";
+            msg << "Description: " << message.get() << "\n\n";
             msg << "--- System Details ---\n";
-            msg << "Operating System: " << System::OS().str.get() << "\n";
+            msg << "Operating System: " << System::OS().get() << "\n";
             msg << "Physical Memory: " << System::physicalMemory() << "B\n";
-            msg << "CPU: " << System::CPU().str.get() << "\n";
+            msg << "CPU: " << System::CPU().get() << "\n";
             msg << "CPU Threads: " << System::cpuThreadCount() << "\n";
-            msg << "Graphics Device: " << System::GPU().str.get() << "\n";
+            msg << "Graphics Device: " << System::GPU().get() << "\n";
             msg << "Crashing Thread: " << Threads::threadName(std::this_thread::get_id()) << "\n";
             std::cerr << msg.str();
 
             mtx_.lock();
             std::ofstream file;
-            file.open(crashPath_.str.get(), std::ios::out | std::ios::binary | std::ios::trunc);
+            file.open(crashPath_.get(), std::ios::out | std::ios::binary | std::ios::trunc);
             file << msg.str();
             file.close();
             mtx_.unlock();
@@ -152,6 +152,6 @@ namespace game {
         
         crashed_ = true;
         Core::running = false;
-        throw std::runtime_error(message.str.get());
+        throw std::runtime_error(message.get());
     }
 }
