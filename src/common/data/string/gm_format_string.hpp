@@ -50,11 +50,14 @@ namespace game {
             static inline UTF8Str floatToStr(T n, uint8_t base) { return floatToStr(n, base, 0); }
 
             template <typename T>
-            static inline UTF8Str intToStr(T n, uint8_t base, const uint8_t minDigits) { return intToStr(n, base, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str intToStr(T n, uint8_t base, const size_t minDigits) { return intToStr(n, base, minDigits, FORMAT_DIGITAL); }
             template <typename T>
-            static inline UTF8Str floatToStr(T n, uint8_t base, uint8_t precision) { return floatToStr(n, base, precision, 0); }
+            static inline UTF8Str floatToStr(T n, uint8_t base, const size_t precision) { return floatToStr(n, base, precision, 0); }
             template <typename T>
-            static inline UTF8Str floatToStr(T n, uint8_t base, uint8_t precision, const uint8_t minDigits) { return floatToStr(n, base, precision, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str floatToStr(T n, uint8_t base, const size_t precision, const size_t minDigits) { return floatToStr(n, base, precision, minDigits, FORMAT_DIGITAL); }
+
+            // Variables
+            static constexpr int MAX_PRECISION = 18; // 2^63 - 1 = 9.223372036854775807E18, so use 18 since we can hold 19 digits max
 
         private:
             // Types
@@ -75,30 +78,32 @@ namespace game {
                 FORMAT_UPPERCASE = 1 << 31, 
                 // If no sign is going to be written, a blank space is inserted before the value
                 FORMAT_SIGNED = 1 << 30,
-                // Places a '0' before octal and '0x' before hex/pointers, and a decimal point even if no more digits follow for floating types
+                // Forces sign (even on positive)
                 FORMAT_SIGN_PADDING = 1 << 29,
                 // When padded with spaces, they will be appended to the value instead of prepended
                 FORMAT_LEFT_JUSTIFIED = 1 << 28,
-                // Forces sign (even on positive)
+                // Places a '0' before octal and '0x' before hex/pointers, and a decimal point following integral floating types
                 FORMAT_TAGGED = 1 << 27,
                 // Left-pads the number when padding is specified
                 FORMAT_PADDING = 1 << 26,
                 // Left-pads the number with zeroes (0) instead of spaces when padding is specified
-                FORMAT_ZERO_PADDING = 1 << 25,
+                FORMAT_ZERO_PADDED = 1 << 25,
                 // Size is 64-bit long
                 FORMAT_LONG = 1 << 24,
                 // The following width is now for precision as opposed to minimum integer digits
                 FORMAT_PRECISION = 1 << 23,
+                // Truncates trailing zeroes in a float
+                FORMAT_TRUNCATE_ZEROES = 1 << 22,
             };
 
             // Functions
             template <typename T>
-            static UTF8Str intToStr(T n, uint8_t base, const uint8_t minDigits, const int32_t flags);
+            static UTF8Str intToStr(T n, uint8_t base, const size_t minDigits, const int32_t flags);
             template <typename T>
-            static inline UTF8Str floatToStr(T n, uint8_t base, uint8_t precision, const uint8_t minDigits, const int32_t flags);
+            static inline UTF8Str floatToStr(T n, uint8_t base, const size_t precision, const size_t minDigits, const int32_t flags);
 
-            static void formatStringFormat(const char c, va_list& args,
+            static bool formatStringFormat(const char c, va_list& args,
                 char*& dst, int64_t& capacity, int64_t& len, int& flags,
-                uint8_t& minDigits, uint8_t& precision);
+                size_t& minDigits, size_t& precision); // Returns false when format is complete
     };
 }
