@@ -11,21 +11,33 @@ namespace game {
         public:
             // Functions
             static inline void reverse(char*& str) { reverse(str, static_cast<int64_t>(std::strlen(str))); }
-            static void reverse(char*& str, const int64_t len);
+            static void reverse(char*& str, const int64_t len) noexcept;
+
             // NOTE: Must have enough memory
             static inline void insert(char*& str, const char c, const int64_t pos) {
                 insert(str, static_cast<int64_t>(std::strlen(str)), c, pos);
             }
-            // NOTE: Must have enough memory
-            static void insert(char*& str, const int64_t strLen, const char c, const int64_t pos);
+            static void insert(char*& str, const int64_t strLen, const char c, const int64_t pos) noexcept;
             static inline int64_t insert(char*& str, const char*& insertStr, const int64_t pos) {
-                return insert(str, static_cast<int64_t>(std::strlen(str)), insertStr, static_cast<int64_t>(std::strlen(insertStr)), pos);
+                return insert(
+                    str, static_cast<int64_t>(std::strlen(str)),
+                    insertStr, static_cast<int64_t>(std::strlen(insertStr)),
+                    pos
+                );
             }
-            static int64_t insert(char*& str, const int64_t strLen, const char*& insertStr, const int64_t insertStrLen, const int64_t pos);
+            static int64_t insert(char*& str, const int64_t strLen, 
+                const char*& insertStr, const int64_t insertStrLen, const int64_t pos
+            ) noexcept;
+
+            static inline int64_t prepend(char*& str, const char*& prependStr) { return insert(str, prependStr, 0); }
+            static inline int64_t prepend(char*& str, const int64_t strLen, const char*& prependStr, const int64_t prependStrLen) {
+                return insert(str, strLen, prependStr, prependStrLen, 0);
+            }
+
             static inline bool isAscii(const char* str) { return isAscii(str, std::strlen(str)); }
-            static bool isAscii(const char* str, const int64_t len);
+            static bool isAscii(const char* str, const int64_t len) noexcept;
             static inline UTF8Str asAscii(const char* str) { return asAscii(str, std::strlen(str)); }
-            static UTF8Str asAscii(const char* str, const int64_t len);
+            static UTF8Str asAscii(const char* str, const int64_t len) noexcept;
 
             /// @brief Checks if @p size fits in @p ptr, given its @p capacity.
             /// If there is not room in @p ptr, it is reallocated with double the capacity.

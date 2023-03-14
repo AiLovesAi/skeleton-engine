@@ -6,7 +6,7 @@
 
 using namespace game;
 
-
+/*
 #include <sstream>
 #include <memory>
 #include <common/data/file/gm_file.hpp>
@@ -55,13 +55,13 @@ void test() {
     msg << sbkv.get();
     Logger::log(LOG_INFO, msg.str());
     
-}
+}*/
 
 int main (int argc, char** argv)
 {
     Core::init("../logs/latest.log", "../logs/crash.txt");
     
-    test();
+    //test();
     Client::init();
     Client& client = Client::instance();
     client.start();
