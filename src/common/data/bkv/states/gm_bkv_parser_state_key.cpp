@@ -49,7 +49,7 @@ namespace game {
         if (escapeChar_) {
             escapeChar_ = false;
 
-            char b = BKV_Parser_State_String::getBreakChar(c);
+            char b = BKV_Parser_State_String::getEscapeChar(c);
             if (b < 0) {
                 std::stringstream msg;
                 msg << "Invalid break character in SBKV key at index " << parser.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);

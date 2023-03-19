@@ -31,7 +31,7 @@ namespace game {
         sbkv[head++] = ',';
     }
 
-    char getBreakChar(const char c) {
+    char getEscapeChar(const char c) {
         switch (c) {
             case '\"': return '\"';
             case '\'': return '\'';
@@ -61,7 +61,7 @@ namespace game {
         int16_t escapeChars = 0;
         for (int64_t j = 0; j < len; j++) {
             c = data[i++];
-            escapeChar = getBreakChar(c);
+            escapeChar = getEscapeChar(c);
             if (escapeChar > 0) {
                 escapeChars++;
                 

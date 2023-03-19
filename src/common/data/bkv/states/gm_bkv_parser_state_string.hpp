@@ -22,7 +22,7 @@ namespace game {
                 strChar_ = 0;
                 escapeChar_ = false;
             }
-            static char getBreakChar(const char c);
+            static char getEscapeChar(const char c);
             virtual void parse(BKV_Parser& parser, const char c);
             
         private:
