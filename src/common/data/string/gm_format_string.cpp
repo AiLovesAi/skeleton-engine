@@ -14,7 +14,7 @@ namespace game {
         int64_t len = 0;
 
         // Input validation
-        if (base == 0 || base > 36) base = 10;
+        if (base <= 1 || base > 36) base = 10;
         if (minDigits > MAX_DIGITS) minDigits = MAX_DIGITS;
 
         // Parse
@@ -93,25 +93,42 @@ namespace game {
     template <typename T>
     UTF8Str FormatString::floatToStr(T n, uint8_t base, size_t precision, size_t minDigits, const int32_t flags) noexcept {
         const bool neg = n < 0;
+        T absN = neg ? -n : n;
         int64_t len = 0;
         int32_t integer;
         
-        // Find integer part
-        if (!neg && n > static_cast<T>(INT64_MAX)) {
-            // TODO Allow for very large floats ex. E100
-        } else if (neg && n < static_cast<T>(INT64_MAX)) {
-            // TODO Allow for very small floats ex. E-100
-        } else {
-            integer = static_cast<int32_t>(std::floor(n));
-        }
-
+        
         // Input validation
         if (precision > MAX_DIGITS) precision = 6;
+        if (base <= 1 || base > 36) base = 10;
+        const T baseIn1 = static_cast<T>(1) / base;
+
+        // Solve for very large or small numbers that may overflow int64_t
+        if (absN > INT64_MAX) {
+            // TODO Complete and reorganize to make this function run faster.
+            // Less if tests are better, and this may be able to be combined
+            // with the scientific notation functions below.
+            int16_t exponent = 0;
+            while (absN >= base) {
+                absN /= base;
+                exponent++;
+            }
+            // TODO Returns
+        } else if (absN < 0.0000000000000001) {
+            int16_t exponent = 0;
+            while (absN < 1) {
+                absN *= base;
+                exponent--;
+            }
+            // TODO Returns
+        }
+
+        // Find integer part
+        integer = static_cast<int32_t>(std::floor(n));
 
         // Find decimal part
-        if (neg) n *= -1;
-        T decimal = n - static_cast<T>(integer);
-        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-999")));
+        T decimal = absN - static_cast<T>(integer);
+        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-99")));
 
         // Make 'precision' digits of decimal an integer
         decimal *= std::pow(base, precision);
@@ -132,7 +149,7 @@ namespace game {
             else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
 
             if (flags & FORMAT_SCIENTIFIC) {
-                if (base == 16) {
+                if (base > 10) {
                     const char* zeroStr = (flags & FORMAT_UPPERCASE) ? "0.0P0" : "0.0p0";
                     len += sizeof(zeroStr) - 1;
                     std::memcpy(str + len, zeroStr, len);
@@ -174,7 +191,7 @@ namespace game {
             // Insert characters
             String::insert(str, '.', neg ? 2 : 1);
             len++;
-            if (base == 16) {
+            if (base > 10) {
                 str[len++] = (flags & FORMAT_UPPERCASE) ? 'P' : 'p';
             } else {
                 str[len++] = (flags & FORMAT_UPPERCASE) ? 'E' : 'e';
@@ -209,7 +226,7 @@ namespace game {
                 
                 // Find what power to raise E to
                 UTF8Str powerStr = intToStr(zeroes ? zeroes + 1 : 1, base, 0, flags & FORMAT_UPPERCASE);
-                if (base == 16) {
+                if (base > 10) {
                     str[len++] = (flags & FORMAT_UPPERCASE) ? 'P' : 'p';
                 } else {
                     str[len++] = (flags & FORMAT_UPPERCASE) ? 'E' : 'e';
