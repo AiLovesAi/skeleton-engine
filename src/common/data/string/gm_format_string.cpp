@@ -109,7 +109,7 @@ namespace game {
             // Less if tests are better, and this may be able to be combined
             // with the scientific notation functions below.
             int16_t exponent = 0;
-            while (absN >= base) {
+            while (absN >= base) { // TODO Turn these functions into math functions elsewhere.
                 absN /= base;
                 exponent++;
             }
