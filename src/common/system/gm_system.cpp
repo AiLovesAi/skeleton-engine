@@ -97,9 +97,11 @@ namespace game {
             break;
         }
 
-        int64_t versionLen = std::strlen(versionInfo.szCSDVersion);
-        std::memcpy(OS + len, versionInfo.szCSDVersion, versionLen);
-        len += versionLen;
+        if (String::isAscii(versionInfo.szCSDVersion)) {
+            int64_t versionLen = std::strlen(versionInfo.szCSDVersion);
+            std::memcpy(OS + len, versionInfo.szCSDVersion, versionLen);
+            len += versionLen;
+        }
 #else
         struct utsname unameData;
         uname(&unameData);
@@ -111,6 +113,8 @@ namespace game {
         std::memcpy(OS + len, nameData.release, nameLen);
         len += nameLen;
 #endif
+        OS[len] = '\0';
+        OS = static_cast<char*>(std::realloc(OS, len + 1));
         System::OS_ = UTF8Str{len, std::shared_ptr<const char>(OS, std::free)};
     }
 

@@ -30,7 +30,8 @@ namespace game {
         msg << "Hardware details:\n";
         msg << "\tCPU: " << System::CPU().get() << "\n";
         msg << "\tCPU threads: " << System::cpuThreadCount() << "\n";
-        msg << "\tPhysical memory: " << System::physicalMemory() << "B";
+        msg << "\tPhysical memory: " << System::physicalMemory() << "B\n";
+        msg << "\tOperating system: " << System::OS().get();
         Logger::log(LOG_INFO, msg.str());
     }
 }
