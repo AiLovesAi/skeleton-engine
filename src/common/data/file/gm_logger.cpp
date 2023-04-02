@@ -49,7 +49,7 @@ namespace game {
         char* crashPathStr = static_cast<char*>(std::malloc(crashPathLen + 1));
         std::memcpy(crashPathStr, File::executableDir().get(), File::executableDir().length());
         std::memcpy(crashPathStr + File::executableDir().length(), crashPath.get(), crashPath.length());
-        logPathStr[crashPathLen] = '\0';
+        crashPathStr[crashPathLen] = '\0';
         
         Logger::logPath_ = UTF8Str{logPathLen, std::shared_ptr<const char>(logPathStr, std::free)};
         Logger::crashPath_ = UTF8Str{crashPathLen, std::shared_ptr<const char>(crashPathStr, std::free)};
