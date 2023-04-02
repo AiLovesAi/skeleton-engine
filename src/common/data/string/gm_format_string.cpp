@@ -78,15 +78,14 @@ namespace game {
                     digits++;
                 }
             } else if ((flags & FORMAT_ZERO_PADDED) && !(flags & FORMAT_SCIENTIFIC)) {
-                const char zeroes[] = "000000000000000000";
-                len = String::prepend(str, len, zeroes, minDigits - digits);
+                len = String::prepend(str, len, "000000000000000000", minDigits - digits);
             } else {
-                const char zeroes[] = "                  ";
-                len = String::prepend(str, len, zeroes, minDigits - digits);
+                len = String::prepend(str, len, "                  ", minDigits - digits);
             }
         }
         
-        str = static_cast<char*>(std::realloc(str, len));
+        str[len] = '\0';
+        str = static_cast<char*>(std::realloc(str, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
 
@@ -185,7 +184,8 @@ namespace game {
             }
         }
 
-        str = static_cast<char*>(std::realloc(str, len));
+        str[len] = '\0';
+        str = static_cast<char*>(std::realloc(str, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
 
@@ -229,7 +229,9 @@ namespace game {
                     for (size_t i = 0; i < precision; i++) str[len++] = '0';
                 }
             }
-            str = static_cast<char*>(std::realloc(str, len));
+
+            str[len] = '\0';
+            str = static_cast<char*>(std::realloc(str, len + 1));
             return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
         }
         
@@ -257,7 +259,8 @@ namespace game {
             }
         } else if (flags & FORMAT_TAGGED) str[len++] = '.';
         
-        str = static_cast<char*>(std::realloc(str, len));
+        str[len] = '\0';
+        str = static_cast<char*>(std::realloc(str, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
     
@@ -274,14 +277,16 @@ namespace game {
             len += sizeof(nanStr) - 1;
             std::memcpy(str, nanStr, len);
 
-            str = static_cast<char*>(std::realloc(str, len));
+            str[len] = '\0';
+            str = static_cast<char*>(std::realloc(str, len + 1));
             return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
         } else if (std::isinf(val)) {
             const char infStr[] = "Inf";
             len += sizeof(infStr) - 1;
             std::memcpy(str, infStr, len);
 
-            str = static_cast<char*>(std::realloc(str, len));
+            str[len] = '\0';
+            str = static_cast<char*>(std::realloc(str, len + 1));
             return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
         }
         if (precision > MAX_DIGITS) precision = 6;
@@ -303,41 +308,36 @@ namespace game {
         switch (caseType) {
             case LOWERCASE:
                 if (boolean) {
-                    const char trueStr[] = "true";
-                    len = sizeof(trueStr) - 1;
-                    std::memcpy(str, trueStr, len);
+                    len = sizeof("true") - 1;
+                    std::memcpy(str, "true", len);
                 } else {
-                    const char falseStr[] = "false";
-                    len = sizeof(falseStr) - 1;
-                    std::memcpy(str, falseStr, len);
+                    len = sizeof("false") - 1;
+                    std::memcpy(str, "false", len);
                 }
             break;
             case UPPERCASE_ALL:
                 if (boolean) {
-                    const char trueStr[] = "TRUE";
-                    len = sizeof(trueStr) - 1;
-                    std::memcpy(str, trueStr, len);
+                    len = sizeof("TRUE") - 1;
+                    std::memcpy(str, "TRUE", len);
                 } else {
-                    const char falseStr[] = "FALSE";
-                    len = sizeof(falseStr) - 1;
-                    std::memcpy(str, falseStr, len);
+                    len = sizeof("FALSE") - 1;
+                    std::memcpy(str, "FALSE", len);
                 }
             break;
             case UPPERCASE_FIRST:
             default:
                 if (boolean) {
-                    const char trueStr[] = "True";
-                    len = sizeof(trueStr) - 1;
-                    std::memcpy(str, trueStr, len);
+                    len = sizeof("True") - 1;
+                    std::memcpy(str, "True", len);
                 } else {
-                    const char falseStr[] = "False";
-                    len = sizeof(falseStr) - 1;
-                    std::memcpy(str, falseStr, len);
+                    len = sizeof("False") - 1;
+                    std::memcpy(str, "False", len);
                 }
             break;
         }
 
-        str = static_cast<char*>(std::realloc(str, len));
+        str[len] = '\0';
+        str = static_cast<char*>(std::realloc(str, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
 
@@ -356,7 +356,9 @@ namespace game {
         }
         std::memcpy(str + len, ptrStr, sizeof(ptr));
         len += sizeof(ptr);
-        str = static_cast<char*>(std::realloc(str, len));
+        
+        str[len] = '\0';
+        str = static_cast<char*>(std::realloc(str, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
     
@@ -728,6 +730,9 @@ namespace game {
                 // TODO
 
                 va_end(args);
+
+                dst[len] = '\0';
+                dst = static_cast<char*>(std::realloc(dst, len + 1));
                 return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
     }
 }

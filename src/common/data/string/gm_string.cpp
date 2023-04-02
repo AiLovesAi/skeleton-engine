@@ -63,6 +63,7 @@ namespace game {
 
     UTF8Str String::asAscii(const char* str, const int64_t len) noexcept {
         char* dst = static_cast<char*>(std::malloc(len + 1));
+        int64_t newLen = 0;
 
         char c;
         int64_t i = 0;
@@ -70,8 +71,11 @@ namespace game {
             c = str[i];
             if (c < ' ' || c > '~') break;
             dst[i] = c;
+            newLen++;
         }
 
-        return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
+        dst[newLen] = '\0';
+        dst = static_cast<char*>(std::realloc(dst, newLen + 1));
+        return UTF8Str{newLen, std::shared_ptr<const char>(dst, std::free)};
     }
 }
