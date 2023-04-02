@@ -31,7 +31,7 @@ namespace game {
         str[strLen + 2] = '\0';
     }
 
-    int64_t String::insert(char*& str, const int64_t strLen, const char*& insertStr, const int64_t insertStrLen, const int64_t pos) noexcept {
+    int64_t String::insert(char*& str, const int64_t strLen, const char* insertStr, const int64_t insertStrLen, const int64_t pos) noexcept {
         // Copy str to buffer after pos
         const int64_t rem = strLen - pos;
         char* buffer = static_cast<char*>(std::malloc(rem));

@@ -32,10 +32,10 @@ namespace game {
             T rem;
             do {
                 digits++;
-                rem = n % base;
+                rem = val % base;
                 str[len++] = (rem < 10) ? (rem + '0') : ((rem - 10) + hexFormatChar);
                 val /= base;
-            } while (n != 0);
+            } while (val != 0);
             
             // Add tag
             if (flags & FORMAT_TAGGED) {
@@ -59,7 +59,7 @@ namespace game {
         }
         
         if (flags & FORMAT_SCIENTIFIC) {
-            UTF8Str exponentStr = toStr(digits - 1, base);
+            UTF8Str exponentStr = _intToStr(digits - 1, base, 0, 0);
 
             // Insert characters
             String::insert(str, '.', isNeg ? 2 : 1);
@@ -140,7 +140,7 @@ namespace game {
         }
 
         // Write digits
-        int16_t digits = 0;
+        uint16_t digits = 0;
         const char hexChar = (flags & FORMAT_UPPERCASE) ? 'A' : 'a';
         char digit;
         do {
@@ -166,7 +166,7 @@ namespace game {
         // Append exponent
         str[len++] = (flags & FORMAT_UPPERCASE) ? 'E' : 'e';
         str[len++] = exponent < 0 ? '-' : '+';
-        UTF8Str exponentStr = intToStr(exponent, base, 0, flags & FORMAT_UPPERCASE);
+        UTF8Str exponentStr = _intToStr(exponent, base, 0, flags & FORMAT_UPPERCASE);
         std::memcpy(str + len, exponentStr.get(), exponentStr.length());
         
         if (digits < minDigits) {
@@ -196,7 +196,7 @@ namespace game {
         int64_t len = 0;
 
         // Find integer part
-        const int32_t integer = static_cast<int32_t>(std::floor(n));
+        const int32_t integer = static_cast<int32_t>(std::floor(absVal));
 
         // Find decimal part
         T decimal = absVal - static_cast<T>(integer);
@@ -206,7 +206,7 @@ namespace game {
         decimal *= std::pow(base, precision);
 
         // Get decimal part
-        const UTF8Str decimalStr = intToStr(static_cast<int32_t>(std::floor(decimal)), base, 0, flags & FORMAT_UPPERCASE);
+        const UTF8Str decimalStr = _intToStr(static_cast<int32_t>(std::floor(decimal)), base, 0, flags & FORMAT_UPPERCASE);
 
         // Find zeroes between decimal and end
         // NOTE: When the decimal is raised to precision, it will first get rid of the leading zeroes,
@@ -234,7 +234,7 @@ namespace game {
         }
         
         // Get integer part
-        const UTF8Str intStr = intToStr(integer, base, minDigits, flags & (FORMAT_UPPERCASE | FORMAT_TAGGED));
+        const UTF8Str intStr = _intToStr(integer, base, minDigits, flags & (FORMAT_UPPERCASE | FORMAT_TAGGED));
         if (flags & FORMAT_SIGNED) str[len++] = '+';
         else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
         std::memcpy(str, intStr.get(), intStr.length());
@@ -269,14 +269,14 @@ namespace game {
         // Input validation
         char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-9999")));
         int64_t len = 0;
-        if (std::isnan(n)) {
+        if (std::isnan(val)) {
             const char nanStr[] = "NaN";
             len += sizeof(nanStr) - 1;
             std::memcpy(str, nanStr, len);
 
             str = static_cast<char*>(std::realloc(str, len));
             return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
-        } else if (std::isinf(n)) {
+        } else if (std::isinf(val)) {
             const char infStr[] = "Inf";
             len += sizeof(infStr) - 1;
             std::memcpy(str, infStr, len);
@@ -296,13 +296,13 @@ namespace game {
         else return _floatToStrDecimal(absN, isNeg, base, precision, minDigits, flags);
     }
 
-    UTF8Str FormatString::boolToStr(const bool b, const StringCases caseType) {
+    UTF8Str FormatString::boolToStr(const bool boolean, const StringCases caseType) noexcept {
         char* str = static_cast<char*>(std::malloc(sizeof("False")));
         int64_t len;
 
         switch (caseType) {
             case LOWERCASE:
-                if (b) {
+                if (boolean) {
                     const char trueStr[] = "true";
                     len = sizeof(trueStr) - 1;
                     std::memcpy(str, trueStr, len);
@@ -313,7 +313,7 @@ namespace game {
                 }
             break;
             case UPPERCASE_ALL:
-                if (b) {
+                if (boolean) {
                     const char trueStr[] = "TRUE";
                     len = sizeof(trueStr) - 1;
                     std::memcpy(str, trueStr, len);
@@ -325,7 +325,7 @@ namespace game {
             break;
             case UPPERCASE_FIRST:
             default:
-                if (b) {
+                if (boolean) {
                     const char trueStr[] = "True";
                     len = sizeof(trueStr) - 1;
                     std::memcpy(str, trueStr, len);
@@ -341,7 +341,7 @@ namespace game {
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
 
-    UTF8Str FormatString::ptrToStr(const void* ptr, const int32_t flags) {
+    UTF8Str FormatString::ptrToStr(const void* ptr, const int32_t flags) noexcept {
         if (!ptr) {
             const char ptrStr[] = "(NULL)";
             return UTF8Str{sizeof(ptrStr) - 1, std::shared_ptr<const char>(ptrStr, [](const char*){})};
@@ -607,9 +607,10 @@ namespace game {
             } return false;
             case 'g': { // Shortest of %f or %e
                 double val = va_arg(args, double);
-                const int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
+                int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
+                exponent = (exponent < 0) ? -exponent : exponent;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits,
-                    exponent > precision ? FORMAT_SCIENTIFIC_LOWERCASE : 0
+                    exponent > static_cast<int64_t>(precision) ? FORMAT_SCIENTIFIC_LOWERCASE : 0
                 );
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
@@ -619,9 +620,10 @@ namespace game {
             } return false;
             case 'G': { // Shortest of %F or %E
                 double val = va_arg(args, double);
-                const int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
+                int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
+                exponent = (exponent < 0) ? -exponent : exponent;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits,
-                    exponent > precision ? FORMAT_SCIENTIFIC_UPPERCASE : 0
+                    exponent > static_cast<int64_t>(precision) ? FORMAT_SCIENTIFIC_UPPERCASE : 0
                 );
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);

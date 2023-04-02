@@ -36,25 +36,25 @@ namespace game {
             static bool strToBool(const char* str, const int64_t len);
             
             template <typename T>
-            static inline UTF8Str intToStr(T val) { return intToStr(n, 10); }
+            static inline UTF8Str intToStr(T val) { return intToStr(val, 10); }
             template <typename T>
-            static inline UTF8Str floatToStr(T val) { return floatToStr(n, 10); }
-            static inline UTF8Str boolToStr(const bool b) { return boolToStr(b, UPPERCASE_FIRST); }
-            static UTF8Str boolToStr(const bool b, const StringCases caseType) noexcept;
+            static inline UTF8Str floatToStr(T val) { return floatToStr(val, 10); }
+            static inline UTF8Str boolToStr(const bool boolean) { return boolToStr(boolean, UPPERCASE_FIRST); }
+            static UTF8Str boolToStr(const bool boolean, const StringCases caseType) noexcept;
             static UTF8Str ptrToStr(const void* ptr) { return ptrToStr(ptr, 0); }
             static UTF8Str ptrToStr(const void* ptr, const int32_t flags) noexcept;
             
             template <typename T>
-            static inline UTF8Str intToStr(T val, uint8_t base) { return intToStr(n, base, 0); }
+            static inline UTF8Str intToStr(T val, uint8_t base) { return intToStr(val, base, 0); }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base) { return floatToStr(n, base, 0); }
+            static inline UTF8Str floatToStr(T val, uint8_t base) { return floatToStr(val, base, 0); }
 
             template <typename T>
-            static inline UTF8Str intToStr(T val, uint8_t base, size_t minDigits) { return intToStr(n, base, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str intToStr(T val, uint8_t base, size_t minDigits) { return intToStr(val, base, minDigits, FORMAT_DIGITAL); }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base, size_t precision) { return floatToStr(n, base, precision, 0); }
+            static inline UTF8Str floatToStr(T val, uint8_t base, size_t precision) { return floatToStr(val, base, precision, 0); }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base, size_t precision, size_t minDigits) { return floatToStr(n, base, precision, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str floatToStr(T val, uint8_t base, size_t precision, size_t minDigits) { return floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL); }
 
             // Variables
             static constexpr int MAX_DIGITS = 18; // 2^63 - 1 = 9.223372036854775807E18, so use 18 since we can hold 19 digits max
@@ -67,16 +67,9 @@ namespace game {
                 FORMAT_SCIENTIFIC,
 
                 // Flags
-                FORMAT_UPPERCASE = 1 << 7, // Hex/scientific notation is uppercase
-
-                // Combinations
-                FORMAT_SCIENTIFIC_UPPERCASE = FORMAT_SCIENTIFIC | FORMAT_UPPERCASE,
-                FORMAT_SCIENTIFIC_LOWERCASE = FORMAT_SCIENTIFIC,
-
-                // Flags
                 // Hex/scientific notation is uppercase
                 FORMAT_UPPERCASE = 1 << 31, 
-                // If no sign is going to be written, a blank space is inserted before the value
+                // If no sign is going to be writteval, a blank space is inserted before the value
                 FORMAT_SIGNED = 1 << 30,
                 // Forces sign (even on positive)
                 FORMAT_SIGN_PADDING = 1 << 29,
@@ -92,6 +85,10 @@ namespace game {
                 FORMAT_PRECISION = 1 << 24,
                 // Truncates trailing zeroes in a float
                 FORMAT_TRUNCATE_ZEROES = 1 << 23,
+
+                // Combinations
+                FORMAT_SCIENTIFIC_UPPERCASE = FORMAT_SCIENTIFIC | FORMAT_UPPERCASE,
+                FORMAT_SCIENTIFIC_LOWERCASE = FORMAT_SCIENTIFIC,
             };
 
             // Functions
@@ -107,7 +104,7 @@ namespace game {
             static UTF8Str _floatToStr(T val, uint8_t base, size_t precision, size_t minDigits, const int32_t flags) noexcept;
 
             static bool _formatStringFormat(const char c, va_list& args,
-                char*& dst, int64_t& capacity, int64_t& len, int& flags,
+                char*& dst, int64_t& capacity, int64_t& leval, int& flags,
                 size_t& minDigits, size_t& precision); // Returns false when format is complete
     };
 }
