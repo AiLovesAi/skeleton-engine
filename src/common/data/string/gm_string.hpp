@@ -18,6 +18,8 @@ namespace game {
                 insert(str, static_cast<int64_t>(std::strlen(str)), c, pos);
             }
             static void insert(char*& str, const int64_t strLen, const char c, const int64_t pos) noexcept;
+            // NOTE: Must have enough memory
+            // @return Length of the new string
             static inline int64_t insert(char*& str, const char*& insertStr, const int64_t pos) {
                 return insert(
                     str, static_cast<int64_t>(std::strlen(str)),
@@ -29,6 +31,8 @@ namespace game {
                 const char*& insertStr, const int64_t insertStrLen, const int64_t pos
             ) noexcept;
 
+            // NOTE: Must have enough memory
+            // @return Length of the new string
             static inline int64_t prepend(char*& str, const char*& prependStr) { return insert(str, prependStr, 0); }
             static inline int64_t prepend(char*& str, const int64_t strLen, const char*& prependStr, const int64_t prependStrLen) {
                 return insert(str, strLen, prependStr, prependStrLen, 0);

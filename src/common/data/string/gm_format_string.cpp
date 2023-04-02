@@ -8,7 +8,7 @@
 
 namespace game {
     template <typename T>
-    UTF8Str FormatString::intToStr(T n, uint8_t base, size_t minDigits, const int32_t flags) noexcept {
+    UTF8Str FormatString::_intToStr(T val, uint8_t base, size_t minDigits, const int32_t flags) noexcept {
         char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E18")));
         bool neg = n < 0;
         int64_t len = 0;
@@ -33,7 +33,7 @@ namespace game {
             do {
                 digits++;
                 rem = n % base;
-                str[len++] = (rem < 9) ? ((rem - 10) + hexFormatChar) : (rem + '0');
+                str[len++] = (rem < 10) ? (rem + '0') : ((rem - 10) + hexFormatChar);
                 n /= base;
             } while (n != 0);
             
@@ -79,55 +79,115 @@ namespace game {
                 }
             } else if ((flags & FORMAT_ZERO_PADDED) && !(flags & FORMAT_SCIENTIFIC)) {
                 const char zeroes[] = "000000000000000000";
-                String::prepend(str, len, zeroes, minDigits - digits);
+                len = String::prepend(str, len, zeroes, minDigits - digits);
             } else {
                 const char zeroes[] = "                  ";
-                String::prepend(str, len, zeroes, minDigits - digits);
+                len = String::prepend(str, len, zeroes, minDigits - digits);
             }
         }
         
         str = static_cast<char*>(std::realloc(str, len));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
-    
-    template <typename T>
-    UTF8Str FormatString::floatToStr(T n, uint8_t base, size_t precision, size_t minDigits, const int32_t flags) noexcept {
-        const bool neg = n < 0;
-        T absN = neg ? -n : n;
-        int64_t len = 0;
-        int32_t integer;
-        
-        
-        // Input validation
-        if (precision > MAX_DIGITS) precision = 6;
-        if (base <= 1 || base > 36) base = 10;
-        const T baseIn1 = static_cast<T>(1) / base;
 
-        // Solve for very large or small numbers that may overflow int64_t
-        if (absN > INT64_MAX) {
-            // TODO Complete and reorganize to make this function run faster.
-            // Less if tests are better, and this may be able to be combined
-            // with the scientific notation functions below.
-            int16_t exponent = 0;
-            while (absN >= base) { // TODO Turn these functions into math functions elsewhere.
-                absN /= base;
-                exponent++;
-            }
-            // TODO Returns
-        } else if (absN < 0.0000000000000001) {
-            int16_t exponent = 0;
-            while (absN < 1) {
-                absN *= base;
-                exponent--;
-            }
-            // TODO Returns
+    template <typename T>
+    UTF8Str FormatString::_floatToStrScientific(const T absVal, const bool isNeg, const uint8_t base,
+        const size_t precision, const size_t minDigits, const int32_t flags) noexcept
+    {
+        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-9999")));
+        int64_t len = 0;
+        
+        // Find exponent
+        int16_t exponent = (absVal <= 1) ? 0 : static_cast<int16_t>(std::floor(std::log(absVal) / std::log(base)));
+        if (isNeg) exponent = -exponent;
+
+        // Test for very close values (ie. 99.999... giving 2 instead of 1 due to rounding)
+        T powN = absVal * std::pow(base, exponent);
+        if (powN > base) {
+            exponent--;
+            powN = absVal * std::pow(base, exponent);
+        } else if (powN < 1) {
+            exponent++;
+            powN = absVal * std::pow(base, exponent);
         }
 
+        // Prepend if required
+        if (!(flags & FORMAT_ZERO_PADDED) && !(flags & FORMAT_LEFT_JUSTIFIED)) {
+            const int16_t prependCount = minDigits - (exponent < 0 ? -exponent : exponent) + 1;
+            for (int16_t i = 0; i < prependCount; i++) {
+                str[len++] = ' ';
+            }
+        }
+
+        // Add sign if required
+        if (isNeg) str[len++] = '-';
+        else {
+            if (flags & FORMAT_SIGNED) str[len++] = '+';
+            else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
+        }
+
+        // Write digits
+        int16_t digits = 0;
+        const char hexChar = (flags & FORMAT_UPPERCASE) ? 'A' : 'a';
+        char digit;
+        do {
+            // Compute the next digit and insert it into the buffer
+            digit = static_cast<char>(std::floor(powN));
+            digits++;
+            str[len++] = (digit < 10) ? (digit + '0') : ((digit - 10) + hexChar);
+            powN -= digit;
+            powN *= base;
+            
+            // Place decimal as required
+            if (digits == 1) str[len++] = '.';
+        } while (digits < precision);
+
+        // Add zero padding as required
+        if ((flags & FORMAT_ZERO_PADDED) && (digits < minDigits)) {
+            while (digits < minDigits) {
+                str[len++] = '0';
+                digits++;
+            }
+        }
+        
+        // Append exponent
+        str[len++] = (flags & FORMAT_UPPERCASE) ? 'E' : 'e';
+        str[len++] = exponent < 0 ? '-' : '+';
+        UTF8Str exponentStr = intToStr(exponent, base, 0, flags & FORMAT_UPPERCASE);
+        std::memcpy(str + len, exponentStr.get(), exponentStr.length());
+        
+        if (digits < minDigits) {
+            // Add padding as required
+            if (flags & FORMAT_LEFT_JUSTIFIED) {
+                while (digits < minDigits) {
+                    str[len++] = ' ';
+                    digits++;
+                }
+            }
+        } else if (flags & FORMAT_TRUNCATE_ZEROES) {
+            // Truncate as required
+            while (str[len - 1] == '0') {
+                digits--;
+                len--;
+            }
+        }
+
+        str = static_cast<char*>(std::realloc(str, len));
+        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+    }
+
+    template <typename T>
+    UTF8Str FormatString::_floatToStrDecimal(const T absVal, const bool isNeg, const uint8_t base,
+        const size_t precision, const size_t minDigits, const int32_t flags) noexcept
+    {
+        // TODO Evaluate or remake this function. It is copied from the old version and very inefficient and messy.
+        int64_t len = 0;
+
         // Find integer part
-        integer = static_cast<int32_t>(std::floor(n));
+        int32_t integer = static_cast<int32_t>(std::floor(n));
 
         // Find decimal part
-        T decimal = absN - static_cast<T>(integer);
+        T decimal = absVal - static_cast<T>(integer);
         char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-99")));
 
         // Make 'precision' digits of decimal an integer
@@ -148,17 +208,7 @@ namespace game {
             if (flags & FORMAT_SIGNED) str[len++] = '+';
             else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
 
-            if (flags & FORMAT_SCIENTIFIC) {
-                if (base > 10) {
-                    const char* zeroStr = (flags & FORMAT_UPPERCASE) ? "0.0P0" : "0.0p0";
-                    len += sizeof(zeroStr) - 1;
-                    std::memcpy(str + len, zeroStr, len);
-                } else {
-                    const char* zeroStr = (flags & FORMAT_UPPERCASE) ? "0.0E0" : "0.0e0";
-                    len += sizeof(zeroStr) - 1;
-                    std::memcpy(str + len, zeroStr, len);
-                }
-            } else if (precision == 0) { // No character is written for the value 0
+            if (precision == 0) { // No character is written for the value 0
                 str[len++] = '.';
             } else {
                 str[len++] = '0';
@@ -171,91 +221,67 @@ namespace game {
             return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
         }
         
-        // Parse
-        if ((flags & FORMAT_SCIENTIFIC) && (integer == 0)) { // E-x
-            // Add sign
-            if (neg) str[len++] = '-';
-            else if (flags & FORMAT_SIGNED) str[len++] = '+';
-            else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
+        // Get integer part
+        const UTF8Str intStr = intToStr(integer, base, minDigits, flags & (FORMAT_UPPERCASE | FORMAT_TAGGED));
+        if (flags & FORMAT_SIGNED) str[len++] = '+';
+        else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
+        std::memcpy(str, intStr.get(), intStr.length());
+        len += intStr.length();
 
-            // Copy to buffer
+        // Only add decimal if needed
+        if (precision > 0 || !((decimalStr.length() == 1) && (decimalStr.get()[0] == '0'))) {
+            str[len++] = '.';
+
+            // Add missing zeroes
+            while (zeroes--) str[len++] = '0';
+            
+            // Copy decimal
             std::memcpy(str + len, decimalStr.get(), decimalStr.length());
             len += decimalStr.length();
-            
-            // Truncate trailing 0's (precision overshot)
-            while (str[len - 1] == '0') len--;
 
-            // Find what power to raise E to
-            UTF8Str powerStr = intToStr(zeroes ? zeroes + 1 : 1, base, 0, flags & FORMAT_UPPERCASE);
-
-            // Insert characters
-            String::insert(str, '.', neg ? 2 : 1);
-            len++;
-            if (base > 10) {
-                str[len++] = (flags & FORMAT_UPPERCASE) ? 'P' : 'p';
-            } else {
-                str[len++] = (flags & FORMAT_UPPERCASE) ? 'E' : 'e';
+            if (flags & FORMAT_TRUNCATE_ZEROES) {
+                // Truncate trailing 0's (precision overshot)
+                while (str[len - 1] == '0') len--;
             }
-            str[len++] = '-';
-
-            std::memcpy(str + len, powerStr.get(), powerStr.length());
-            len += powerStr.length();
-        } else {
-            // Get integer part
-            const UTF8Str intStr = intToStr(integer, base, minDigits, flags & (FORMAT_UPPERCASE | FORMAT_TAGGED));
-            if (flags & FORMAT_SIGNED) str[len++] = '+';
-            else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
-            std::memcpy(str, intStr.get(), intStr.length());
-            len += intStr.length();
-
-            if (flags & FORMAT_SCIENTIFIC) { // E+x
-                // Only add decimal if needed
-                if (intStr.length() > 1 || !((decimalStr.length() == 1) && (decimalStr.get()[0] == '0'))) {
-                    String::insert(str, '.', neg ? 2 : 1);
-                    len++;
-                    
-                    // Copy decimal
-                    std::memcpy(str + len, decimalStr.get(), decimalStr.length());
-                    len += decimalStr.length();
-                    
-                    if (flags & FORMAT_TRUNCATE_ZEROES) {
-                        // Truncate trailing 0's (precision overshot)
-                        while (str[len - 1] == '0') len--;
-                    }
-                } else if (flags & FORMAT_TAGGED) str[len++] = '.';
-                
-                // Find what power to raise E to
-                UTF8Str powerStr = intToStr(zeroes ? zeroes + 1 : 1, base, 0, flags & FORMAT_UPPERCASE);
-                if (base > 10) {
-                    str[len++] = (flags & FORMAT_UPPERCASE) ? 'P' : 'p';
-                } else {
-                    str[len++] = (flags & FORMAT_UPPERCASE) ? 'E' : 'e';
-                }
-
-                std::memcpy(str + len, powerStr.get(), powerStr.length());
-                len += powerStr.length();
-            } else {
-                // Only add decimal if needed
-                if (precision > 0 || !((decimalStr.length() == 1) && (decimalStr.get()[0] == '0'))) {
-                    str[len++] = '.';
-
-                    // Add missing zeroes
-                    while (zeroes--) str[len++] = '0';
-                    
-                    // Copy decimal
-                    std::memcpy(str + len, decimalStr.get(), decimalStr.length());
-                    len += decimalStr.length();
-
-                    if (flags & FORMAT_TRUNCATE_ZEROES) {
-                        // Truncate trailing 0's (precision overshot)
-                        while (str[len - 1] == '0') len--;
-                    }
-                } else if (flags & FORMAT_TAGGED) str[len++] = '.';
-            }
-        }
+        } else if (flags & FORMAT_TAGGED) str[len++] = '.';
         
         str = static_cast<char*>(std::realloc(str, len));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+    }
+    
+    template <typename T>
+    UTF8Str FormatString::_floatToStr(T val, uint8_t base, size_t precision, size_t minDigits, const int32_t flags) noexcept {
+        const bool isNeg = val < 0;
+        T absN = isNeg ? -val : val;
+        
+        // Input validation
+        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-9999")));
+        int64_t len = 0;
+        if (std::isnan(n)) {
+            const char nanStr[] = "NaN";
+            len += sizeof(nanStr) - 1;
+            std::memcpy(str, nanStr, len);
+
+            str = static_cast<char*>(std::realloc(str, len));
+            return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+        } else if (std::isinf(n)) {
+            const char infStr[] = "Inf";
+            len += sizeof(infStr) - 1;
+            std::memcpy(str, infStr, len);
+
+            str = static_cast<char*>(std::realloc(str, len));
+            return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+        }
+        if (precision > MAX_DIGITS) precision = 6;
+        if (base <= 1 || base > 36) base = 10;
+
+        // Handle scientific notation
+        // Use scientific notation for very large or small values that may overflow int64_t
+        if ((flags & FORMAT_SCIENTIFIC) ||
+            (absN > INT64_MAX) ||
+            ((absN < 0.0000000000000001) && (absN > 0))
+        ) return _floatToStrScientific(absN, isNeg, base, precision, minDigits, flags);
+        else return _floatToStrDecimal(absN, isNeg, base, precision, minDigits, flags);
     }
 
     UTF8Str FormatString::boolToStr(const bool b, const StringCases caseType) {
@@ -322,7 +348,7 @@ namespace game {
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
     }
     
-    bool FormatString::formatStringFormat(const char c, va_list& args, char*& dst,
+    bool FormatString::_formatStringFormat(const char c, va_list& args, char*& dst,
         int64_t& capacity, int64_t& len, int& flags, size_t& minDigits, size_t& precision)
     {
         switch (c) {
@@ -447,7 +473,7 @@ namespace game {
             case 'i': { // Signed int
                 if (flags & FORMAT_LONG) {
                     int64_t val = va_arg(args, int64_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 10, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -455,7 +481,7 @@ namespace game {
                     len += valStr.length();
                 } else {
                     int32_t val = va_arg(args, int32_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 10, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -466,7 +492,7 @@ namespace game {
             case 'u': { // Unsigned int
                 if (flags & FORMAT_LONG) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 10, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -474,7 +500,7 @@ namespace game {
                     len += valStr.length();
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 10, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -485,7 +511,7 @@ namespace game {
             case 'o': { // Unsigned octal
                 if (flags & FORMAT_LONG) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 8, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 8, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -493,7 +519,7 @@ namespace game {
                     len += valStr.length();
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 8, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 8, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -504,7 +530,7 @@ namespace game {
             case 'x': { // Hex
                 if (flags & FORMAT_LONG) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 16, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -512,7 +538,7 @@ namespace game {
                     len += valStr.length();
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 16, std::max(minDigits, precision));
+                    UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision));
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -523,7 +549,7 @@ namespace game {
             case 'X': { // Hex uppercase
                 if (flags & FORMAT_LONG) {
                     uint64_t val = va_arg(args, uint64_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 16, std::max(minDigits, precision), FORMAT_UPPERCASE);
+                    UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision), FORMAT_UPPERCASE);
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -531,7 +557,7 @@ namespace game {
                     len += valStr.length();
                 } else {
                     uint32_t val = va_arg(args, uint32_t);
-                    UTF8Str valStr = FormatString::intToStr(val, 16, std::max(minDigits, precision), FORMAT_UPPERCASE);
+                    UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision), FORMAT_UPPERCASE);
                     try {
                         String::checkResize_(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
@@ -542,7 +568,7 @@ namespace game {
             case 'f':
             case 'F': { // Float
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::floatToStr(val, 10, precision, minDigits);
+                UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
@@ -551,7 +577,7 @@ namespace game {
             } return false;
             case 'e': { // Scientific notation
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::floatToStr(val, 10, precision, minDigits, FORMAT_SCIENTIFIC_LOWERCASE);
+                UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, FORMAT_SCIENTIFIC_LOWERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
@@ -560,7 +586,7 @@ namespace game {
             } return false;
             case 'E': { // Scientific notation uppercase
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::floatToStr(val, 10, precision, minDigits, FORMAT_SCIENTIFIC_UPPERCASE);
+                UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, FORMAT_SCIENTIFIC_UPPERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
@@ -570,7 +596,7 @@ namespace game {
             case 'g': { // Shortest of %f or %e
                 double val = va_arg(args, double);
                 const int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
-                UTF8Str valStr = FormatString::floatToStr(val, 10, precision, minDigits,
+                UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits,
                     exponent > precision ? FORMAT_SCIENTIFIC_LOWERCASE : 0
                 );
                 try {
@@ -582,7 +608,7 @@ namespace game {
             case 'G': { // Shortest of %F or %E
                 double val = va_arg(args, double);
                 const int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
-                UTF8Str valStr = FormatString::floatToStr(val, 10, precision, minDigits,
+                UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits,
                     exponent > precision ? FORMAT_SCIENTIFIC_UPPERCASE : 0
                 );
                 try {
@@ -593,7 +619,7 @@ namespace game {
             } return false;
             case 'a': { // Signed hex float
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::floatToStr(val, 16, precision, minDigits);
+                UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
@@ -602,7 +628,7 @@ namespace game {
             } return false;
             case 'A': { // Signed hex float uppercase
                 double val = va_arg(args, double);
-                UTF8Str valStr = FormatString::floatToStr(val, 16, precision, minDigits, FORMAT_UPPERCASE);
+                UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, FORMAT_UPPERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
@@ -669,7 +695,7 @@ namespace game {
                 for (int64_t i = 0; i < strLen; i++) {
                     c = str[i];
                     if (formatChar) {
-                        formatChar = formatStringFormat(c, args, dst, capacity, len, flags, minDigits, precision);
+                        formatChar = _formatStringFormat(c, args, dst, capacity, len, flags, minDigits, precision);
                     } else {
                         switch (c) {
                             case '%': { // Format
