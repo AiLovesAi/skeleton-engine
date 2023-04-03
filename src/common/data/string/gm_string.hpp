@@ -51,16 +51,16 @@ namespace game {
             /// @param capacity The current capacity of the buffer
             template <typename T1, typename T2>
             static void checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
-                if (size < prevSize) {
+                if ((size * 2) < prevSize) {
                     throw std::runtime_error(
                         FormatString::formatString(
-                            "New buffer size overflows to a number less than the previous: %ld < %d.", size, prevSize
+                            "New buffer size overflows to be less than previous size: (%ld * 2) < %d.", size, prevSize
                         ).get()
                     );
                 }
 
                 if (size > capacity) {
-                    capacity <<= 1; // Capacity doubles
+                    capacity = size * 2;
                     ptr = static_cast<T1*>(std::realloc(ptr, capacity));
                 }
             }
@@ -71,12 +71,12 @@ namespace game {
             // Functions
             template <typename T1, typename T2>
             static void _checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
-                if (size < prevSize) {
-                    throw std::runtime_error("New buffer size overflows to a number less than the previous in string format function.");
+                if ((size * 2) < prevSize) {
+                    throw std::runtime_error("New buffer size overflows to be less than previous size in string format function.");
                 }
                 
                 if (size > capacity) {
-                    capacity <<= 1; // Capacity doubles
+                    capacity = size * 2;
                     ptr = static_cast<T1*>(std::realloc(ptr, capacity));
                 }
             }

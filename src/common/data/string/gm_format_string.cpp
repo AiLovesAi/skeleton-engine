@@ -745,6 +745,7 @@ namespace game {
                 va_end(args);
 
                 dst[len] = '\0';
+                dst = static_cast<char*>(std::realloc(dst, len + 1));
                 return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
     }
 }
