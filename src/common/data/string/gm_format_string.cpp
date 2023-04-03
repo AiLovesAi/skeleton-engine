@@ -347,7 +347,7 @@ namespace game {
             return UTF8Str{sizeof(ptrStr) - 1, std::shared_ptr<const char>(ptrStr, [](const char*){})};
         }
 
-        const char* ptrStr = reinterpret_cast<const char*>(&ptr);
+        const char* ptrStr = reinterpret_cast<const char*>(&ptr); // TODO Replace with intToStr?
         char *str = static_cast<char*>(std::malloc(sizeof("0x") + sizeof(ptr)));
         int64_t len = 0;
         if (flags & FORMAT_TAGGED) {
@@ -582,6 +582,7 @@ namespace game {
             case 'f':
             case 'F': { // Float
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, 0);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
@@ -591,6 +592,7 @@ namespace game {
             } return false;
             case 'e': { // Scientific notation
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, FORMAT_SCIENTIFIC_LOWERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
@@ -600,6 +602,7 @@ namespace game {
             } return false;
             case 'E': { // Scientific notation uppercase
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, FORMAT_SCIENTIFIC_UPPERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
@@ -609,6 +612,7 @@ namespace game {
             } return false;
             case 'g': { // Shortest of %f or %e
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
                 exponent = (exponent < 0) ? -exponent : exponent;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits,
@@ -622,6 +626,7 @@ namespace game {
             } return false;
             case 'G': { // Shortest of %F or %E
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
                 exponent = (exponent < 0) ? -exponent : exponent;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits,
@@ -635,6 +640,7 @@ namespace game {
             } return false;
             case 'a': { // Signed hex float
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, 0);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
@@ -644,6 +650,7 @@ namespace game {
             } return false;
             case 'A': { // Signed hex float uppercase
                 double val = va_arg(args, double);
+                if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, FORMAT_UPPERCASE);
                 try {
                     String::checkResize_(dst, len + valStr.length(), len, capacity);
@@ -661,11 +668,9 @@ namespace game {
             case 's': { // String
                 const char* str = va_arg(args, char*);
                 const int64_t strLen = precision ? std::min(std::strlen(str), precision) : std::strlen(str);
-                
                 try {
                     String::checkResize_(dst, len + strLen, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
-
                 std::memcpy(dst + len, str, strLen);
                 len += strLen;
             } return false;
@@ -706,12 +711,17 @@ namespace game {
 
                 char c;
                 bool formatChar = false;
-                size_t minDigits = 0, precision = 6;
+                size_t minDigits = 0, precision = 0;
                 int32_t flags = 0;
                 for (int64_t i = 0; i < strLen; i++) {
                     c = str[i];
                     if (formatChar) {
                         formatChar = _formatStringFormat(c, args, dst, capacity, len, flags, minDigits, precision);
+                        if (!formatChar) {
+                            minDigits = 0;
+                            precision = 0;
+                            flags = 0;
+                        }
                     } else {
                         switch (c) {
                             case '%': { // Format

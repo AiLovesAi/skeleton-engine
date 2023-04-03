@@ -23,7 +23,7 @@ void test() {
     Logger::log(LOG_INFO, f);
     UTF8Str g = FormatString::formatString("Width trick: %*d", 5, 10);
     Logger::log(LOG_INFO, g);
-    UTF8Str h = FormatString::formatString("%s", "A string");
+    UTF8Str h = FormatString::formatString("%s", "A string!");
     Logger::log(LOG_INFO, h);
     UTF8Str i = FormatString::formatString("%+!07E %!f", 3.001, 3.000105, 0.0);
     Logger::log(LOG_INFO, i);

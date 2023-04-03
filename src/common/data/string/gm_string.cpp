@@ -63,14 +63,13 @@ namespace game {
 
     UTF8Str String::asAscii(const char* str, const int64_t len) noexcept {
         char* dst = static_cast<char*>(std::malloc(len + 1));
-        int64_t newLen = 0;
 
         char c;
-        int64_t i = 0;
+        int64_t i = 0, newLen = 0;
         for (; i < len; i++) {
             c = str[i];
             if (c < ' ' || c > '~') break;
-            dst[i] = c;
+            dst[newLen] = c;
             newLen++;
         }
 
