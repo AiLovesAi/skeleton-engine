@@ -50,11 +50,11 @@ namespace game {
             static inline UTF8Str floatToStr(T val, uint8_t base) { return floatToStr(val, base, 0); }
 
             template <typename T>
-            static inline UTF8Str intToStr(T val, uint8_t base, size_t minDigits) { return intToStr(val, base, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str intToStr(T val, uint8_t base, int64_t minDigits) { return intToStr(val, base, minDigits, FORMAT_DIGITAL); }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base, size_t precision) { return floatToStr(val, base, precision, 0); }
+            static inline UTF8Str floatToStr(T val, uint8_t base, int64_t precision) { return floatToStr(val, base, precision, 0); }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base, size_t precision, size_t minDigits) { return floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str floatToStr(T val, uint8_t base, int64_t precision, int64_t minDigits) { return floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL); }
 
             // Variables
             static constexpr int MAX_DIGITS = 18; // 2^63 - 1 = 9.223372036854775807E18, so use 18 since we can hold 19 digits max
@@ -93,18 +93,18 @@ namespace game {
 
             // Functions
             template <typename T>
-            static UTF8Str _intToStr(T val, uint8_t base, size_t minDigits, const int32_t flags) noexcept;
+            static UTF8Str _intToStr(T val, uint8_t base, int64_t minDigits, const int32_t flags) noexcept;
             template <typename T>
             static UTF8Str _floatToStrScientific(const T absVal, const bool isNeg, const uint8_t base,
-                const size_t precision, const size_t minDigits, const int32_t flags) noexcept;
+                const int64_t precision, const int64_t minDigits, const int32_t flags) noexcept;
             template <typename T>
             static UTF8Str _floatToStrDecimal(const T absVal, const bool isNeg, const uint8_t base,
-                const size_t precision, const size_t minDigits, const int32_t flags) noexcept;
+                const int64_t precision, const int64_t minDigits, const int32_t flags) noexcept;
             template <typename T>
-            static UTF8Str _floatToStr(T val, uint8_t base, size_t precision, size_t minDigits, const int32_t flags) noexcept;
+            static UTF8Str _floatToStr(T val, uint8_t base, int64_t precision, int64_t minDigits, const int32_t flags) noexcept;
 
             static bool _formatStringFormat(const char c, va_list& args,
                 char*& dst, int64_t& capacity, int64_t& leval, int& flags,
-                size_t& minDigits, size_t& precision); // Returns false when format is complete
+                int64_t& minDigits, int64_t& precision); // Returns false when format is complete
     };
 }
