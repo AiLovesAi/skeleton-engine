@@ -61,12 +61,12 @@ namespace game {
 
         // Start game
         Core::running = true;
-        window_.show();
+        _window.show();
 
         // Main game loop
         auto previousTime = std::chrono::high_resolution_clock::now();
         double lag = 0.0f;
-        while (Core::running && !window_.shouldClose()) {
+        while (Core::running && !_window.shouldClose()) {
             glfwPollEvents();
 
             auto currentTime = std::chrono::high_resolution_clock::now();

@@ -1,7 +1,7 @@
 #include "gm_bkv.hpp"
 
 #include "gm_bkv_parser.hpp"
-#include "../string/gm_string.hpp"
+#include "../../headers/string.hpp"
 #include "../gm_endianness.hpp"
 
 #include "../file/gm_logger.hpp"

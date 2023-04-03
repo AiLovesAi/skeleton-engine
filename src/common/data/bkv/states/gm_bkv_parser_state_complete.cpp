@@ -8,13 +8,13 @@
 
 namespace game {
     void BKV_Parser_State_Complete::parse(BKV_Parser& parser, const char c) {
-        parser.charactersRead_++;
+        parser._charactersRead++;
         
         if (std::isspace(c) || (c == '\0')) {
             return;
         } else {
             std::stringstream msg;
-            msg << "Enclosing BKV compound has already been closed and the bkv is finished at index: " << parser.charactersRead_ << ".";
+            msg << "Enclosing BKV compound has already been closed and the bkv is finished at index: " << parser._charactersRead << ".";
             throw std::runtime_error(msg.str());
         }
     }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <common/data/string/gm_utf8.hpp>
+#include <common/headers/string.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -25,13 +25,13 @@ class Window {
         // Functions
         static void init();
 
-        GLFWwindow* window() const { return window_; }
-        bool shouldClose() { return glfwWindowShouldClose(window_); }
-        VkExtent2D extent() { return {static_cast<uint32_t>(width_), static_cast<uint32_t>(height_)}; }
-        float aspectRatio() { return static_cast<float>(width_) / static_cast<float>(height_); }
-        bool wasResized() { return frameBufferResized_; }
-        bool isFocused() { return focused_; }
-        void resetWindowResizedFlag() { frameBufferResized_ = false; }
+        GLFWwindow* window() const { return _window; }
+        bool shouldClose() { return glfwWindowShouldClose(_window); }
+        VkExtent2D extent() { return {static_cast<uint32_t>(_width), static_cast<uint32_t>(_height)}; }
+        float aspectRatio() { return static_cast<float>(_width) / static_cast<float>(_height); }
+        bool wasResized() { return _frameBufferResized; }
+        bool isFocused() { return _focused; }
+        void resetWindowResizedFlag() { _frameBufferResized = false; }
 
         void show();
         void createWindowSurface(const VkInstance instance, VkSurfaceKHR* surface);
@@ -46,11 +46,11 @@ class Window {
         static void focusCallback(GLFWwindow* glfwWindow, int focused);
 
         // Variables
-        int width_;
-        int height_;
-        bool frameBufferResized_ = false;
-        bool focused_ = true;
+        int _width;
+        int _height;
+        bool _frameBufferResized = false;
+        bool _focused = true;
 
-        GLFWwindow* window_;
+        GLFWwindow* _window;
 };
 }

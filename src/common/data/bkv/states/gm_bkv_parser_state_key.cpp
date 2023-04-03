@@ -4,28 +4,28 @@
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
 #include "../../gm_endianness.hpp"
-#include "../../string/gm_string.hpp"
+#include "../../../headers/string.hpp"
 
 #include <sstream>
 #include <stdexcept>
 
 namespace game {
     void BKV_Parser_State_Key::completeKey(BKV_Parser& parser, const char c) {
-        parser.buffer_.tagHead_ = parser.buffer_.head_;
+        parser._buffer._tagHead = parser._buffer._head;
         uint8_t len = static_cast<uint8_t>(keyLen_);
 
         try {
-            String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + 2 + keyLen_, parser.buffer_.head_, parser.buffer_.capacity_);
+            StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + 2 + keyLen_, parser._buffer._head, parser._buffer._capacity);
         } catch (std::runtime_error &e) { throw; }
-        std::memcpy(parser.buffer_.bkv_ + parser.buffer_.head_ + 1, &len, BKV::BKV_KEY_SIZE);
-        parser.buffer_.head_ += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
+        std::memcpy(parser._buffer.bkv_ + parser._buffer._head + 1, &len, BKV::BKV_KEY_SIZE);
+        parser._buffer._head += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
     std::stringstream m;
-    m << "Key putting data at: " << parser.buffer_.head_;
+    m << "Key putting data at: " << parser._buffer._head;
     Logger::log(LOG_INFO, m.str());
-        std::memcpy(parser.buffer_.bkv_ + parser.buffer_.head_, key_, keyLen_);
-        parser.buffer_.head_ += keyLen_;
-        parser.buffer_.valHead_ = parser.buffer_.head_;
-        parser.stateTree_.push(&parser.findTagState_);
+        std::memcpy(parser._buffer.bkv_ + parser._buffer._head, key_, keyLen_);
+        parser._buffer._head += keyLen_;
+        parser._buffer._valHead = parser._buffer._head;
+        parser._stateTree.push(&parser._findTagState);
 
     char key[256];
     std::memcpy(key, key_, keyLen_);
@@ -40,7 +40,7 @@ namespace game {
         // Build string
         if (keyLen_ >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
             std::stringstream msg;
-            msg << "Too many characters in SBKV key at index " << parser.charactersRead_ << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key at index " << parser._charactersRead << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
@@ -52,7 +52,7 @@ namespace game {
             char b = BKV_Parser_State_String::getEscapeChar(c);
             if (b < 0) {
                 std::stringstream msg;
-                msg << "Invalid break character in SBKV key at index " << parser.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid break character in SBKV key at index " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }
@@ -68,11 +68,11 @@ namespace game {
     }
 
     void BKV_Parser_State_Key::parse(BKV_Parser& parser, const char c) {
-        parser.charactersRead_++;
+        parser._charactersRead++;
         std::stringstream m;
         m << "Key state parsing character: " << c;
         Logger::log(LOG_INFO, m.str());
-        if (!parser.buffer_.head_) {
+        if (!parser._buffer._head) {
             // Must open with a compound
             if (c == '{') {
                 parser.openCompound();
@@ -105,7 +105,7 @@ namespace game {
         } else {
             // If a compound hasn't just ended, this is an unexpected input
             std::stringstream msg;
-            msg << "Invalid character in SBKV key at index: " << parser.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+            msg << "Invalid character in SBKV key at index: " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
             reset();
             throw std::runtime_error(msg.str());
         }

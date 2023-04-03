@@ -1,6 +1,6 @@
 #include "gm_sbkv.hpp"
 
-#include "../string/gm_string.hpp"
+#include "../../headers/string.hpp"
 #include "../gm_endianness.hpp"
 
 #include "../file/gm_logger.hpp"
@@ -66,7 +66,7 @@ namespace game {
                 escapeChars++;
                 
                 try {
-                    String::checkResize(sbkv, head + (len - j) + 2 + escapeChars, head, capacity);
+                    StringBuffer::checkResize(sbkv, head + (len - j) + 2 + escapeChars, head, capacity);
                 } catch (std::runtime_error& e) { throw; }
 
                 sbkv[head++] = '\\';
@@ -92,7 +92,7 @@ namespace game {
 
         const std::string val = std::to_string(value);
         try {
-            String::checkResize(sbkv,
+            StringBuffer::checkResize(sbkv,
                 static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<T>::suffix)),
                 head, capacity
             );
@@ -115,7 +115,7 @@ namespace game {
     m << "Key length: " << std::to_string(keyLen);
     Logger::log(LOG_INFO, m.str());
         try {
-            String::checkResize(sbkv, head + keyLen + 4, head, capacity);
+            StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         i += BKV::BKV_KEY_SIZE;
         setStr(data, sbkv, i, head, capacity, keyLen);
@@ -138,7 +138,7 @@ namespace game {
             val = std::to_string(v);
 
             try {
-                String::checkResize(sbkv,
+                StringBuffer::checkResize(sbkv,
                     static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<T>::suffix) + 1),
                     head, capacity
                 );
@@ -161,7 +161,7 @@ namespace game {
 
         const std::string val = std::to_string(v);
         try {
-            String::checkResize(sbkv,
+            StringBuffer::checkResize(sbkv,
                 static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<double>::suffix)),
                 head, capacity
             );
@@ -184,7 +184,7 @@ namespace game {
     m << "Key length: " << std::to_string(keyLen);
     Logger::log(LOG_INFO, m.str());
         try {
-            String::checkResize(sbkv, head + keyLen + 4, head, capacity);
+            StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         i += BKV::BKV_KEY_SIZE;
         setStr(data, sbkv, i, head, capacity, keyLen);
@@ -207,7 +207,7 @@ namespace game {
             val = std::to_string(v);
 
             try {
-                String::checkResize(sbkv,
+                StringBuffer::checkResize(sbkv,
                     static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix) + 1),
                     head, capacity
                 );
@@ -229,7 +229,7 @@ namespace game {
 
         const std::string val = std::to_string(v);
         try {
-            String::checkResize(sbkv,
+            StringBuffer::checkResize(sbkv,
                 static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float>::suffix)),
                 head, capacity
             );
@@ -252,7 +252,7 @@ namespace game {
     m << "Key length: " << std::to_string(keyLen);
     Logger::log(LOG_INFO, m.str());
         try {
-            String::checkResize(sbkv, head + keyLen + 4, head, capacity);
+            StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         i += BKV::BKV_KEY_SIZE;
         setStr(data, sbkv, i, head, capacity, keyLen);
@@ -275,7 +275,7 @@ namespace game {
             val = std::to_string(v);
 
             try {
-                String::checkResize(sbkv,
+                StringBuffer::checkResize(sbkv,
                     static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix) + 1),
                     head, capacity
                 );
@@ -293,7 +293,7 @@ namespace game {
         len = Endianness::ntoh(len);
 
         try {
-            String::checkResize(sbkv, head + keyLen + len + 4, head, capacity);
+            StringBuffer::checkResize(sbkv, head + keyLen + len + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
 
         // Key
@@ -314,7 +314,7 @@ namespace game {
     inline void setSBKVArrayString(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
         try {
-            String::checkResize(sbkv, head + keyLen + 4, head, capacity);
+            StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         i += BKV::BKV_KEY_SIZE;
         setStr(data, sbkv, i, head, capacity, keyLen);
@@ -335,7 +335,7 @@ namespace game {
             i += BKV::BKV_STR_SIZE;
             len = Endianness::ntoh(len);
 
-            String::checkResize(sbkv, head + len + 4, head, capacity);
+            StringBuffer::checkResize(sbkv, head + len + 4, head, capacity);
             try {
                 setStr(data, sbkv, i, head, capacity, len);
             } catch (std::runtime_error& e) { throw; }
@@ -350,7 +350,7 @@ namespace game {
         const uint8_t keyLen = data[++i];
 
         try {
-            String::checkResize(sbkv, head + keyLen + 6, head, capacity);
+            StringBuffer::checkResize(sbkv, head + keyLen + 6, head, capacity);
         } catch (std::runtime_error& e) { throw; }
 
         // Key
@@ -378,13 +378,13 @@ namespace game {
         Logger::log(LOG_INFO, m.str());
         if (depth <= 1) {
             try {
-                String::checkResize(sbkv, head + 1, head, capacity);
+                StringBuffer::checkResize(sbkv, head + 1, head, capacity);
             } catch (std::runtime_error& e) { throw; }
 
             sbkv[head++] = '{';
         } else {
             try {
-                String::checkResize(sbkv, head + keyLen + 2, head, capacity);
+                StringBuffer::checkResize(sbkv, head + keyLen + 2, head, capacity);
             } catch (std::runtime_error& e) { throw; }
 
             // Key
@@ -405,7 +405,7 @@ namespace game {
         sbkv[head - 1] = '}'; // Replace last comma with close brace
         if (depth > 0) {
             try {
-                String::checkResize(sbkv, head + 1, head, capacity);
+                StringBuffer::checkResize(sbkv, head + 1, head, capacity);
             } catch (std::runtime_error& e) { throw; }
             sbkv[head++] = ',';
         }
@@ -534,7 +534,7 @@ namespace game {
 
         // Null terminate string
         try {
-            String::checkResize(sbkv, head + 1, head, capacity);
+            StringBuffer::checkResize(sbkv, head + 1, head, capacity);
         } catch (std::runtime_error& e) { throw; }
         sbkv[head++] = '\0';
 

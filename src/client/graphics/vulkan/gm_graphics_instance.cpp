@@ -2,6 +2,7 @@
 
 #include <common/gm_core.hpp>
 #include <common/data/file/gm_logger.hpp>
+#include <common/headers/string.hpp>
 
 #include <unordered_set>
 
@@ -12,21 +13,20 @@ namespace game {
         const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
         void *pUserData
     ) {
-        std::stringstream msg;
         switch (messageSeverity) {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-                msg << "Validation layer info: " << pCallbackData->pMessage;
-                Logger::log(LOG_INFO, msg.str());
-                break;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-                msg << "Validation layer caught error: " << pCallbackData->pMessage;
-                Logger::log(LOG_ERR, msg.str());
-                break;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-                msg << "Validation layer caught warning: " << pCallbackData->pMessage;
-                Logger::log(LOG_WARN, msg.str());
-                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: {
+                UTF8Str msg = FormatString::formatString("Validation layer info: %s", pCallbackData->pMessage);
+                Logger::log(LOG_INFO, msg);
+            } break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: {
+                UTF8Str msg = FormatString::formatString("Validation layer caught error: %s", pCallbackData->pMessage);
+                Logger::log(LOG_ERR, msg);
+            } break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: {
+                UTF8Str msg = FormatString::formatString("Validation layer caught warning: %s", pCallbackData->pMessage);
+                Logger::log(LOG_WARN, msg);
+            } break;
             default:
                 break;
         }
@@ -66,7 +66,7 @@ namespace game {
         }
     }
 
-    GraphicsInstance::GraphicsInstance(Window& window) : window_{window} {
+    GraphicsInstance::GraphicsInstance(Window& window) : _window{window} {
         createInstance();
         setupDebugMessenger();
         window.createWindowSurface(instance_, &surface_);
@@ -182,21 +182,21 @@ namespace game {
         std::vector<VkExtensionProperties> extensions(extensionCount);
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-        std::stringstream msg;
-        msg << "Available Vulkan extensions:";
+        StringBuffer msg{"Available Vulkan extensions:"};
         std::unordered_set<std::string> available;
         for (const auto &extension : extensions) {
-            msg << "\n\t" << std::string(extension.extensionName);
+            msg.append("\n\t");
+            msg.append(extension.extensionName);
             available.insert(extension.extensionName);
         }
         Logger::log(LOG_INFO, msg.str());
-        msg.str("");
         msg.clear();
 
         auto requiredExtensions = getRequiredExtensions();
-        msg << "Required extensions:";
+        msg.append("Required extensions:");
         for (const auto &required : requiredExtensions) {
-            msg << "\n\t" << std::string(required);
+            msg.append("\n\t");
+            msg.append(required);
             if (available.find(required) == available.end()) {
                 Logger::crash("Missing required GLFW extension.");
             }

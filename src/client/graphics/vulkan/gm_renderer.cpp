@@ -9,7 +9,7 @@ namespace game {
         GraphicsInstance& instance,
         GraphicsDevice& device,
         Window& window
-    ) : graphicsInstance_{instance}, graphicsDevice_{device}, window_{window} {
+    ) : graphicsInstance_{instance}, graphicsDevice_{device}, _window{window} {
         viewport_.maxDepth = 1.0f;
 
         clearValues_[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
@@ -30,11 +30,11 @@ namespace game {
     }
 
     void Renderer::recreateSwapChain() {
-        auto extent = window_.extent();
+        auto extent = _window.extent();
         
         while (extent.width == 0 || extent.height == 0) {
             glfwWaitEvents();
-            extent = window_.extent();
+            extent = _window.extent();
         }
 
         vkDeviceWaitIdle(graphicsDevice_.device());
@@ -89,8 +89,8 @@ namespace game {
         vkEndCommandBuffer(commandBuffer);
 
         swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
-        if (window_.wasResized()) {
-            window_.resetWindowResizedFlag();
+        if (_window.wasResized()) {
+            _window.resetWindowResizedFlag();
             recreateSwapChain();
         }
 

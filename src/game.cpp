@@ -6,38 +6,6 @@
 
 using namespace game;
 
-#include <common/data/string/gm_string.hpp>
-#include <common/data/string/gm_format_string.hpp>
-void test() {
-    UTF8Str a = FormatString::formatString("Characters: %c %c", 'a', 65);
-    Logger::log(LOG_INFO, a);
-    UTF8Str b = FormatString::formatString("Decimals: %d %ld %lQ", 1977, 650000L, -6969696969L);
-    Logger::log(LOG_INFO, b);
-    UTF8Str c = FormatString::formatString("Preceding with blanks: %10d", 1977);
-    Logger::log(LOG_INFO, c);
-    UTF8Str d = FormatString::formatString("Preceding with zeros: %010d", 1977);
-    Logger::log(LOG_INFO, d);
-    UTF8Str e = FormatString::formatString("Some different radices: %d %x %o %#x %#o", 100, 100, 100, 100, 100);
-    Logger::log(LOG_INFO, e);
-    UTF8Str f = FormatString::formatString("floats: %4.2f %+.0e %E", 3.1416, -3.1416, 3.1416);
-    Logger::log(LOG_INFO, f);
-    UTF8Str g = FormatString::formatString("Width trick: %*d", 5, 10);
-    Logger::log(LOG_INFO, g);
-    UTF8Str h = FormatString::formatString("%s", "A string!");
-    Logger::log(LOG_INFO, h);
-    UTF8Str i = FormatString::formatString("%+!07E %!f %.3e", 3.001f, -3.000105, 0.0123f);
-    Logger::log(LOG_INFO, i);
-    UTF8Str j = FormatString::formatString("%#+07E %#!f %#.0f %f %e %05E", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    Logger::log(LOG_INFO, j);
-    char *ptr = static_cast<char*>(std::malloc(1));
-    UTF8Str k = FormatString::formatString("Pointer: %#p, %p", ptr, nullptr);
-    std::free(ptr);
-    Logger::log(LOG_INFO, k);
-    UTF8Str l = FormatString::formatString("Small: %E / Large: %E", DBL_MIN, DBL_MAX);
-    Logger::log(LOG_INFO, l);
-    UTF8Str m = FormatString::formatString("Left justified: %-15d/%-15.4f/%-15E/%-15e", 69, 3.14159265, 696.96969, -0.000696969);
-    Logger::log(LOG_INFO, m);
-}
 /*
 #include <sstream>
 #include <memory>
@@ -93,7 +61,6 @@ int main (int argc, char** argv)
 {
     Core::init("../logs/latest.log", "../logs/crash.txt");
     
-    test();
     Client::init();
     Client& client = Client::instance();
     client.start();

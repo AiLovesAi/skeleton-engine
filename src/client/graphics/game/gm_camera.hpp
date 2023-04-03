@@ -43,7 +43,7 @@ namespace game {
             Entity entity_;
             World& world_;
 
-            Window& window_;
+            Window& _window;
 
             float fov_;
             float clipNear_;

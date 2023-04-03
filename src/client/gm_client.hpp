@@ -34,7 +34,7 @@ namespace game {
             GraphicsInstance& graphicsInstance() { return graphicsInstance_; }
             GraphicsDevice& graphicsDevice() { return graphicsDevice_; }
             Renderer& renderer() { return renderer_; }
-            Window& window() { return window_; }
+            Window& window() { return _window; }
 
             void setGameState(GameState*const gameState) { nextGameState_ = gameState; }
 
@@ -43,10 +43,10 @@ namespace game {
             Client();
 
             // Variables
-            Window window_{Core::TITLE};
-            GraphicsInstance graphicsInstance_{window_};
+            Window _window{Core::TITLE};
+            GraphicsInstance graphicsInstance_{_window};
             GraphicsDevice graphicsDevice_{graphicsInstance_};
-            Renderer renderer_{graphicsInstance_, graphicsDevice_, window_};
+            Renderer renderer_{graphicsInstance_, graphicsDevice_, _window};
             std::unique_ptr<DescriptorPool> globalPool_;
 
             GameState* gameState_ = nullptr;

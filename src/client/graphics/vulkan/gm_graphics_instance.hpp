@@ -37,7 +37,7 @@ namespace game {
             void checkGFLWHasRequiredInstanceExtensions();
 
             // Variables
-            Window& window_;
+            Window& _window;
 
             VkInstance instance_;
             VkSurfaceKHR surface_;

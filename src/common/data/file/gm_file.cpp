@@ -3,6 +3,7 @@
 #include "gm_logger.hpp"
 #include "../../gm_core.hpp"
 #include "../../system/gm_system.hpp"
+#include "../../headers/string.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -12,7 +13,6 @@
 #include <filesystem>
 #include <memory>
 #include <mutex>
-#include <sstream>
 #include <vector>
 
 #if defined(_WIN32)
@@ -50,9 +50,8 @@ namespace game {
 
     File::FileContents const File::readFile(const char* filepath) {
         if (!fs::exists(filepath)) {
-            std::stringstream msg;
-            msg << "File not found: " << filepath;
-            Logger::crash(msg.str());
+            UTF8Str msg = FormatString::formatString("File not found: %s", filepath);
+            Logger::crash(msg);
         }
         
         // Allocate
@@ -64,9 +63,8 @@ namespace game {
         fileMtx.lock();
         FILE* f = std::fopen(filepath, "rb");
         if (!f) {
-            std::stringstream msg;
-            msg << "Could not open file: " << filepath;
-            Logger::crash(msg.str());
+            UTF8Str msg = FormatString::formatString("Could not open file: %s", filepath);
+            Logger::crash(msg);
         }
 
         // Read
@@ -93,9 +91,8 @@ namespace game {
 
     void const File::writeFile(const char* filepath, const FileContents& contents, const bool append) {
         if (append && !fs::exists(filepath)) {
-            std::stringstream msg;
-            msg << "File not found: " << filepath;
-            Logger::crash(msg.str());
+            UTF8Str msg = FormatString::formatString("File not found: %s", filepath);
+            Logger::crash(msg);
         }
 
 
@@ -103,9 +100,8 @@ namespace game {
         fileMtx.lock();
         FILE* f = std::fopen(filepath, append ? "ab" : "wb");
         if (!f) {
-            std::stringstream msg;
-            msg << "Could not open file: " << filepath;
-            Logger::crash(msg.str());
+            UTF8Str msg = FormatString::formatString("Could not open file: %s", filepath);
+            Logger::crash(msg);
         }
 
         // Write
@@ -145,10 +141,10 @@ namespace game {
         // This is at /proc/<pid>/exe on Linux systems (we hope).
         std::ostringstream oss;
         oss << "/proc/" << pid << "/exe";
-        std::string link = oss.str();
+        const char* link = oss.str().cstr();
 
         // Read the contents of the link.
-        int count = readlink(link.c_str(), &buffer[0], bufferSize);
+        int count = readlink(link, &buffer[0], bufferSize);
         if(count == -1) Logger::crash("Could not read symbolic link");
         buffer[count] = '\0';
 

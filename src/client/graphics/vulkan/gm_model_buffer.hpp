@@ -35,7 +35,7 @@ namespace game {
             VkDescriptorBufferInfo descriptorInfoAt(int index);
             VkResult invalidateIndex(int index);
             
-            VkBuffer buffer() const { return buffer_; }
+            VkBuffer buffer() const { return _buffer; }
             void* mappedMemory() const { return mapped_; }
             uint32_t instanceCount() const { return instanceCount_; }
             VkDeviceSize instanceSize() const { return instanceSize_; }
@@ -51,7 +51,7 @@ namespace game {
             // Variables
             GraphicsDevice& graphicsDevice_;
             void* mapped_ = nullptr;
-            VkBuffer buffer_ = VK_NULL_HANDLE;
+            VkBuffer _buffer = VK_NULL_HANDLE;
             VkDeviceMemory memory_ = VK_NULL_HANDLE;
             
             VkDeviceSize bufferSize_;

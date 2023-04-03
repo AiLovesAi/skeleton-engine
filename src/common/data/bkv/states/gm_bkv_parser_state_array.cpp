@@ -2,7 +2,7 @@
 
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
-#include "../../string/gm_string.hpp"
+#include "../../../headers/string.hpp"
 #include "../../gm_endianness.hpp"
 
 #include <sstream>
@@ -15,18 +15,18 @@ namespace game {
         Logger::log(LOG_INFO, m.str());
 
         if (!arrayStart_) {
-            arrayStart_ = parser.buffer_.head_;
-            arrayTagHead_ = parser.buffer_.tagHead_;
+            arrayStart_ = parser._buffer._head;
+            arrayTagHead_ = parser._buffer._tagHead;
             try {
-                String::checkResize(parser.buffer_.bkv_, parser.buffer_.head_ + BKV::BKV_ARRAY_SIZE, parser.buffer_.head_, parser.buffer_.capacity_);
+                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + BKV::BKV_ARRAY_SIZE, parser._buffer._head, parser._buffer._capacity);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
-            parser.buffer_.head_ += BKV::BKV_ARRAY_SIZE;
+            parser._buffer._head += BKV::BKV_ARRAY_SIZE;
             
             size_++;
-            parser.stateTree_.push(&parser.findTagState_);
+            parser._stateTree.push(&parser._findTagState);
             try {
                 parser.state()->parse(parser, c);
             } catch (std::runtime_error &e) {
@@ -35,32 +35,32 @@ namespace game {
             }
         } else {
             if (c == ',') {
-                parser.tag_ &= BKV::BKV_FLAGS_ALL; // Clear the tag so it can be found again
+                parser._tag &= BKV::BKV_FLAGS_ALL; // Clear the tag so it can be found again
                 
                 // Continue array
                 size_++;
                 if (size_ > BKV::BKV_ARRAY_MAX) {
                     std::stringstream msg;
-                    msg << "Too many indicies in SBKV array at index " << parser.charactersRead_ << ": " << size_ << "/" << BKV::BKV_ARRAY_MAX << " indicies.";
+                    msg << "Too many indicies in SBKV array at index " << parser._charactersRead << ": " << size_ << "/" << BKV::BKV_ARRAY_MAX << " indicies.";
                     reset();
                 }
-                parser.stateTree_.pop(); // Back to specific tag state
+                parser._stateTree.pop(); // Back to specific tag state
             } else if (c == ']') {
                 // End array
-                parser.buffer_.bkv_[arrayTagHead_] = parser.tag_;
+                parser._buffer.bkv_[arrayTagHead_] = parser._tag;
                 uint32_t val = Endianness::hton(static_cast<uint16_t>(size_));
-                std::memcpy(parser.buffer_.bkv_ + arrayStart_, &val, BKV::BKV_ARRAY_SIZE);
+                std::memcpy(parser._buffer.bkv_ + arrayStart_, &val, BKV::BKV_ARRAY_SIZE);
                 
                 reset();
-                parser.buffer_.valHead_ = parser.buffer_.head_;
-                parser.stateTree_.pop(); // Back to specific tag state
-                parser.stateTree_.pop(); // Back to array state
-                parser.stateTree_.pop(); // Back to key state
-                parser.buffer_.tagHead_ = parser.buffer_.head_;
-                parser.tag_ = 0;
+                parser._buffer._valHead = parser._buffer._head;
+                parser._stateTree.pop(); // Back to specific tag state
+                parser._stateTree.pop(); // Back to array state
+                parser._stateTree.pop(); // Back to key state
+                parser._buffer._tagHead = parser._buffer._head;
+                parser._tag = 0;
             } else {
                 std::stringstream msg;
-                msg << "Invalid character in SBKV array at index " << parser.charactersRead_ << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                msg << "Invalid character in SBKV array at index " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 reset();
                 throw std::runtime_error(msg.str());
             }

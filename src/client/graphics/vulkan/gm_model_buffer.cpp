@@ -18,12 +18,12 @@ namespace game {
     {
         alignmentSize_ = getAlignment(instanceSize, minOffsetAlignment);
         bufferSize_ = alignmentSize_ * instanceCount;
-        graphicsDevice_.createBuffer(bufferSize_, usageFlags, memoryPropertyFlags, buffer_, memory_);
+        graphicsDevice_.createBuffer(bufferSize_, usageFlags, memoryPropertyFlags, _buffer, memory_);
     }
 
     ModelBuffer::~ModelBuffer() {
         unmap();
-        vkDestroyBuffer(graphicsDevice_.device(), buffer_, nullptr);
+        vkDestroyBuffer(graphicsDevice_.device(), _buffer, nullptr);
         vkFreeMemory(graphicsDevice_.device(), memory_, nullptr);
     }
 
@@ -35,7 +35,7 @@ namespace game {
     }
 
     VkResult ModelBuffer::map(VkDeviceSize size, VkDeviceSize offset) {
-        if(!(buffer_ && memory_)) Logger::crash("Called map on buffer before create.");
+        if(!(_buffer && memory_)) Logger::crash("Called map on buffer before create.");
         return vkMapMemory(graphicsDevice_.device(), memory_, offset, size, 0, &mapped_);
     }
 
@@ -77,7 +77,7 @@ namespace game {
     }
 
     VkDescriptorBufferInfo ModelBuffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset) {
-        return VkDescriptorBufferInfo{buffer_, offset, size};
+        return VkDescriptorBufferInfo{_buffer, offset, size};
     }
 
     void ModelBuffer::writeToIndex(void *data, int index) { writeToBuffer(data, instanceSize_, index * alignmentSize_); }

@@ -8,10 +8,10 @@ namespace game {
         public:
             // Functions
             BKV_t build() {
-                uint8_t* buffer = static_cast<uint8_t*>(std::malloc(buffer_.head_));
-                std::memcpy(buffer, buffer_.bkv_, buffer_.head_);
+                uint8_t* buffer = static_cast<uint8_t*>(std::malloc(_buffer._head));
+                std::memcpy(buffer, _buffer.bkv_, _buffer._head);
                 std::shared_ptr<const uint8_t> data(buffer, std::free);
-                return BKV_t{buffer_.head_, data};
+                return BKV_t{_buffer._head, data};
             }
 
             template<typename T>
@@ -29,6 +29,6 @@ namespace game {
         
         private:
             // Variables
-            BKV_Buffer buffer_;
+            BKV_Buffer _buffer;
     };
 }

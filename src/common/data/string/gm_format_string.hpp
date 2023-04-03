@@ -16,7 +16,7 @@ namespace game {
             };
 
             // Functions
-            static UTF8Str formatString(const char* str, ...);
+            static UTF8Str formatString(const char* str, ...) noexcept;
             // TODO General string functions that are currently implemented elsewhere (check File and BKV classes)
             
             static inline int32_t strToInt(const char* str) { return strToInt(str, std::strlen(str)); }

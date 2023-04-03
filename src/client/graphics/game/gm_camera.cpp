@@ -10,18 +10,18 @@ namespace game {
         float fov,
         float clipNear,
         float clipFar
-    ) : entity_{entity}, world_{world}, window_{window}, fov_{fov}, clipNear_{clipNear}, clipFar_{clipFar} {
+    ) : entity_{entity}, world_{world}, _window{window}, fov_{fov}, clipNear_{clipNear}, clipFar_{clipFar} {
         world_.serverComponents().transform().create(entity);
         updatePerspective();
     }
 
     void Camera::update(const double lag) {
-        if (window_.wasResized()) updatePerspective();
+        if (_window.wasResized()) updatePerspective();
         if (world_.serverComponents().transform().get(entity_).dirty()) updateView();
     }
 
     void Camera::updatePerspective() {
-        projectionMatrix_ = glm::perspective(fov_, window_.aspectRatio(), clipNear_, clipFar_);
+        projectionMatrix_ = glm::perspective(fov_, _window.aspectRatio(), clipNear_, clipFar_);
     }
 
     void Camera::updateView() {

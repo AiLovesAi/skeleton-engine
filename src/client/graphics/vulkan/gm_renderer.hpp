@@ -33,7 +33,7 @@ namespace game {
             
             GraphicsInstance& graphicsInstance_;
             GraphicsDevice& graphicsDevice_;
-            Window& window_;
+            Window& _window;
 
             std::unique_ptr<SwapChain> swapChain_;
             std::vector<VkCommandBuffer> commandBuffers_;
