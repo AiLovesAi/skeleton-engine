@@ -25,7 +25,7 @@ void test() {
     Logger::log(LOG_INFO, g);
     UTF8Str h = FormatString::formatString("%s", "A string!");
     Logger::log(LOG_INFO, h);
-    UTF8Str i = FormatString::formatString("%+!07E %!f", 3.001, 3.000105, 0.0);
+    UTF8Str i = FormatString::formatString("%+!07E %!f %e", 3.001, 3.000105, 0.0, 0.0123);
     Logger::log(LOG_INFO, i);
     UTF8Str j = FormatString::formatString("%#+07E %#!f %#f %f %e %05E", 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     Logger::log(LOG_INFO, j);
@@ -33,6 +33,8 @@ void test() {
     UTF8Str k = FormatString::formatString("Pointer: %#p", ptr);
     std::free(ptr);
     Logger::log(LOG_INFO, k);
+    UTF8Str l = FormatString::formatString("Left justified: %-10d/%-10.4f/%-10E/%-10e", 69, 3.14159265, 696.96969, 0.000696969);
+    Logger::log(LOG_INFO, l);
 }
 /*
 #include <sstream>
