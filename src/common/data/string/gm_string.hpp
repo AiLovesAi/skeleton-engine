@@ -70,7 +70,7 @@ namespace game {
 
             // Functions
             template <typename T1, typename T2>
-            static void checkResize_(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
+            static void _checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
                 if (size < prevSize) {
                     throw std::runtime_error("New buffer size overflows to a number less than the previous in string format function.");
                 }
