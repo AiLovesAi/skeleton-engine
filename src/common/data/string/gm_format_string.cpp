@@ -182,6 +182,7 @@ namespace game {
         str[len++] = exponent < 0 ? '-' : '+';
         UTF8Str exponentStr = _intToStr(exponent, base, 0, flags & FORMAT_UPPERCASE);
         std::memcpy(str + len, exponentStr.get(), exponentStr.length());
+        len += exponentStr.length();
         
         if (digits < minDigits) {
             // Add padding if required
