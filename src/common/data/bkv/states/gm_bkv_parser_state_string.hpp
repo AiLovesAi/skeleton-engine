@@ -11,16 +11,16 @@ namespace game {
         public:
             // Constructors
             BKV_Parser_State_String() {
-                strCapacity_ = BUFSIZ;
-                str_ = static_cast<uint8_t*>(std::malloc(strCapacity_));
+                _strCapacity = BUFSIZ;
+                _str = static_cast<uint8_t*>(std::malloc(_strCapacity));
             }
-            ~BKV_Parser_State_String() { std::free(str_); }
+            ~BKV_Parser_State_String() { std::free(_str); }
 
             // Functions
             void reset() {
-                strLen_ = 0;
-                strChar_ = 0;
-                escapeChar_ = false;
+                _strLen = 0;
+                _strChar = 0;
+                _escapeChar = false;
             }
             static char getEscapeChar(const char c);
             virtual void parse(BKV_Parser& parser, const char c);
@@ -32,10 +32,10 @@ namespace game {
             void completeStr(BKV_Parser& parser, const char c);
             
             // Variables
-            uint8_t* str_ = nullptr;
-            int64_t strCapacity_ = 0;
-            int64_t strLen_ = 0;
-            char strChar_ = 0;
-            bool escapeChar_ = false;
+            uint8_t* _str = nullptr;
+            int64_t _strCapacity = 0;
+            int64_t _strLen = 0;
+            char _strChar = 0;
+            bool _escapeChar = false;
     };
 }

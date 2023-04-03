@@ -23,6 +23,6 @@ namespace game {
             ~ServerInstance();
 
             // Variables
-            Server server_;
+            Server _server;
     };
 }

@@ -9,10 +9,10 @@ namespace game {
 
         // TODO Load data into buffer and update size_
 
-        data_ = new char[size_];
+        _data = new char[_size];
     }
 
     Sound::~Sound() {
-        if (data_) delete[] data_;
+        if (_data) delete[] _data;
     }
 }

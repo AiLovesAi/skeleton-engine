@@ -10,7 +10,7 @@ namespace game {
         // Update entities
         std::thread aiTask([&] (AIPool& pool) {
             pool.update();
-        }, std::ref(ai_));
+        }, std::ref(_ai));
         /*std::thread physicsTask([&] (PhysicsPool& pool) {
             pool.update();
         }, std::ref(physics_));

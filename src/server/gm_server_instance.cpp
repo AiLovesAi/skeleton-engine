@@ -35,7 +35,7 @@ namespace game {
 
             // Prioritize game update when behind, skip to rendering when ahead
             while (lag >= Core::MS_PER_TICK) {
-                server_.update();
+                _server.update();
                 lag -= Core::MS_PER_TICK;
             }
 

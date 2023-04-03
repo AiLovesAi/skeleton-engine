@@ -19,13 +19,13 @@ namespace game {
             GraphicsInstance &operator=(GraphicsInstance &&) = delete;
 
             // Functions
-            VkInstance instance() { return instance_; }
-            VkSurfaceKHR surface() { return surface_; }
+            VkInstance instance() { return _instance; }
+            VkSurfaceKHR surface() { return _surface; }
 
             // Variables
             bool enableValidationLayers = false;
 
-            const std::vector<const char *> validationLayers = {"VK_LAYER_KHRONOS_validation"};
+            const std::vector<const char *> validationLayers = {"VK_LAYER_KHRON_OSvalidation"};
         private:
             // Functions
             void createInstance();
@@ -39,9 +39,9 @@ namespace game {
             // Variables
             Window& _window;
 
-            VkInstance instance_;
-            VkSurfaceKHR surface_;
+            VkInstance _instance;
+            VkSurfaceKHR _surface;
             
-            VkDebugUtilsMessengerEXT debugMessenger_;
+            VkDebugUtilsMessengerEXT _debugMessenger;
     };
 }

@@ -33,10 +33,10 @@ namespace game {
             GraphicsDevice &operator=(GraphicsDevice &&) = delete;
             
             // Functions
-            VkCommandPool commandPool() { return commandPool_; }
-            VkDevice device() { return device_; }
-            VkQueue graphicsQueue() { return graphicsQueue_; }
-            VkQueue presentQueue() { return presentQueue_; }
+            VkCommandPool commandPool() { return _commandPool; }
+            VkDevice device() { return _device; }
+            VkQueue graphicsQueue() { return _graphicsQueue; }
+            VkQueue presentQueue() { return _presentQueue; }
 
             SwapChainSupportDetails swapChainSupport() { return querySwapChainSupport(physicalDevice_); }
             QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice_); }
@@ -87,15 +87,15 @@ namespace game {
             SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice& device);
             
             // Variables
-            GraphicsInstance& graphicsInstance_;
+            GraphicsInstance& _graphicsInstance;
 
             VkPhysicalDevice physicalDevice_ = VK_NULL_HANDLE;
-            VkCommandPool commandPool_;
+            VkCommandPool _commandPool;
 
-            VkDevice device_;
-            VkQueue graphicsQueue_;
-            VkQueue presentQueue_;
+            VkDevice _device;
+            VkQueue _graphicsQueue;
+            VkQueue _presentQueue;
 
-            const std::vector<const char *> deviceExtensions_ = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+            const std::vector<const char *> _deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     };
 }

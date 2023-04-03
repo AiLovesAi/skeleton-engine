@@ -35,23 +35,23 @@ namespace game {
     
     void BKV_Parser_State_String::continueStr(BKV_Parser& parser, const char c) {
         // Build string
-        if (strLen_ >= BKV::BKV_STR_MAX) {
+        if (_strLen >= BKV::BKV_STR_MAX) {
             std::stringstream msg;
-            msg << "Too many characters in SBKV string at index " << parser._charactersRead << ": " << strLen_ + 1 << "/" << BKV::BKV_STR_MAX << " characters.";
+            msg << "Too many characters in SBKV string at index " << parser._charactersRead << ": " << _strLen + 1 << "/" << BKV::BKV_STR_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
 
         try {
-            StringBuffer::checkResize(str_, strLen_ + 1, strLen_, strCapacity_);
+            StringBuffer::checkResize(_str, _strLen + 1, _strLen, _strCapacity);
         } catch (std::runtime_error &e) {
             reset();
             throw;
         }
 
         // Toggle break character after it breaks once
-        if (escapeChar_) {
-            escapeChar_ = false;
+        if (_escapeChar) {
+            _escapeChar = false;
 
             char b = BKV_Parser_State_String::getEscapeChar(c);
             if (b < 0) {
@@ -61,23 +61,23 @@ namespace game {
                 throw std::runtime_error(msg.str());
             }
             
-            str_[strLen_] = c;
-            strLen_++;
+            _str[_strLen] = c;
+            _strLen++;
         } else if (c == '\\') {
-            escapeChar_ = true;
+            _escapeChar = true;
         } else {
-            str_[strLen_] = c;
-            strLen_++;
+            _str[_strLen] = c;
+            _strLen++;
         }
     }
 
     void BKV_Parser_State_String::checkForBool(BKV_Parser& parser) {
         // Check if this is a boolean "true" or "false"
-        if ((strLen_ == 4) && (
-            ((str_[0] == 't') || (str_[0] == 'T')) &&
-            ((str_[1] == 'r') || (str_[1] == 'R')) &&
-            ((str_[2] == 'u') || (str_[2] == 'U')) &&
-            ((str_[3] == 'e') || (str_[3] == 'E'))
+        if ((_strLen == 4) && (
+            ((_str[0] == 't') || (_str[0] == 'T')) &&
+            ((_str[1] == 'r') || (_str[1] == 'R')) &&
+            ((_str[2] == 'u') || (_str[2] == 'U')) &&
+            ((_str[3] == 'e') || (_str[3] == 'E'))
         )) {
             parser._tag &= ~BKV::BKV_STR;
             parser._tag |= BKV::BKV_BOOL;
@@ -92,12 +92,12 @@ namespace game {
             parser._buffer.bkv_[parser._buffer._head] = 0x01;
             parser._buffer._head++;
         Logger::log(LOG_INFO, "String state found true bool.");
-        } else if ((strLen_ == 5) && (
-            ((str_[0] == 'f') || (str_[0] == 'F')) &&
-            ((str_[1] == 'a') || (str_[1] == 'A')) &&
-            ((str_[2] == 'l') || (str_[2] == 'L')) &&
-            ((str_[3] == 's') || (str_[3] == 'S')) &&
-            ((str_[4] == 'e') || (str_[4] == 'E'))
+        } else if ((_strLen == 5) && (
+            ((_str[0] == 'f') || (_str[0] == 'F')) &&
+            ((_str[1] == 'a') || (_str[1] == 'A')) &&
+            ((_str[2] == 'l') || (_str[2] == 'L')) &&
+            ((_str[3] == 's') || (_str[3] == 'S')) &&
+            ((_str[4] == 'e') || (_str[4] == 'E'))
         )) {
             parser._tag &= ~BKV::BKV_STR;
             parser._tag |= BKV::BKV_BOOL;
@@ -116,7 +116,7 @@ namespace game {
     }
 
     void BKV_Parser_State_String::completeStr(BKV_Parser& parser, const char c) {
-        if (!strChar_) {
+        if (!_strChar) {
             // Only check for bool if it is not a string. "True" is a string and True is a boolean.
             try { checkForBool(parser); } catch (std::runtime_error &e) { throw; }
         }
@@ -124,9 +124,9 @@ namespace game {
         if (!(parser._tag & BKV::BKV_BOOL)) {
             // Must be string, copy to buffer
             parser._tag |= BKV::BKV_STR;
-            const uint16_t len = Endianness::hton(static_cast<uint16_t>(strLen_));
+            const uint16_t len = Endianness::hton(static_cast<uint16_t>(_strLen));
             try {
-                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + BKV::BKV_STR_SIZE + strLen_, parser._buffer._head, parser._buffer._capacity);
+                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + BKV::BKV_STR_SIZE + _strLen, parser._buffer._head, parser._buffer._capacity);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
@@ -134,11 +134,11 @@ namespace game {
 
             std::memcpy(parser._buffer.bkv_ + parser._buffer._head, &len, BKV::BKV_STR_SIZE);
             parser._buffer._head += BKV::BKV_STR_SIZE;
-            std::memcpy(parser._buffer.bkv_ + parser._buffer._head, str_, strLen_);
-            parser._buffer._head += strLen_;
-        char* key = static_cast<char*>(std::malloc(strLen_ + 1));
-        std::memcpy(key, str_, strLen_);
-        key[strLen_] = '\0';
+            std::memcpy(parser._buffer.bkv_ + parser._buffer._head, _str, _strLen);
+            parser._buffer._head += _strLen;
+        char* key = static_cast<char*>(std::malloc(_strLen + 1));
+        std::memcpy(key, _str, _strLen);
+        key[_strLen] = '\0';
         std::stringstream m;
         m << "String state finished parsing: " << key << " with net len: " << len;
         Logger::log(LOG_INFO, m.str());
@@ -154,21 +154,21 @@ namespace game {
         Logger::log(LOG_INFO, m.str());
         parser._charactersRead++;
         
-        if (!strLen_ && ((c == '\'') || (c == '"'))) {
-            strChar_ = c;
-        } else if (strChar_ > 0) { // Any UTF-8 string allowed
+        if (!_strLen && ((c == '\'') || (c == '"'))) {
+            _strChar = c;
+        } else if (_strChar > 0) { // Any UTF-8 string allowed
             // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
             // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
-            if (c == strChar_ && !escapeChar_) {
-                strChar_ = -1; // Wait for the following KV end character to call complete string
+            if (c == _strChar && !_escapeChar) {
+                _strChar = -1; // Wait for the following KV end character to call complete string
             } else {
                 continueStr(parser, c);
             }
         } else { // Only alphanumeric ASCII allowed
-            if (!strChar_ && (std::isalnum(c) || std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-')) {
+            if (!_strChar && (std::isalnum(c) || std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-')) {
                 continueStr(parser, c);
             } else if ((c == '}') || (c == ',') || (c == ']')) {
-                if (!strLen_) {
+                if (!_strLen) {
                     std::stringstream msg;
                     msg << "Empty BKV string at index: " << parser._charactersRead;
                     reset();

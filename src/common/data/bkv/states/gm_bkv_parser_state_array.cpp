@@ -11,12 +11,12 @@
 namespace game {
     void BKV_Parser_State_Array::parse(BKV_Parser& parser, const char c) {
         std::stringstream m;
-        m << "Array parsing character: '" << c << "', Array size: " << size_;
+        m << "Array parsing character: '" << c << "', Array size: " << _size;
         Logger::log(LOG_INFO, m.str());
 
-        if (!arrayStart_) {
-            arrayStart_ = parser._buffer._head;
-            arrayTagHead_ = parser._buffer._tagHead;
+        if (!_arrayStart) {
+            _arrayStart = parser._buffer._head;
+            _arrayTagHead = parser._buffer._tagHead;
             try {
                 StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + BKV::BKV_ARRAY_SIZE, parser._buffer._head, parser._buffer._capacity);
             } catch (std::runtime_error &e) {
@@ -25,7 +25,7 @@ namespace game {
             }
             parser._buffer._head += BKV::BKV_ARRAY_SIZE;
             
-            size_++;
+            _size++;
             parser._stateTree.push(&parser._findTagState);
             try {
                 parser.state()->parse(parser, c);
@@ -38,18 +38,18 @@ namespace game {
                 parser._tag &= BKV::BKV_FLAGS_ALL; // Clear the tag so it can be found again
                 
                 // Continue array
-                size_++;
-                if (size_ > BKV::BKV_ARRAY_MAX) {
+                _size++;
+                if (_size > BKV::BKV_ARRAY_MAX) {
                     std::stringstream msg;
-                    msg << "Too many indicies in SBKV array at index " << parser._charactersRead << ": " << size_ << "/" << BKV::BKV_ARRAY_MAX << " indicies.";
+                    msg << "Too many indicies in SBKV array at index " << parser._charactersRead << ": " << _size << "/" << BKV::BKV_ARRAY_MAX << " indicies.";
                     reset();
                 }
                 parser._stateTree.pop(); // Back to specific tag state
             } else if (c == ']') {
                 // End array
-                parser._buffer.bkv_[arrayTagHead_] = parser._tag;
-                uint32_t val = Endianness::hton(static_cast<uint16_t>(size_));
-                std::memcpy(parser._buffer.bkv_ + arrayStart_, &val, BKV::BKV_ARRAY_SIZE);
+                parser._buffer.bkv_[_arrayTagHead] = parser._tag;
+                uint32_t val = Endianness::hton(static_cast<uint16_t>(_size));
+                std::memcpy(parser._buffer.bkv_ + _arrayStart, &val, BKV::BKV_ARRAY_SIZE);
                 
                 reset();
                 parser._buffer._valHead = parser._buffer._head;

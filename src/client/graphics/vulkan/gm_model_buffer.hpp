@@ -36,29 +36,29 @@ namespace game {
             VkResult invalidateIndex(int index);
             
             VkBuffer buffer() const { return _buffer; }
-            void* mappedMemory() const { return mapped_; }
-            uint32_t instanceCount() const { return instanceCount_; }
-            VkDeviceSize instanceSize() const { return instanceSize_; }
-            VkDeviceSize alignmentSize() const { return instanceSize_; }
-            VkBufferUsageFlags usageFlags() const { return usageFlags_; }
-            VkMemoryPropertyFlags memoryPropertyFlags() const { return memoryPropertyFlags_; }
-            VkDeviceSize bufferSize() const { return bufferSize_; }
+            void* mappedMemory() const { return _mapped; }
+            uint32_t instanceCount() const { return _instanceCount; }
+            VkDeviceSize instanceSize() const { return _instanceSize; }
+            VkDeviceSize alignmentSize() const { return _instanceSize; }
+            VkBufferUsageFlags usageFlags() const { return _usageFlags; }
+            VkMemoryPropertyFlags memoryPropertyFlags() const { return _memoryPropertyFlags; }
+            VkDeviceSize bufferSize() const { return _bufferSize; }
             
         private:
             // Functions
             static VkDeviceSize getAlignment(VkDeviceSize instanceSize, VkDeviceSize minOffsetAlignment);
             
             // Variables
-            GraphicsDevice& graphicsDevice_;
-            void* mapped_ = nullptr;
+            GraphicsDevice& _graphicsDevice;
+            void* _mapped = nullptr;
             VkBuffer _buffer = VK_NULL_HANDLE;
-            VkDeviceMemory memory_ = VK_NULL_HANDLE;
+            VkDeviceMemory _memory = VK_NULL_HANDLE;
             
-            VkDeviceSize bufferSize_;
-            VkDeviceSize instanceSize_;
-            uint32_t instanceCount_;
-            VkDeviceSize alignmentSize_;
-            VkBufferUsageFlags usageFlags_;
-            VkMemoryPropertyFlags memoryPropertyFlags_;
+            VkDeviceSize _bufferSize;
+            VkDeviceSize _instanceSize;
+            uint32_t _instanceCount;
+            VkDeviceSize _alignmentSize;
+            VkBufferUsageFlags _usageFlags;
+            VkMemoryPropertyFlags _memoryPropertyFlags;
     };
 }

@@ -85,9 +85,9 @@ namespace game {
             }
 
             // Make sure tag has not changed
-            if (!_arrayState.arrayTag_) {
-                _arrayState.arrayTag_ = _tag;
-            } else if (_tag != _arrayState.arrayTag_) {
+            if (!_arrayState._arrayTag) {
+                _arrayState._arrayTag = _tag;
+            } else if (_tag != _arrayState._arrayTag) {
                 std::stringstream msg;
                 msg << "Array value changed data type at index: " << _charactersRead;
                 reset();

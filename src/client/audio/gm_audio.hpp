@@ -9,7 +9,7 @@ namespace game {
     class Audio {
         public:
             // Constructors
-            Audio(const EntityPool& entityPool) : entityPool_{entityPool} {}
+            Audio(const EntityPool& entityPool) : _entityPool{entityPool} {}
 
             // Functions
             void loadSounds();
@@ -17,8 +17,8 @@ namespace game {
 
             SoundInstance* playSound(const std::string& id);
         private:
-            EntityPool entityPool_;
-            SoundPool instancePool_{entityPool_, 16};
-            std::unordered_map<std::string, Sound> sounds_;
+            EntityPool _entityPool;
+            SoundPool _instancePool{_entityPool, 16};
+            std::unordered_map<std::string, Sound> _sounds;
     };
 }

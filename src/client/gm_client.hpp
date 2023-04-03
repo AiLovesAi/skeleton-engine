@@ -31,12 +31,12 @@ namespace game {
             static void init();
             void start();
 
-            GraphicsInstance& graphicsInstance() { return graphicsInstance_; }
-            GraphicsDevice& graphicsDevice() { return graphicsDevice_; }
+            GraphicsInstance& graphicsInstance() { return _graphicsInstance; }
+            GraphicsDevice& graphicsDevice() { return _graphicsDevice; }
             Renderer& renderer() { return renderer_; }
             Window& window() { return _window; }
 
-            void setGameState(GameState*const gameState) { nextGameState_ = gameState; }
+            void setGameState(GameState*const gameState) { _nextGameState = gameState; }
 
         private:
             // Constructors
@@ -44,12 +44,12 @@ namespace game {
 
             // Variables
             Window _window{Core::TITLE};
-            GraphicsInstance graphicsInstance_{_window};
-            GraphicsDevice graphicsDevice_{graphicsInstance_};
-            Renderer renderer_{graphicsInstance_, graphicsDevice_, _window};
-            std::unique_ptr<DescriptorPool> globalPool_;
+            GraphicsInstance _graphicsInstance{_window};
+            GraphicsDevice _graphicsDevice{_graphicsInstance};
+            Renderer renderer_{_graphicsInstance, _graphicsDevice, _window};
+            std::unique_ptr<DescriptorPool> _globalDescriptorPool;
 
-            GameState* gameState_ = nullptr;
-            GameState* nextGameState_ = nullptr;
+            GameState* _gameState = nullptr;
+            GameState* _nextGameState = nullptr;
     };
 }

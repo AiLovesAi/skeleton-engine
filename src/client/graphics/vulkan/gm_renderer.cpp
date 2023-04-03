@@ -9,17 +9,17 @@ namespace game {
         GraphicsInstance& instance,
         GraphicsDevice& device,
         Window& window
-    ) : graphicsInstance_{instance}, graphicsDevice_{device}, _window{window} {
-        viewport_.maxDepth = 1.0f;
+    ) : _graphicsInstance{instance}, _graphicsDevice{device}, _window{window} {
+        _viewport.maxDepth = 1.0f;
 
-        clearValues_[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
-        clearValues_[1].depthStencil = {1.0f, 0};
+        _clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.0f};
+        _clearValues[1].depthStencil = {1.0f, 0};
         
-        commandBufferInfo_.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        _commandBufferInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-        renderPassInfo_.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo_.clearValueCount = static_cast<uint32_t>(clearValues_.size());
-        renderPassInfo_.pClearValues = clearValues_.data();
+        _renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        _renderPassInfo.clearValueCount = static_cast<uint32_t>(_clearValues.size());
+        _renderPassInfo.pClearValues = _clearValues.data();
 
         recreateSwapChain();
         createCommandBuffers();
@@ -37,50 +37,50 @@ namespace game {
             extent = _window.extent();
         }
 
-        vkDeviceWaitIdle(graphicsDevice_.device());
+        vkDeviceWaitIdle(_graphicsDevice.device());
         
-        if (swapChain_ == nullptr) {
-            swapChain_ = std::make_unique<SwapChain>(graphicsInstance_, graphicsDevice_, extent);
+        if (_swapChain == nullptr) {
+            _swapChain = std::make_unique<SwapChain>(_graphicsInstance, _graphicsDevice, extent);
         } else {
             // TODO Edit existing swapchain without setting present mode, etc.
-            std::shared_ptr<SwapChain> oldSwapChain = std::move(swapChain_);
-            swapChain_ = std::make_unique<SwapChain>(graphicsInstance_, graphicsDevice_, extent, oldSwapChain);
+            std::shared_ptr<SwapChain> oldSwapChain = std::move(_swapChain);
+            _swapChain = std::make_unique<SwapChain>(_graphicsInstance, _graphicsDevice, extent, oldSwapChain);
 
-            if (!oldSwapChain->compareSwapFormats(*swapChain_.get())) {
+            if (!oldSwapChain->compareSwapFormats(*_swapChain.get())) {
                 Logger::crash("Swap chain image or depth format has changed.");
             }
         }
         
-        renderPassInfo_.renderPass = swapChain_->renderPass();
-        renderPassInfo_.renderArea.extent = swapChain_->extent();
-        viewport_.width = static_cast<float>(swapChain_->width());
-        viewport_.height = static_cast<float>(swapChain_->height());
-        scissor_.extent = swapChain_->extent();
+        _renderPassInfo.renderPass = _swapChain->renderPass();
+        _renderPassInfo.renderArea.extent = _swapChain->extent();
+        _viewport.width = static_cast<float>(_swapChain->width());
+        _viewport.height = static_cast<float>(_swapChain->height());
+        _scissor.extent = _swapChain->extent();
     }
 
     void Renderer::createCommandBuffers() {
-        commandBuffers_.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+        _commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
         
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = graphicsDevice_.commandPool();
-        allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
+        allocInfo.commandPool = _graphicsDevice.commandPool();
+        allocInfo.commandBufferCount = static_cast<uint32_t>(_commandBuffers.size());
 
-        vkAllocateCommandBuffers(graphicsDevice_.device(), &allocInfo, commandBuffers_.data());
+        vkAllocateCommandBuffers(_graphicsDevice.device(), &allocInfo, _commandBuffers.data());
     }
 
     void Renderer::freeCommandBuffers() {
-        vkFreeCommandBuffers(graphicsDevice_.device(), graphicsDevice_.commandPool(),
-            static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
-        commandBuffers_.clear();
+        vkFreeCommandBuffers(_graphicsDevice.device(), _graphicsDevice.commandPool(),
+            static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+        _commandBuffers.clear();
     }
 
     VkCommandBuffer Renderer::beginFrame() {
-        swapChain_->acquireNextImage(&currentImageIndex_);
+        _swapChain->acquireNextImage(&_currentImageIndex);
 
         auto commandBuffer = currentCommandBuffer();
-        vkBeginCommandBuffer(commandBuffer, &commandBufferInfo_);
+        vkBeginCommandBuffer(commandBuffer, &_commandBufferInfo);
         return commandBuffer;
     }
 
@@ -88,20 +88,20 @@ namespace game {
         auto commandBuffer = currentCommandBuffer();
         vkEndCommandBuffer(commandBuffer);
 
-        swapChain_->submitCommandBuffers(&commandBuffer, &currentImageIndex_);
+        _swapChain->submitCommandBuffers(&commandBuffer, &_currentImageIndex);
         if (_window.wasResized()) {
             _window.resetWindowResizedFlag();
             recreateSwapChain();
         }
 
-        currentFrameIndex_ = (currentFrameIndex_ + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
+        _currentFrameIndex = (_currentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
     }
     
     void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
-        renderPassInfo_.framebuffer = swapChain_->frameBuffer(currentImageIndex_);
+        _renderPassInfo.framebuffer = _swapChain->frameBuffer(_currentImageIndex);
 
-        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo_, VK_SUBPASS_CONTENTS_INLINE);        
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport_);
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor_);
+        vkCmdBeginRenderPass(commandBuffer, &_renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);        
+        vkCmdSetViewport(commandBuffer, 0, 1, &_viewport);
+        vkCmdSetScissor(commandBuffer, 0, 1, &_scissor);
     }
 }

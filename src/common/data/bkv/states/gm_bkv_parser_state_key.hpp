@@ -13,9 +13,9 @@ namespace game {
             
             // Functions
             void reset() {
-                keyLen_ = 0;
-                strChar_ = 0;
-                escapeChar_ = false;
+                _keyLen = 0;
+                _strChar = 0;
+                _escapeChar = false;
             }
             virtual void parse(BKV_Parser& parser, const char c);
             
@@ -25,9 +25,9 @@ namespace game {
             void continueKey(BKV_Parser& parser, const char c);
 
             // Variables
-            uint8_t key_[UINT8_MAX];
-            int16_t keyLen_ = 0;
-            char strChar_ = 0;
-            bool escapeChar_ = false;
+            uint8_t _key[UINT8_MAX];
+            int16_t _keyLen = 0;
+            char _strChar = 0;
+            bool _escapeChar = false;
     };
 }

@@ -21,11 +21,11 @@ namespace game {
             void update();
             void save();
 
-            ServerComponents& serverComponents() { return serverComponents_; }
+            ServerComponents& serverComponents() { return _serverComponents; }
 
         private:
             // Variables
-            EntityPool& entityPool_;
-            ServerComponents serverComponents_{entityPool_};
+            EntityPool& _entityPool;
+            ServerComponents _serverComponents{_entityPool};
     };
 }

@@ -6,7 +6,7 @@
 #include <thread>
 
 namespace game {
-    World::World(EntityPool& entityPool) : entityPool_{entityPool} {
+    World::World(EntityPool& entityPool) : _entityPool{entityPool} {
         
     }
     
@@ -20,7 +20,7 @@ namespace game {
 
     void World::update() {
         // Update entities
-        serverComponents_.update();
+        _serverComponents.update();
 
         // Update world
         // TODO

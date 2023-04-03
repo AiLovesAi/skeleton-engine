@@ -14,7 +14,7 @@ namespace game {
     }
 
     void Server::update() {
-        world_.update();
+        _world.update();
 
         // TODO Send data
     }

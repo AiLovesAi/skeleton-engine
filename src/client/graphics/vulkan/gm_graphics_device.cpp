@@ -6,20 +6,20 @@
 #include <set>
 
 namespace game {
-    GraphicsDevice::GraphicsDevice(GraphicsInstance& graphicsInstance) : graphicsInstance_{graphicsInstance} {
+    GraphicsDevice::GraphicsDevice(GraphicsInstance& graphicsInstance) : _graphicsInstance{graphicsInstance} {
         pickPhysicalDevice();
         createLogicalDevice();
         createCommandPool();
     }
 
     GraphicsDevice::~GraphicsDevice() {
-        vkDestroyCommandPool(device_, commandPool_, nullptr);
-        vkDestroyDevice(device_, nullptr);
+        vkDestroyCommandPool(_device, _commandPool, nullptr);
+        vkDestroyDevice(_device, nullptr);
     }
 
     void GraphicsDevice::pickPhysicalDevice() {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(graphicsInstance_.instance(), &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(_graphicsInstance.instance(), &deviceCount, nullptr);
 
         if (deviceCount == 0) {
             Logger::crash("Failed to find GPUs with Vulkan support.");
@@ -28,7 +28,7 @@ namespace game {
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
         std::multimap<int, VkPhysicalDevice> candidates;
-        vkEnumeratePhysicalDevices(graphicsInstance_.instance(), &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(_graphicsInstance.instance(), &deviceCount, devices.data());
 
         for (const auto &device : devices) {
             int score = rateDeviceSuitability(device);
@@ -118,7 +118,7 @@ namespace game {
                 indices.graphicsFamilyHasValue = true;
             }
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, graphicsInstance_.surface(), &presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _graphicsInstance.surface(), &presentSupport);
             if (queueFamily.queueCount > 0 && presentSupport) {
                 indices.presentFamily = i;
                 indices.presentFamilyHasValue = true;
@@ -143,7 +143,7 @@ namespace game {
             availableExtensions.data()
         );
 
-        std::set<std::string> requiredExtensions(deviceExtensions_.begin(), deviceExtensions_.end());
+        std::set<std::string> requiredExtensions(_deviceExtensions.begin(), _deviceExtensions.end());
 
         for (const auto &extension : availableExtensions) {
             requiredExtensions.erase(extension.extensionName);
@@ -154,24 +154,24 @@ namespace game {
 
     SwapChainSupportDetails GraphicsDevice::querySwapChainSupport(const VkPhysicalDevice& device) {
         SwapChainSupportDetails details;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, graphicsInstance_.surface(), &details.capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _graphicsInstance.surface(), &details.capabilities);
 
         uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, graphicsInstance_.surface(), &formatCount, nullptr);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, _graphicsInstance.surface(), &formatCount, nullptr);
 
         if (formatCount != 0) {
             details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, graphicsInstance_.surface(), &formatCount, details.formats.data());
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, _graphicsInstance.surface(), &formatCount, details.formats.data());
         }
 
         uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, graphicsInstance_.surface(), &presentModeCount, nullptr);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, _graphicsInstance.surface(), &presentModeCount, nullptr);
 
         if (presentModeCount != 0) {
             details.presentModes.resize(presentModeCount);
             vkGetPhysicalDeviceSurfacePresentModesKHR(
                 device,
-                graphicsInstance_.surface(),
+                _graphicsInstance.surface(),
                 &presentModeCount,
                 details.presentModes.data());
         }
@@ -204,15 +204,15 @@ namespace game {
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
         createInfo.pEnabledFeatures = &deviceFeatures;
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions_.size());
-        createInfo.ppEnabledExtensionNames = deviceExtensions_.data();
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(_deviceExtensions.size());
+        createInfo.ppEnabledExtensionNames = _deviceExtensions.data();
 
-        if (vkCreateDevice(physicalDevice_, &createInfo, nullptr, &device_) != VK_SUCCESS) {
+        if (vkCreateDevice(physicalDevice_, &createInfo, nullptr, &_device) != VK_SUCCESS) {
             Logger::crash("Failed to create logical device.");
         }
 
-        vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
-        vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+        vkGetDeviceQueue(_device, indices.graphicsFamily, 0, &_graphicsQueue);
+        vkGetDeviceQueue(_device, indices.presentFamily, 0, &_presentQueue);
     }
 
     void GraphicsDevice::createCommandPool() {
@@ -225,7 +225,7 @@ namespace game {
             VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool_) != VK_SUCCESS) {
+        if (vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS) {
             Logger::crash("Failed to create command pool.");
         }
     }
@@ -243,23 +243,23 @@ namespace game {
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device_, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        if (vkCreateBuffer(_device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
             Logger::crash("Failed to create vertex buffer.");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetBufferMemoryRequirements(device_, buffer, &memRequirements);
+        vkGetBufferMemoryRequirements(_device, buffer, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device_, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(_device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
             Logger::crash("Failed to allocate vertex buffer memory.");
         }
 
-        vkBindBufferMemory(device_, buffer, bufferMemory, 0);
+        vkBindBufferMemory(_device, buffer, bufferMemory, 0);
     }
 
     uint32_t GraphicsDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
@@ -279,11 +279,11 @@ namespace game {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandPool = commandPool_;
+        allocInfo.commandPool = _commandPool;
         allocInfo.commandBufferCount = 1;
 
         VkCommandBuffer commandBuffer;
-        vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer);
+        vkAllocateCommandBuffers(_device, &allocInfo, &commandBuffer);
 
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -301,10 +301,10 @@ namespace game {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &commandBuffer;
 
-        vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(graphicsQueue_);
+        vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(_graphicsQueue);
 
-        vkFreeCommandBuffers(device_, commandPool_, 1, &commandBuffer);
+        vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
     }
 
     void GraphicsDevice::copyBuffer(const VkBuffer& srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
@@ -355,23 +355,23 @@ namespace game {
         VkImage& image,
         VkDeviceMemory& imageMemory
     ) {
-        if (vkCreateImage(device_, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+        if (vkCreateImage(_device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
             Logger::crash("Failed to create image.");
         }
 
         VkMemoryRequirements memRequirements;
-        vkGetImageMemoryRequirements(device_, image, &memRequirements);
+        vkGetImageMemoryRequirements(_device, image, &memRequirements);
 
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
-        if (vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
             Logger::crash("Failed to allocate image memory.");
         }
 
-        if (vkBindImageMemory(device_, image, imageMemory, 0) != VK_SUCCESS) {
+        if (vkBindImageMemory(_device, image, imageMemory, 0) != VK_SUCCESS) {
             Logger::crash("Failed to bind image memory.");
         }
     }

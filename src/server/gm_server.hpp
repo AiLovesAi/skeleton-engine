@@ -14,13 +14,13 @@ namespace game {
             void host();
             void update();
 
-            EntityPool& entityPool() { return entityPool_; }
-            World& world() { return world_; }
+            EntityPool& entityPool() { return _entityPool; }
+            World& world() { return _world; }
         
         private:
             // Variables
-            EntityPool entityPool_;
+            EntityPool _entityPool;
 
-            World world_{entityPool_};
+            World _world{_entityPool};
     };    
 }

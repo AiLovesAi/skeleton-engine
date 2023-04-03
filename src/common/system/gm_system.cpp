@@ -21,19 +21,19 @@
 #endif
 
 namespace game {
-    uint32_t System::CPU_THREAD_COUNT_;
-    size_t System::PHYSICAL_MEMORY_;
-    UTF8Str System::OS_ = Core::EMPTYSTR;
-    UTF8Str System::CPU_ = Core::EMPTYSTR;
-    UTF8Str System::GPU_ = Core::EMPTYSTR;
+    uint32_t System::_CPU_THREAD_COUNT;
+    size_t System::_PHYSICAL_MEMORY;
+    UTF8Str System::_OS = Core::EMPTYSTR;
+    UTF8Str System::_CPU = Core::EMPTYSTR;
+    UTF8Str System::_GPU = Core::EMPTYSTR;
 
     void System::init() {
         findOS();
         findCPU();
-        CPU_THREAD_COUNT_ = lzma_cputhreads();
-        PHYSICAL_MEMORY_ = lzma_physmem();
-        if (CPU_THREAD_COUNT_ < 1) {
-            CPU_THREAD_COUNT_ = 1;
+        _CPU_THREAD_COUNT = lzma_cputhreads();
+        _PHYSICAL_MEMORY = lzma_physmem();
+        if (_CPU_THREAD_COUNT < 1) {
+            _CPU_THREAD_COUNT = 1;
             Logger::log(LOG_WARN, "Could not get CPU thread count.");
         }
     }
@@ -93,7 +93,7 @@ namespace game {
         OS.append(' ');
         OS.append(nameData.release);
 #endif
-        System::OS_ = OS.str();
+        System::_OS = OS.str();
     }
 
     void System::findCPU() {
@@ -107,6 +107,6 @@ namespace game {
             mModelName.append(String::asAscii((const char*) &cpuID.RDX(), 4));
         }
 
-        System::CPU_ = mModelName.str();
+        System::_CPU = mModelName.str();
     }
 }

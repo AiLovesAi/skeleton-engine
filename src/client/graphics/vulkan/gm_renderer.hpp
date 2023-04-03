@@ -16,10 +16,10 @@ namespace game {
             Renderer(const Renderer &&) = delete;
             Renderer &operator=(const Renderer &&) = delete;
 
-            VkRenderPass renderPass() const { return swapChain_->renderPass(); }
-            float aspectRatio() const { return swapChain_->extentAspectRatio(); }
-            VkCommandBuffer currentCommandBuffer() const { return commandBuffers_[currentFrameIndex_]; }
-            int frameIndex() const { return currentFrameIndex_; }
+            VkRenderPass renderPass() const { return _swapChain->renderPass(); }
+            float aspectRatio() const { return _swapChain->extentAspectRatio(); }
+            VkCommandBuffer currentCommandBuffer() const { return _commandBuffers[_currentFrameIndex]; }
+            int frameIndex() const { return _currentFrameIndex; }
 
             VkCommandBuffer beginFrame();
             void endFrame();
@@ -31,19 +31,19 @@ namespace game {
             void freeCommandBuffers();
             void recreateSwapChain();
             
-            GraphicsInstance& graphicsInstance_;
-            GraphicsDevice& graphicsDevice_;
+            GraphicsInstance& _graphicsInstance;
+            GraphicsDevice& _graphicsDevice;
             Window& _window;
 
-            std::unique_ptr<SwapChain> swapChain_;
-            std::vector<VkCommandBuffer> commandBuffers_;
-            VkViewport viewport_{};
-            VkRect2D scissor_{};
-            std::array<VkClearValue, 2> clearValues_{};
-            VkCommandBufferBeginInfo commandBufferInfo_{};
-            VkRenderPassBeginInfo renderPassInfo_{};
+            std::unique_ptr<SwapChain> _swapChain;
+            std::vector<VkCommandBuffer> _commandBuffers;
+            VkViewport _viewport{};
+            VkRect2D _scissor{};
+            std::array<VkClearValue, 2> _clearValues{};
+            VkCommandBufferBeginInfo _commandBufferInfo{};
+            VkRenderPassBeginInfo _renderPassInfo{};
 
-            uint32_t currentImageIndex_;
-            int currentFrameIndex_;
+            uint32_t _currentImageIndex;
+            int _currentFrameIndex;
     };
 }

@@ -18,7 +18,6 @@
 #if defined(_WIN32)
   #include <windows.h>
 #elif defined(__linux__)
-  #include <sstream>
   #include <unistd.h>
   #include <iterator>
   #include <execinfo.h>
@@ -33,8 +32,8 @@
 namespace fs = std::filesystem;
 
 namespace game {
-    UTF8Str File::executableDir_ = Core::EMPTYSTR;
-    std::mutex File::fileMtx;
+    UTF8Str File::_executableDir = Core::EMPTYSTR;
+    std::mutex File::_fileMtx;
 
     void File::init() {
         findExecutableDir();
@@ -60,7 +59,7 @@ namespace game {
         uint8_t* data = static_cast<uint8_t*>(std::malloc(capacity));
 
         // Open file
-        fileMtx.lock();
+        _fileMtx.lock();
         FILE* f = std::fopen(filepath, "rb");
         if (!f) {
             UTF8Str msg = FormatString::formatString("Could not open file: %s", filepath);
@@ -83,7 +82,7 @@ namespace game {
 
         // Close file
         std::fclose(f);
-        fileMtx.unlock();
+        _fileMtx.unlock();
         data = static_cast<uint8_t*>(std::realloc(data, head));
 
         return FileContents{head, std::shared_ptr<const uint8_t>(data, std::free)};
@@ -97,7 +96,7 @@ namespace game {
 
 
         // Open file
-        fileMtx.lock();
+        _fileMtx.lock();
         FILE* f = std::fopen(filepath, append ? "ab" : "wb");
         if (!f) {
             UTF8Str msg = FormatString::formatString("Could not open file: %s", filepath);
@@ -115,7 +114,7 @@ namespace game {
 
         // Close file
         std::fclose(f);
-        fileMtx.unlock();
+        _fileMtx.unlock();
     }
 
     void File::findExecutableDir()
@@ -139,12 +138,10 @@ namespace game {
 
         // Construct a path to the symbolic link pointing to the process executable.
         // This is at /proc/<pid>/exe on Linux systems (we hope).
-        std::ostringstream oss;
-        oss << "/proc/" << pid << "/exe";
-        const char* link = oss.str().cstr();
+        UTF8Str link = FormatString::formatString("/proc/%d/exe", pid);
 
         // Read the contents of the link.
-        int count = readlink(link, &buffer[0], bufferSize);
+        int count = readlink(link.get(), &buffer[0], bufferSize);
         if(count == -1) Logger::crash("Could not read symbolic link");
         buffer[count] = '\0';
 
@@ -160,6 +157,6 @@ namespace game {
         char* pathStr = static_cast<char*>(std::malloc(path.length() + 1));
         std::memcpy(pathStr, path.c_str(), path.length());
         pathStr[path.length()] = '\0';
-        File::executableDir_ = UTF8Str{static_cast<int64_t>(path.length()), std::shared_ptr<const char>(pathStr, std::free)};
+        File::_executableDir = UTF8Str{static_cast<int64_t>(path.length()), std::shared_ptr<const char>(pathStr, std::free)};
     }
 }

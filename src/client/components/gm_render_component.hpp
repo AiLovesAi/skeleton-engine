@@ -16,33 +16,33 @@ namespace game {
             // Functions
             void render(const double lag, const WorldTransform& parentTransform, bool dirty);
 
-            Entity entity() const { return entity_; }
+            Entity entity() const { return _entity; }
         
         private:
             // Variables
-            Entity entity_;
+            Entity _entity;
     };
     
     class RenderPool {
         public:
             // Constructors
             RenderPool(EntityPool& entityPool, const size_t initialCapacity)
-                : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
+                : _entityPool{entityPool}, _initialCapacity{initialCapacity} {}
 
             // Functions
             void create(const Entity entity);
             void destroy(const size_t index);
-            RenderComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
-            size_t size() const { return size_; };
+            RenderComponent& get(const Entity entity) { return _pool[_indexMap[entity]]; }
+            size_t size() const { return _size; };
 
             void render(const double lag);
 
         private:
             // Variables
-            EntityPool& entityPool_;
-            size_t initialCapacity_;
-            std::unordered_map<Entity, size_t> indexMap_;
-            std::vector<RenderComponent> pool_{initialCapacity_};
-            size_t size_ = 0;
+            EntityPool& _entityPool;
+            size_t _initialCapacity;
+            std::unordered_map<Entity, size_t> _indexMap;
+            std::vector<RenderComponent> _pool{_initialCapacity};
+            size_t _size = 0;
     };
 }

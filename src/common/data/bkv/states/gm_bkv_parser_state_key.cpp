@@ -12,24 +12,24 @@
 namespace game {
     void BKV_Parser_State_Key::completeKey(BKV_Parser& parser, const char c) {
         parser._buffer._tagHead = parser._buffer._head;
-        uint8_t len = static_cast<uint8_t>(keyLen_);
+        uint8_t len = static_cast<uint8_t>(_keyLen);
 
         try {
-            StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + 2 + keyLen_, parser._buffer._head, parser._buffer._capacity);
+            StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + 2 + _keyLen, parser._buffer._head, parser._buffer._capacity);
         } catch (std::runtime_error &e) { throw; }
         std::memcpy(parser._buffer.bkv_ + parser._buffer._head + 1, &len, BKV::BKV_KEY_SIZE);
         parser._buffer._head += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
     std::stringstream m;
     m << "Key putting data at: " << parser._buffer._head;
     Logger::log(LOG_INFO, m.str());
-        std::memcpy(parser._buffer.bkv_ + parser._buffer._head, key_, keyLen_);
-        parser._buffer._head += keyLen_;
+        std::memcpy(parser._buffer.bkv_ + parser._buffer._head, _key, _keyLen);
+        parser._buffer._head += _keyLen;
         parser._buffer._valHead = parser._buffer._head;
         parser._stateTree.push(&parser._findTagState);
 
     char key[256];
-    std::memcpy(key, key_, keyLen_);
-    key[keyLen_] = '\0';
+    std::memcpy(key, _key, _keyLen);
+    key[_keyLen] = '\0';
     m.str("");
     m << "Key state finished parsing: " << key;
     Logger::log(LOG_INFO, m.str());
@@ -38,16 +38,16 @@ namespace game {
 
     void BKV_Parser_State_Key::continueKey(BKV_Parser& parser, const char c) {
         // Build string
-        if (keyLen_ >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
+        if (_keyLen >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
             std::stringstream msg;
-            msg << "Too many characters in SBKV key at index " << parser._charactersRead << ": " << keyLen_ + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
+            msg << "Too many characters in SBKV key at index " << parser._charactersRead << ": " << _keyLen + 1 << "/" << BKV::BKV_KEY_MAX << " characters.";
             reset();
             throw std::runtime_error(msg.str());
         }
 
         // Toggle break character after it breaks once
-        if (escapeChar_) {
-            escapeChar_ = false;
+        if (_escapeChar) {
+            _escapeChar = false;
 
             char b = BKV_Parser_State_String::getEscapeChar(c);
             if (b < 0) {
@@ -57,13 +57,13 @@ namespace game {
                 throw std::runtime_error(msg.str());
             }
             
-            key_[keyLen_] = b;
-            keyLen_++;
+            _key[_keyLen] = b;
+            _keyLen++;
         } else if (c == '\\') {
-            escapeChar_ = true;
+            _escapeChar = true;
         } else {
-            key_[keyLen_] = c;
-            keyLen_++;
+            _key[_keyLen] = c;
+            _keyLen++;
         }
     }
 
@@ -81,24 +81,24 @@ namespace game {
                 msg << "Opening compound not found in SBKV, first character was: 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
                 throw std::runtime_error(msg.str());
             }
-        } else if (strChar_) { // Any UTF-8 string allowed
+        } else if (_strChar) { // Any UTF-8 string allowed
             // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
             // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
-            if (c == strChar_ && !escapeChar_) {
+            if (c == _strChar && !_escapeChar) {
                 try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }
             } else {
                 try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }
             }
-        } else if ((c == '}') && !keyLen_) {
+        } else if ((c == '}') && !_keyLen) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
             try { parser.closeCompound(); } catch (std::runtime_error &e) { throw; }
-        } else if ((std::isspace(c) || (c == ',')) && !keyLen_) {
+        } else if ((std::isspace(c) || (c == ',')) && !_keyLen) {
             // Whitespace, igore OR
             // In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
             return;
-        } else if (((c == '\'') || (c == '"')) && !keyLen_) {
-            strChar_ = c;
-        } else if (std::isalpha(c) || (keyLen_ && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
+        } else if (((c == '\'') || (c == '"')) && !_keyLen) {
+            _strChar = c;
+        } else if (std::isalpha(c) || (_keyLen && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
             try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == ':') {
             try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }

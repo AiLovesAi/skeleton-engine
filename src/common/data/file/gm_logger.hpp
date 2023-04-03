@@ -59,7 +59,7 @@ namespace game {
             static void logSync_(const int logType, const UTF8Str& message, const std::thread::id& threadId);
             
             // Variables
-            static UTF8Str logPath_;
-            static UTF8Str crashPath_;
+            static UTF8Str _logPath;
+            static UTF8Str _crashPath;
     };
 }

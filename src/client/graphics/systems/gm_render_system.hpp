@@ -3,5 +3,6 @@
 namespace game {
     class RenderSystem {
         public:
+            // TODO
     };
 }

@@ -55,7 +55,7 @@ namespace game {
 	    lzma_action action = LZMA_RUN;
 
         // Open file
-        File::fileMtx.lock();
+        File::_fileMtx.lock();
         FILE* f = std::fopen(filepath, "rb");
         if (f == nullptr) {
             std::stringstream msg;
@@ -137,7 +137,7 @@ namespace game {
         // Close file
         std::fclose(f);
 	    lzma_end(&stream);
-        File::fileMtx.unlock();
+        File::_fileMtx.unlock();
 	    data = static_cast<uint8_t*>(std::realloc(data, head));
 
         return File::FileContents{head, std::shared_ptr<const uint8_t>(data, std::free)};;
@@ -185,7 +185,7 @@ namespace game {
 	    lzma_action action = LZMA_RUN;
 
         // Open file
-        File::fileMtx.lock();
+        File::_fileMtx.lock();
         FILE* f = fopen(filepath, append ? "ab" : "wb");
         if (f == nullptr) {
             std::stringstream msg;
@@ -257,6 +257,6 @@ namespace game {
         // Close file
         std::fclose(f);
 	    lzma_end(&stream);
-        File::fileMtx.unlock();
+        File::_fileMtx.unlock();
     }
 }

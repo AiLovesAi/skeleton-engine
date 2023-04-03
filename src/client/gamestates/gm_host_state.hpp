@@ -24,12 +24,12 @@ namespace game {
 
         private:
             // Variables
-            Server server_;
-            ClientComponents clientComponents_{server_.entityPool()};
+            Server _server;
+            ClientComponents _clientComponents{_server.entityPool()};
 
             Camera camera_{
-                server_.entityPool().create(),
-                server_.world(),
+                _server.entityPool().create(),
+                _server.world(),
                 Client::instance().window(),
                 45.f,
                 std::numeric_limits<float>::min(),

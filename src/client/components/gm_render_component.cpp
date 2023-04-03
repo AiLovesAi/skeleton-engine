@@ -4,7 +4,7 @@
 
 namespace game {
     // RenderComponent //
-    RenderComponent::RenderComponent(const Entity entity) : entity_{entity} {
+    RenderComponent::RenderComponent(const Entity entity) : _entity{entity} {
 
     }
 
@@ -14,24 +14,24 @@ namespace game {
 
     // RenderPool //
     void RenderPool::create(const Entity entity) {
-        pool_.emplace_back(entity);
-        indexMap_[entity] = size_++;
+        _pool.emplace_back(entity);
+        _indexMap[entity] = _size++;
     }
 
     void RenderPool::destroy(const size_t index) {
-        Entity entity = pool_[index].entity();
-        Entity last = pool_[--size_].entity();
-        std::swap(pool_[index], pool_[size_]); // Swap last entity to index
-        indexMap_[last] = index; // Update the index of the moved entity
-        indexMap_.erase(entity); // Release the index held by the index map
-        pool_.erase(pool_.end() - 1); // Free the destroyed component's data from the pool
-        entityPool_.destroy(entity); // Kill the entity
+        Entity entity = _pool[index].entity();
+        Entity last = _pool[--_size].entity();
+        std::swap(_pool[index], _pool[_size]); // Swap last entity to index
+        _indexMap[last] = index; // Update the index of the moved entity
+        _indexMap.erase(entity); // Release the index held by the index map
+        _pool.erase(_pool.end() - 1); // Free the destroyed component's data from the pool
+        _entityPool.destroy(entity); // Kill the entity
     }
 
     void RenderPool::render(const double lag) {
-        for (size_t i = 0; i < pool_.size(); i++) {
-            // if (pool_[i].parent == nullptr)
-            pool_[i].render(lag, PhysicsComponent::origin, false);
+        for (size_t i = 0; i < _pool.size(); i++) {
+            // if (_pool[i].parent == nullptr)
+            _pool[i].render(lag, PhysicsComponent::origin, false);
             // TODO Send dirty components to the end of the pool ([clean] [dirty parents] [dirty children])
             // http://bitsquid.blogspot.com/2014/10/building-data-oriented-entity-system.html
         }

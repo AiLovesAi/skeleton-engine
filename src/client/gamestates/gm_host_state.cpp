@@ -3,7 +3,7 @@
 namespace game {
     HostState::HostState(const std::string& world) {
         // Load world and shaders
-        server_.world().load(world);
+        _server.world().load(world);
     }
 
     HostState::~HostState() {
@@ -12,7 +12,7 @@ namespace game {
 
     void HostState::update() {
         // Update server
-        server_.update();
+        _server.update();
     }
 
     void HostState::render(const double lag) {
@@ -23,7 +23,7 @@ namespace game {
         renderer.beginSwapChainRenderPass(commandBuffer);
 
         // Render world
-        clientComponents_.render(lag);
+        _clientComponents.render(lag);
 
         renderer.endSwapChainRenderPass(commandBuffer);
         renderer.endFrame();

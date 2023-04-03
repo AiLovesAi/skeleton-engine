@@ -15,33 +15,33 @@ namespace game {
             // Functions
             bool update();
 
-            Entity entity() const { return entity_; }
+            Entity entity() const { return _entity; }
         
         private:
             // Data
-            Entity entity_;
+            Entity _entity;
     };
 
     class AIPool {
         public:
             // Constructors
             AIPool(EntityPool& entityPool, const size_t initialCapacity)
-                : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
+                : _entityPool{entityPool}, _initialCapacity{initialCapacity} {}
 
             // Functions
             void create(const Entity entity);
             void destroy(const size_t index);
-            AIComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
-            size_t size() const { return size_; };
+            AIComponent& get(const Entity entity) { return _pool[_indexMap[entity]]; }
+            size_t size() const { return _size; };
 
             void update();
 
         private:
             // Variables
-            EntityPool& entityPool_;
-            size_t initialCapacity_;
-            std::unordered_map<Entity, size_t> indexMap_;
-            std::vector<AIComponent> pool_{initialCapacity_};
-            size_t size_ = 0;
+            EntityPool& _entityPool;
+            size_t _initialCapacity;
+            std::unordered_map<Entity, size_t> _indexMap;
+            std::vector<AIComponent> _pool{_initialCapacity};
+            size_t _size = 0;
     };
 }

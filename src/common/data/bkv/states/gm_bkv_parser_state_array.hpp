@@ -13,22 +13,22 @@ namespace game {
 
             // Functions
             void reset() {
-                size_ =  0;
-                arrayTagHead_ = 0;
-                arrayStart_ = 0;
-                arrayTag_ = 0;
+                _size =  0;
+                _arrayTagHead = 0;
+                _arrayStart = 0;
+                _arrayTag = 0;
             }
             virtual void parse(BKV_Parser& parser, const char c);
 
         protected:
             friend class BKV_Parser;
             // Variables
-            uint8_t arrayTag_ = 0;
+            uint8_t _arrayTag = 0;
 
         private:
             // Variables
-            int64_t size_ = 0;
-            int64_t arrayTagHead_ = 0;
-            int64_t arrayStart_ = 0;
+            int64_t _size = 0;
+            int64_t _arrayTagHead = 0;
+            int64_t _arrayStart = 0;
     };
 }

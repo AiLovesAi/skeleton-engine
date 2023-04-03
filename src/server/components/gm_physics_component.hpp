@@ -23,60 +23,60 @@ namespace game {
             // Functions
             bool update();
 
-            void setParent(const Entity parent) { parent_ = parent; }
-            void addChild(const Entity child) { children_.push_back(child); }
-            void removeChild(const Entity child) { children_.erase(std::find(children_.begin(), children_.end(), child)); }
-            void removeFirstChild() { children_.erase(children_.begin()); }
-            void removeLastChild() { children_.erase(children_.end()); }
+            void setParent(const Entity parent) { _parent = parent; }
+            void addChild(const Entity child) { _children.push_back(child); }
+            void removeChild(const Entity child) { _children.erase(std::find(_children.begin(), _children.end(), child)); }
+            void removeFirstChild() { _children.erase(_children.begin()); }
+            void removeLastChild() { _children.erase(_children.end()); }
 
             void setSpeed(const WorldTransform& speedTransform) {
-                speedTransform_ = speedTransform;
-                speedTransform_.dirty = true;
+                _speedTransform = speedTransform;
+                _speedTransform.dirty = true;
             }
             void setAcceleration(const WorldTransform& accelerationTransform) {
-                accelerationTransform_ = accelerationTransform;
-                accelerationTransform_.dirty = true;
+                _accelerationTransform = accelerationTransform;
+                _accelerationTransform.dirty = true;
             }
 
-            Entity entity() const { return entity_; }
-            Entity parent() const { return parent_; }
-            std::vector<Entity> children() const { return children_; }
+            Entity entity() const { return _entity; }
+            Entity parent() const { return _parent; }
+            std::vector<Entity> children() const { return _children; }
 
-            WorldTransform speedTransform() const { return speedTransform_; }
-            WorldTransform accelerationTransform() const { return accelerationTransform_; }
+            WorldTransform speedTransform() const { return _speedTransform; }
+            WorldTransform accelerationTransform() const { return _accelerationTransform; }
 
             // Variables
             static constexpr WorldTransform origin{};
         
         private:
             // Variables
-            Entity entity_;
+            Entity _entity;
 
-            Entity parent_;
-            std::vector<Entity> children_;
+            Entity _parent;
+            std::vector<Entity> _children;
             
-            WorldTransform speedTransform_{};
-            WorldTransform accelerationTransform_{};
+            WorldTransform _speedTransform{};
+            WorldTransform _accelerationTransform{};
     };
 
     class PhysicsPool {
         public:
             // Constructors
-            PhysicsPool(EntityPool& entityPool) : entityPool_{entityPool} {}
+            PhysicsPool(EntityPool& entityPool) : _entityPool{entityPool} {}
 
             // Functions
             void create(const Entity entity);
             void destroy(const size_t index);
-            PhysicsComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
-            size_t size() const { return size_; };
+            PhysicsComponent& get(const Entity entity) { return _pool[_indexMap[entity]]; }
+            size_t size() const { return _size; };
 
             void update();
 
         private:
             // Variables
-            EntityPool& entityPool_;
-            std::unordered_map<Entity, size_t> indexMap_;
-            std::vector<PhysicsComponent> pool_{64};
-            size_t size_ = 0;
+            EntityPool& _entityPool;
+            std::unordered_map<Entity, size_t> _indexMap;
+            std::vector<PhysicsComponent> _pool{64};
+            size_t _size = 0;
     };
 }

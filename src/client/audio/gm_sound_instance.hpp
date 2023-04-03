@@ -14,40 +14,40 @@ namespace game {
             SoundInstance(const Entity entity);
 
             // Functions
-            Sound* sound() const { return sound_; }
-            Entity entity() const { return entity_; }
-            float pitch() const { return pitch_; }
-            float volume() const { return volume_; }
-            float position() const { return position_; }
+            Sound* sound() const { return _sound; }
+            Entity entity() const { return _entity; }
+            float pitch() const { return _pitch; }
+            float volume() const { return _volume; }
+            float position() const { return _position; }
 
         private:
             // Variables
-            Sound* sound_ = nullptr;
-            Entity entity_;
+            Sound* _sound = nullptr;
+            Entity _entity;
 
-            float pitch_ = 1.f;
-            float volume_ = 1.f;
-            size_t position_ = 0; // Position in sound data
+            float _pitch = 1.f;
+            float _volume = 1.f;
+            size_t _position = 0; // Position in sound data
     };
     
     class SoundPool {
         public:
             // Constructors
             SoundPool(EntityPool& entityPool, const size_t initialCapacity)
-                : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
+                : _entityPool{entityPool}, _initialCapacity{initialCapacity} {}
 
             // Functions
             void create(const Entity entity);
             void destroy(const size_t index);
-            SoundInstance& get(const Entity entity) { return pool_[indexMap_[entity]]; }
-            size_t size() const { return size_; };
+            SoundInstance& get(const Entity entity) { return _pool[_indexMap[entity]]; }
+            size_t size() const { return _size; };
 
         private:
             // Variables
-            EntityPool& entityPool_;
-            size_t initialCapacity_;
-            std::unordered_map<Entity, size_t> indexMap_;
-            std::vector<SoundInstance> pool_{initialCapacity_};
-            size_t size_ = 0;
+            EntityPool& _entityPool;
+            size_t _initialCapacity;
+            std::unordered_map<Entity, size_t> _indexMap;
+            std::vector<SoundInstance> _pool{_initialCapacity};
+            size_t _size = 0;
     };
 }

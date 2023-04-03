@@ -26,7 +26,7 @@ namespace game {
     template <typename T, typename TU>
     void BKV_Parser_State_Number::parseInt(BKV_Parser& parser, const int64_t min, const int64_t max, const uint64_t umax) {
         if (parser._tag & BKV::BKV_UNSIGNED) {
-            uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+            uint64_t val = std::strtoull(_numBuffer, nullptr, 10);
         std::stringstream m;
         m << "Number state parsed unsigned int: " << val;
         Logger::log(LOG_INFO, m.str());
@@ -39,7 +39,7 @@ namespace game {
             }
             try { appendValue(parser, static_cast<TU>(val)); } catch (std::runtime_error &e) { throw; }
         } else {
-            int64_t val = std::strtoll(numBuf_, nullptr, 10);
+            int64_t val = std::strtoll(_numBuffer, nullptr, 10);
         std::stringstream m;
         m << "Number state parsed int: " << val;
         Logger::log(LOG_INFO, m.str());
@@ -62,7 +62,7 @@ namespace game {
     void BKV_Parser_State_Number::parseLong(BKV_Parser& parser) {
         parser._tag |= BKV::BKV_I64;
         if (parser._tag & BKV::BKV_UNSIGNED) {
-            uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+            uint64_t val = std::strtoull(_numBuffer, nullptr, 10);
         std::stringstream m;
         m << "Number state parsed unsigned long: " << val;
         Logger::log(LOG_INFO, m.str());
@@ -75,7 +75,7 @@ namespace game {
             }
             try { appendValue(parser, val); } catch (std::runtime_error &e) { throw; }
         } else {
-            int64_t val = std::strtoll(numBuf_, nullptr, 10);
+            int64_t val = std::strtoll(_numBuffer, nullptr, 10);
         std::stringstream m;
         m << "Number state parsed long: " << val;
         Logger::log(LOG_INFO, m.str());
@@ -97,7 +97,7 @@ namespace game {
     
     void BKV_Parser_State_Number::parseFloat(BKV_Parser& parser) {
         parser._tag |= BKV::BKV_FLOAT;
-        double val = std::strtold(numBuf_, nullptr);
+        double val = std::strtold(_numBuffer, nullptr);
         std::stringstream m;
         m << "Number state parsed float: " << val;
         Logger::log(LOG_INFO, m.str());
@@ -122,7 +122,7 @@ namespace game {
 
     void BKV_Parser_State_Number::parseDouble(BKV_Parser& parser) {
         parser._tag |= BKV::BKV_DOUBLE;
-        double val = std::strtold(numBuf_, nullptr);
+        double val = std::strtold(_numBuffer, nullptr);
         std::stringstream m;
         m << "Number state parsed double at index " << parser._charactersRead << ": " << val;
         Logger::log(LOG_INFO, m.str());
@@ -172,39 +172,39 @@ namespace game {
         } else if (parser._tag & ~BKV::BKV_FLAGS_ALL) {
             // Check if number has been completed and a tag is assigned
             try { endNumber(parser, c); } catch (std::runtime_error& e) { throw; }
-        } else if (std::isdigit(c) || (c == '.' && !hasDecimal_) || (c == '-' && bufLen_ == 0)) {
+        } else if (std::isdigit(c) || (c == '.' && !_hasDecimal) || (c == '-' && _bufferLen == 0)) {
             // Build number string
-            if (c == '.') hasDecimal_ = true;
-            else if (c == '-') hasNegative_ = true;
+            if (c == '.') _hasDecimal = true;
+            else if (c == '-') _hasNegative = true;
 
-            if (bufLen_ >= UINT8_MAX) {
+            if (_bufferLen >= UINT8_MAX) {
                 std::stringstream msg;
-                msg << "Too many digits in SBKV number at index " << parser._charactersRead << ": " << bufLen_ + 1 << "/" << UINT8_MAX << " digits.";
+                msg << "Too many digits in SBKV number at index " << parser._charactersRead << ": " << _bufferLen + 1 << "/" << UINT8_MAX << " digits.";
                 reset();
                 throw std::runtime_error(msg.str());
             }
 
-            numBuf_[bufLen_] = c;
-            bufLen_++;
+            _numBuffer[_bufferLen] = c;
+            _bufferLen++;
         } else {
             // Terminate number string and search for type
-            numBuf_[bufLen_] = '\0';
+            _numBuffer[_bufferLen] = '\0';
             switch (c) {
                 case ',':
                 case ']':
                 case '}': {
                     // Use default (integer if possible, long otherwise)
-                    if (!bufLen_) {
+                    if (!_bufferLen) {
                         std::stringstream msg;
                         msg << "BKV number has no value at index: " << parser._charactersRead;
                         reset();
                         throw std::runtime_error(msg.str());
                     }
-                    if (hasDecimal_) {
+                    if (_hasDecimal) {
                         try { parseDouble(parser); } catch (std::runtime_error &e) { throw; }
                     } else {
                         if (parser._tag & BKV::BKV_UNSIGNED) {
-                            uint64_t val = std::strtoull(numBuf_, nullptr, 10);
+                            uint64_t val = std::strtoull(_numBuffer, nullptr, 10);
                             // Make sure value doesn't overflow
                             if (val > UINT32_MAX) {
                                 if (val == UINT64_MAX) {
@@ -220,7 +220,7 @@ namespace game {
                                 try { appendValue(parser, static_cast<uint32_t>(val)); } catch (std::runtime_error &e) { throw; }
                             }
                         } else {
-                            int64_t val = std::strtoll(numBuf_, nullptr, 10);
+                            int64_t val = std::strtoll(_numBuffer, nullptr, 10);
                             // Make sure value doesn't overflow or underflow
                             if ((val < INT32_MIN) || (val > INT32_MAX)) {
                                 if (val == INT64_MIN) {
@@ -274,7 +274,7 @@ namespace game {
                 } break;
                 case 'U':
                 case 'u': {
-                    if (hasNegative_) {
+                    if (_hasNegative) {
                         std::stringstream msg;
                         msg << "Negative BKV number is supposed to be unsigned at index: " << parser._charactersRead;
                         reset();

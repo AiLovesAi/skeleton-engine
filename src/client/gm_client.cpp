@@ -11,20 +11,20 @@
 
 namespace game {
     Client& Client::instance() {
-        static Client *instance_ = new Client();
-        return *instance_;
+        static Client *_instance = new Client();
+        return *_instance;
     }
 
     Client::Client() {
         // Initialize sound
         // TODO
 
-        globalPool_ = DescriptorPool::Builder(graphicsDevice_)
+        _globalDescriptorPool = DescriptorPool::Builder(_graphicsDevice)
             .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
         
-        gameState_ = new MenuState();
+        _gameState = new MenuState();
     }
 
     Client::~Client() {
@@ -33,7 +33,7 @@ namespace game {
 
         // Free graphics
         glfwTerminate();
-        globalPool_.reset();
+        _globalDescriptorPool.reset();
     }
 
     void Client::init() {
@@ -76,29 +76,29 @@ namespace game {
 
             // Prioritize game update when behind, skip to rendering when ahead
             while (lag >= Core::MS_PER_TICK) {
-                if (nextGameState_) {
-                    delete gameState_;
-                    gameState_ = nextGameState_;
-                    nextGameState_ = nullptr;
+                if (_nextGameState) {
+                    delete _gameState;
+                    _gameState = _nextGameState;
+                    _nextGameState = nullptr;
                     previousTime = std::chrono::high_resolution_clock::now();
                 }
 
-                gameState_->update();
+                _gameState->update();
                 lag -= Core::MS_PER_TICK;
             }
 
             // Render object positions between ticks (input is percentage of next tick)
             // Example: Bullet is on left of screen on tick 1, and right on tick two, but render happens
             // at tick 1.5. Input is 0.5, meaning the bullet should render in the middle of the screen.
-            gameState_->render(lag / Core::MS_PER_TICK);
+            _gameState->render(lag / Core::MS_PER_TICK);
         }
 
         // Unload game
         Core::running = false;
-        delete gameState_;
+        delete _gameState;
 
         // Wait for device to stop
-        vkDeviceWaitIdle(graphicsDevice_.device());
+        vkDeviceWaitIdle(_graphicsDevice.device());
 
         // Wait for threads to finish
         //if (soundThread.joinable()) soundThread.join();

@@ -6,7 +6,7 @@ using namespace game;
 
 int main (int argc, char** argv)
 {
-    Core::init("../logs/server_latest.log", "../logs/server_crash.txt");
+    Core::init("../logs/_serverlatest.log", "../logs/_servercrash.txt");
     
     ServerInstance& server = ServerInstance::instance();
     server.start();

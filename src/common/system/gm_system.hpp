@@ -28,13 +28,13 @@ namespace game {
             // Functions
             static void init();
 
-            static void setGPU(const UTF8Str GPU) { GPU_ = GPU; }
+            static void setGPU(const UTF8Str GPU) { _GPU = GPU; }
 
-            static UTF8Str OS() { return OS_; }
-            static UTF8Str CPU() { return CPU_; }
-            static UTF8Str GPU() { return GPU_; }
-            static uint32_t cpuThreadCount() { return CPU_THREAD_COUNT_; }
-            static size_t physicalMemory() { return PHYSICAL_MEMORY_; }
+            static UTF8Str OS() { return _OS; }
+            static UTF8Str CPU() { return _CPU; }
+            static UTF8Str GPU() { return _GPU; }
+            static uint32_t cpuThreadCount() { return _CPU_THREAD_COUNT; }
+            static size_t physicalMemory() { return _PHYSICAL_MEMORY; }
         
         private:
             // Functions
@@ -42,10 +42,10 @@ namespace game {
             static void findCPU();
 
             // Variables
-            static uint32_t CPU_THREAD_COUNT_;
-            static size_t PHYSICAL_MEMORY_;
-            static UTF8Str OS_;
-            static UTF8Str CPU_;
-            static UTF8Str GPU_;
+            static uint32_t _CPU_THREAD_COUNT;
+            static size_t _PHYSICAL_MEMORY;
+            static UTF8Str _OS;
+            static UTF8Str _CPU;
+            static UTF8Str _GPU;
     };
 }

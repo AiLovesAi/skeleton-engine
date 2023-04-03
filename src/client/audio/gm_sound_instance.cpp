@@ -2,23 +2,23 @@
 
 namespace game {
     // SoundInstance //
-    SoundInstance::SoundInstance(const Entity entity) : entity_{entity} {
+    SoundInstance::SoundInstance(const Entity entity) : _entity{entity} {
 
     }
 
     // SoundPool //
     void SoundPool::create(const Entity entity) {
-        pool_.emplace_back(entity);
-        indexMap_[entity] = size_++;
+        _pool.emplace_back(entity);
+        _indexMap[entity] = _size++;
     }
 
     void SoundPool::destroy(const size_t index) {
-        Entity entity = pool_[index].entity();
-        Entity last = pool_[--size_].entity();
-        std::swap(pool_[index], pool_[size_]); // Swap last entity to index
-        indexMap_[last] = index; // Update the index of the moved entity
-        indexMap_.erase(entity); // Release the index held by the index map
-        pool_.erase(pool_.end() - 1); // Free the destroyed instance's data from the pool
-        entityPool_.destroy(entity); // Kill the entity
+        Entity entity = _pool[index].entity();
+        Entity last = _pool[--_size].entity();
+        std::swap(_pool[index], _pool[_size]); // Swap last entity to index
+        _indexMap[last] = index; // Update the index of the moved entity
+        _indexMap.erase(entity); // Release the index held by the index map
+        _pool.erase(_pool.end() - 1); // Free the destroyed instance's data from the pool
+        _entityPool.destroy(entity); // Kill the entity
     }
 }

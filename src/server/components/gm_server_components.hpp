@@ -8,19 +8,19 @@ namespace game {
     class ServerComponents{
         public:
             // Constructors
-            ServerComponents(EntityPool entityPool) : entityPool_{entityPool} {}
+            ServerComponents(EntityPool entityPool) : _entityPool{entityPool} {}
         
             
             // Functions
             void update();
             
-            AIPool& ai() { return ai_; }
-            TransformPool& transform() { return transform_; }
+            AIPool& ai() { return _ai; }
+            TransformPool& transform() { return _transform; }
             
         private:
             // Variables
-            EntityPool& entityPool_;
-            AIPool ai_{entityPool_, 256};
-            TransformPool transform_{entityPool_, 256};
+            EntityPool& _entityPool;
+            AIPool _ai{_entityPool, 256};
+            TransformPool _transform{_entityPool, 256};
     };
 }

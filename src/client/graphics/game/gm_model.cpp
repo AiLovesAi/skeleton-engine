@@ -29,7 +29,7 @@ namespace std {
 }
 
 namespace game {
-    Model::Model(GraphicsDevice& graphicsDevice, const Model::Builder& builder) : graphicsDevice_{graphicsDevice} {
+    Model::Model(GraphicsDevice& graphicsDevice, const Model::Builder& builder) : _graphicsDevice{graphicsDevice} {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
     }
@@ -42,77 +42,77 @@ namespace game {
     }
 
     void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
-        vertexCount_ = static_cast<uint32_t>(vertices.size());
-        if (vertexCount_ < 3) Logger::crash("Vertex count must be at least 3.");
-        VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount_;
+        _vertexCount = static_cast<uint32_t>(vertices.size());
+        if (_vertexCount < 3) Logger::crash("Vertex count must be at least 3.");
+        VkDeviceSize bufferSize = sizeof(vertices[0]) * _vertexCount;
         uint32_t vertexSize = sizeof(vertices[0]);
 
         ModelBuffer stagingBuffer {
-            graphicsDevice_,
+            _graphicsDevice,
             vertexSize,
-            vertexCount_,
+            _vertexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         };
         stagingBuffer.map();
         stagingBuffer.writeToBuffer((void *) vertices.data());
 
-        vertexBuffer_ = std::make_unique<ModelBuffer>(
-            graphicsDevice_,
+        _vertexBuffer = std::make_unique<ModelBuffer>(
+            _graphicsDevice,
             vertexSize,
-            vertexCount_,
+            _vertexCount,
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
 
-        graphicsDevice_.copyBuffer(stagingBuffer.buffer(), vertexBuffer_->buffer(), bufferSize);
+        _graphicsDevice.copyBuffer(stagingBuffer.buffer(), _vertexBuffer->buffer(), bufferSize);
     }
 
     void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
-        indexCount_ = static_cast<uint32_t>(indices.size());
-        hasIndexBuffer_ = indexCount_ > 0;
+        _indexCount = static_cast<uint32_t>(indices.size());
+        _hasIndexBuffer = _indexCount > 0;
 
-        if (!hasIndexBuffer_) return;
+        if (!_hasIndexBuffer) return;
 
-        VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount_;
+        VkDeviceSize bufferSize = sizeof(indices[0]) * _indexCount;
         uint32_t indexSize = sizeof(indices[0]);
 
         ModelBuffer stagingBuffer {
-            graphicsDevice_,
+            _graphicsDevice,
             indexSize,
-            indexCount_,
+            _indexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
         };
         stagingBuffer.map();
         stagingBuffer.writeToBuffer((void *) indices.data());
 
-        indexBuffer_ = std::make_unique<ModelBuffer>(
-            graphicsDevice_,
+        _indexBuffer = std::make_unique<ModelBuffer>(
+            _graphicsDevice,
             indexSize,
-            indexCount_,
+            _indexCount,
             VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         );
 
-        graphicsDevice_.copyBuffer(stagingBuffer.buffer(), indexBuffer_->buffer(), bufferSize);
+        _graphicsDevice.copyBuffer(stagingBuffer.buffer(), _indexBuffer->buffer(), bufferSize);
     }
 
     void Model::bind(VkCommandBuffer commandBuffer) {
-        VkBuffer buffers[] = {vertexBuffer_->buffer()};
+        VkBuffer buffers[] = {_vertexBuffer->buffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
-        if (hasIndexBuffer_) {
-            vkCmdBindIndexBuffer(commandBuffer, indexBuffer_->buffer(), 0, VK_INDEX_TYPE_UINT32);
+        if (_hasIndexBuffer) {
+            vkCmdBindIndexBuffer(commandBuffer, _indexBuffer->buffer(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
 
     void Model::draw(VkCommandBuffer commandBuffer) {
-        if (hasIndexBuffer_) {
-            vkCmdDrawIndexed(commandBuffer, indexCount_, 1, 0, 0, 0);
+        if (_hasIndexBuffer) {
+            vkCmdDrawIndexed(commandBuffer, _indexCount, 1, 0, 0, 0);
         } else {
-            vkCmdDraw(commandBuffer, vertexCount_, 1, 0, 0);
+            vkCmdDraw(commandBuffer, _vertexCount, 1, 0, 0);
         }
     }
 

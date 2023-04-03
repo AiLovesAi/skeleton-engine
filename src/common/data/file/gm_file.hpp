@@ -37,7 +37,7 @@ namespace game {
             static void const writeFile(const char* filepath, const FileContents& contents) { writeFile(filepath, contents, false); }
             static void const writeFile(const char* filepath, const FileContents& contents, const bool append);
             
-            static UTF8Str executableDir() { return executableDir_; }
+            static UTF8Str executableDir() { return _executableDir; }
 
             // Variables
             // Level 3 seems to be a good compromise between compression size and speed.
@@ -48,13 +48,13 @@ namespace game {
         protected:
             friend class Compression;
             // Variables
-            static std::mutex fileMtx;
+            static std::mutex _fileMtx;
             
         private:
             // Functions
             static void findExecutableDir();
 
             // Variables
-            static UTF8Str executableDir_;
+            static UTF8Str _executableDir;
     };
 }

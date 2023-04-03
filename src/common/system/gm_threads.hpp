@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../headers/string.hpp"
+
 #include <atomic>
 #include <string>
 #include <thread>
@@ -9,15 +11,16 @@ namespace game {
     class Threads {
         public:
             // Functions
-            static void registerThread(const std::thread::id& id, const std::string& name) { threads_[id] = name; }
-            static void removeThread(const std::thread::id& id) { threads_.erase(id); }
+            static void registerThread(const std::thread::id& id, const UTF8Str& name) { _threads[id] = name; }
+            static void removeThread(const std::thread::id& id) { _threads.erase(id); }
 
-            static std::string threadName(const std::thread::id& id) {
-                return threads_.contains(id) ? threads_.find(id)->second : "Async";
+            static UTF8Str threadName(const std::thread::id& id) {
+                return _threads.contains(id) ? _threads.find(id)->second :
+                    UTF8Str{sizeof("Async") - 1, std::shared_ptr<const char>("Async", [](const char*){})};
             }
 
         private:
             // Variables
-            static std::unordered_map<std::thread::id, std::string> threads_;
+            static std::unordered_map<std::thread::id, UTF8Str> _threads;
     };
 }

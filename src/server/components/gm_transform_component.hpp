@@ -24,62 +24,62 @@ namespace game {
     class TransformComponent {
         public:
             // Constructors
-            TransformComponent(const Entity entity) : entity_{entity} {}
+            TransformComponent(const Entity entity) : _entity{entity} {}
 
             // Functions
-            Entity entity() const { return entity_; }
-            Entity parent() const { return parent_; }
-            std::vector<Entity> children() const { return children_; }
+            Entity entity() const { return _entity; }
+            Entity parent() const { return _parent; }
+            std::vector<Entity> children() const { return _children; }
 
-            void setParent(const Entity parent) { parent_ = parent; }
-            void addChild(const Entity child) { children_.push_back(child); }
-            void removeChild(const Entity child) { children_.erase(std::find(children_.begin(), children_.end(), child)); }
-            void removeFirstChild() { children_.erase(children_.begin()); }
-            void removeLastChild() { children_.erase(children_.end()); }
+            void setParent(const Entity parent) { _parent = parent; }
+            void addChild(const Entity child) { _children.push_back(child); }
+            void removeChild(const Entity child) { _children.erase(std::find(_children.begin(), _children.end(), child)); }
+            void removeFirstChild() { _children.erase(_children.begin()); }
+            void removeLastChild() { _children.erase(_children.end()); }
 
-            void setTransform(const WorldTransform& transform) { transform_ = transform; transform_.dirty = true; }
-            void setPosition(const glm::dvec3& position) { transform_.position = position; transform_.dirty = true; }
-            void setScale(const glm::dvec3& scale) { transform_.scale = scale; transform_.dirty = true; }
-            void setRotation(const glm::dquat& rotation) { transform_.rotation = rotation; transform_.dirty = true; }
+            void setTransform(const WorldTransform& transform) { _transform = transform; _transform.dirty = true; }
+            void setPosition(const glm::dvec3& position) { _transform.position = position; _transform.dirty = true; }
+            void setScale(const glm::dvec3& scale) { _transform.scale = scale; _transform.dirty = true; }
+            void setRotation(const glm::dquat& rotation) { _transform.rotation = rotation; _transform.dirty = true; }
 
-            WorldTransform transform() const { return transform_; }
-            glm::dvec3 position() const { return transform_.position; }
-            glm::dvec3 scale() const { return transform_.scale; }
-            glm::dquat rotation() const { return transform_.rotation; }
-            bool dirty() const { return transform_.dirty; }
+            WorldTransform transform() const { return _transform; }
+            glm::dvec3 position() const { return _transform.position; }
+            glm::dvec3 scale() const { return _transform.scale; }
+            glm::dquat rotation() const { return _transform.rotation; }
+            bool dirty() const { return _transform.dirty; }
 
             // Variables
             static constexpr WorldTransform origin{};
         
         private:
             // Variables
-            Entity entity_;
+            Entity _entity;
 
-            Entity parent_;
-            std::vector<Entity> children_;
+            Entity _parent;
+            std::vector<Entity> _children;
             
-            WorldTransform transform_{};
-            WorldTransform speedTransform_{};
-            WorldTransform accelerationTransform_{};
+            WorldTransform _transform{};
+            WorldTransform _speedTransform{};
+            WorldTransform _accelerationTransform{};
     };
 
     class TransformPool {
         public:
             // Constructors
-            TransformPool(EntityPool& entityPool, size_t initialCapacity) : entityPool_{entityPool}, initialCapacity_{initialCapacity} {}
+            TransformPool(EntityPool& entityPool, size_t initialCapacity) : _entityPool{entityPool}, _initialCapacity{initialCapacity} {}
 
             // Functions
             void create(const Entity entity);
             void destroy(const size_t index);
-            TransformComponent& get(const Entity entity) { return pool_[indexMap_[entity]]; }
-            size_t size() const { return size_; };
+            TransformComponent& get(const Entity entity) { return _pool[_indexMap[entity]]; }
+            size_t size() const { return _size; };
 
         private:
             // Variables
-            EntityPool& entityPool_;
-            size_t initialCapacity_;
-            std::unordered_map<Entity, size_t> indexMap_;
-            std::vector<TransformComponent> pool_{initialCapacity_};
-            size_t size_ = 0;
+            EntityPool& _entityPool;
+            size_t _initialCapacity;
+            std::unordered_map<Entity, size_t> _indexMap;
+            std::vector<TransformComponent> _pool{_initialCapacity};
+            size_t _size = 0;
     };
 }
