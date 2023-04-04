@@ -749,50 +749,54 @@ namespace game {
     }
 
     UTF8Str FormatString::formatString(const char* str, ...) noexcept {
-                va_list args;
-                va_start(args, str);
+        va_list args;
+        va_start(args, str);
 
-                // Create buffer
-                const int64_t strLen = static_cast<int64_t>(std::strlen(str));
-                int64_t capacity = strLen + 1;
-                int64_t len = 0;
-                char* dst = static_cast<char*>(std::malloc(capacity));
+        // Create buffer
+        const int64_t strLen = static_cast<int64_t>(std::strlen(str));
+        int64_t capacity = strLen + 1;
+        int64_t len = 0;
+        char* dst = static_cast<char*>(std::malloc(capacity));
 
-                // Parse
-                char c;
-                bool formatChar = false;
-                int64_t minDigits = 0, precision = 0;
-                int32_t flags = 0;
-                for (int64_t i = 0; i < strLen; i++) {
-                    c = str[i];
-                    if (formatChar) {
-                        try {
-                            formatChar = _formatStringFormat(c, args, dst, capacity, len, flags, minDigits, precision);
-                        } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-                        if (!formatChar) {
-                            minDigits = 0;
-                            precision = 0;
-                            flags = 0;
-                        }
-                    } else {
-                        switch (c) {
-                            case '%': { // Format
-                                formatChar = true;
-                            } break;
-                            default: { // Copy to dst
-                                try {
-                                    StringBuffer::_checkResize(dst, len + 1, len, capacity);
-                                } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-                                dst[len++] = c;
-                            } break;
-                        }
-                    }
+        // Parse
+        char c;
+        bool formatChar = false;
+        int64_t minDigits = 0, precision = 0;
+        int32_t flags = 0;
+        for (int64_t i = 0; i < strLen; i++) {
+            c = str[i];
+            if (formatChar) {
+                try {
+                    formatChar = _formatStringFormat(c, args, dst, capacity, len, flags, minDigits, precision);
+                } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+                if (!formatChar) {
+                    minDigits = 0;
+                    precision = 0;
+                    flags = 0;
                 }
+            } else {
+                switch (c) {
+                    case '%': { // Format
+                        formatChar = true;
+                    } break;
+                    default: { // Copy to dst
+                        try {
+                            StringBuffer::_checkResize(dst, len + 1, len, capacity);
+                        } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+                        dst[len++] = c;
+                    } break;
+                }
+            }
+        }
 
-                // Close
-                va_end(args);
-                dst[len] = '\0';
-                dst = static_cast<char*>(std::realloc(dst, len + 1));
-                return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
+        // Close
+        va_end(args);
+        dst[len] = '\0';
+        dst = static_cast<char*>(std::realloc(dst, len + 1));
+        return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
+    }
+
+    int32_t FormatString::strToInt(const char* str, const int64_t len) {
+        // TODO
     }
 }

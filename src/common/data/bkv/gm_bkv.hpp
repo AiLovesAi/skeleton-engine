@@ -16,13 +16,9 @@ namespace game {
             BKV_t_(int64_t size, std::shared_ptr<const uint8_t> data) :
                 _size{size}, _data{data} {}
             
-            int64_t size() const {
-                return _size;
-            }
-
-            const uint8_t* get() const {
-                return _data.get();
-            }
+            int64_t size() const { return _size; }
+            std::shared_ptr<const uint8_t> data() const { return _data; }
+            const uint8_t* get() const { return _data.get(); }
     } BKV_t;
 
     class BKV {

@@ -2,8 +2,8 @@
 
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
+#include "../../../headers/string.hpp"
 
-#include <sstream>
 #include <stdexcept>
 
 namespace game {
@@ -20,9 +20,6 @@ namespace game {
     }
     
     void BKV_Parser_State_Find_Tag::parse(BKV_Parser& parser, const char c) {
-        std::stringstream m;
-        m << "Find tag state parsing character: " << c;
-        Logger::log(LOG_INFO, m.str());
         parser._charactersRead++;
 
         if (c == '\'' || c == '"') {
@@ -35,9 +32,8 @@ namespace game {
             try { parser.state()->parse(parser, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == '[') {
             if (parser._tag & BKV::BKV_ARRAY) {
-                std::stringstream msg;
-                msg << "New array in unclosed BKV array at index " << parser._charactersRead << ".";
-                throw std::runtime_error(msg.str());
+                UTF8Str msg = FormatString::formatString("New array in unclosed BKV array at %ld", parser._charactersRead);
+                throw std::runtime_error(msg.get());
             }
 
             parser._tag |= BKV::BKV_ARRAY;
@@ -54,9 +50,8 @@ namespace game {
             // Whitespace or colon, ignore
             return;
         } else {
-            std::stringstream msg;
-            msg << "Invalid character in SBKV at index " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
-            throw std::runtime_error(msg.str());
+            UTF8Str msg = FormatString::formatString("Invalid character in SBKV at %ld: %02x", parser._charactersRead, c);
+            throw std::runtime_error(msg.get());
         }
     }
 }

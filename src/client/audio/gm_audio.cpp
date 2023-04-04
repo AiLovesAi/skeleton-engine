@@ -2,8 +2,6 @@
 
 #include <common/data/file/gm_logger.hpp>
 
-#include <fstream>
-
 namespace game {
     void Audio::loadSounds() {
         // TODO Load sounds from soundId file

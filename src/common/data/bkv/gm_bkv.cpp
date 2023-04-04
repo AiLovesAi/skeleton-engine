@@ -4,11 +4,7 @@
 #include "../../headers/string.hpp"
 #include "../gm_endianness.hpp"
 
-#include "../file/gm_logger.hpp"
-#include "../file/gm_file.hpp"
-
 #include <cstring>
-#include <sstream>
 #include <stdexcept>
 #include <type_traits>
 
@@ -27,16 +23,10 @@ namespace game {
 
     BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
         const char* sbkv = stringified.get();
-        Logger::log(LOG_INFO, "Reached bkvFromSBKV.");
         BKV_Parser buf;
-        Logger::log(LOG_INFO, "Parsing...");
         for (int64_t i = 0; i < stringified.length(); i++) {
-        std::stringstream m;
-        m << "Parsing character: " << i;
-        Logger::logSync(LOG_INFO, m.str(), std::this_thread::get_id());
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::runtime_error &e) { throw; }
         }
-        Logger::log(LOG_INFO, "Parsing complete.");
         return BKV_t{buf.size(), buf.data()};
     }
 }

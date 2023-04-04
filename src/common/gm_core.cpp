@@ -1,13 +1,12 @@
 #include "gm_core.hpp"
 
-#include "data/file/gm_file.hpp"
-#include "data/file/gm_logger.hpp"
+#include "headers/file.hpp"
+#include "headers/string.hpp"
 #include "system/gm_system.hpp"
 #include "system/gm_threads.hpp"
 
 #include <ctime>
 #include <random>
-#include <sstream>
 
 namespace game {
     const UTF8Str Core::EMPTYSTR = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};
@@ -28,12 +27,18 @@ namespace game {
             UTF8Str{static_cast<int64_t>(std::strlen(crashFile)), std::shared_ptr<const char>(crashFile, [](const char*){})}
         );
 
-        std::stringstream msg;
-        msg << "Hardware details:\n";
-        msg << "\tCPU: " << System::CPU().get() << "\n";
-        msg << "\tCPU threads: " << System::cpuThreadCount() << "\n";
-        msg << "\tPhysical memory: " << System::physicalMemory() << "B\n";
-        msg << "\tOperating system: " << System::OS().get();
-        Logger::log(LOG_INFO, msg.str());
+        UTF8Str msg = FormatString::formatString(
+            "Hardware details:\n"
+            "\tCPU: %s\n"
+            "\tCPU threads: %d\n"
+            "\tPhysical memory: %luB\n"
+            "\tOperating system: %s",
+
+            System::CPU().get(),
+            System::cpuThreadCount(),
+            System::physicalMemory(),
+            System::OS().get()
+        );
+        Logger::log(LOG_INFO, msg.get());
     }
 }

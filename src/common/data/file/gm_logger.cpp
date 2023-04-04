@@ -133,7 +133,7 @@ namespace game {
                 "Description: %s\n\n"
                 "--- System Details ---\n"
                 "Operating System: %s\n"
-                "Physical Memory: %dB\n"
+                "Physical Memory: %luB\n"
                 "CPU: %s\n"
                 "CPU Threads: %d\n"
                 "Graphics Device: %s\n"

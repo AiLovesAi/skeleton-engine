@@ -5,7 +5,6 @@
 #include "../../gm_endianness.hpp"
 #include "../../../headers/string.hpp"
 
-#include <sstream>
 #include <stdexcept>
 
 namespace game {
@@ -36,10 +35,10 @@ namespace game {
     void BKV_Parser_State_String::continueStr(BKV_Parser& parser, const char c) {
         // Build string
         if (_strLen >= BKV::BKV_STR_MAX) {
-            std::stringstream msg;
-            msg << "Too many characters in SBKV string at index " << parser._charactersRead << ": " << _strLen + 1 << "/" << BKV::BKV_STR_MAX << " characters.";
+            UTF8Str msg = FormatString::formatString("Too many characters in SBKV string at index %ld: %ld/%ld characters.",
+                parser._charactersRead, (_strLen + 1), BKV::BKV_STR_MAX);
             reset();
-            throw std::runtime_error(msg.str());
+            throw std::runtime_error(msg.get());
         }
 
         try {
@@ -55,10 +54,11 @@ namespace game {
 
             char b = BKV_Parser_State_String::getEscapeChar(c);
             if (b < 0) {
-                std::stringstream msg;
-                msg << "Invalid break character in SBKV string at index " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                UTF8Str msg = FormatString::formatString("Invalid break character in SBKV string at index %ld: %02x",
+                    parser._charactersRead, c
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
             
             _str[_strLen] = c;
@@ -91,7 +91,6 @@ namespace game {
             // 0x01 for true
             parser._buffer.bkv_[parser._buffer._head] = 0x01;
             parser._buffer._head++;
-        Logger::log(LOG_INFO, "String state found true bool.");
         } else if ((_strLen == 5) && (
             ((_str[0] == 'f') || (_str[0] == 'F')) &&
             ((_str[1] == 'a') || (_str[1] == 'A')) &&
@@ -111,7 +110,6 @@ namespace game {
             // 0x01 for false
             parser._buffer.bkv_[parser._buffer._head] = 0x00;
             parser._buffer._head++;
-        Logger::log(LOG_INFO, "String state found false bool.");
         }
     }
 
@@ -136,12 +134,6 @@ namespace game {
             parser._buffer._head += BKV::BKV_STR_SIZE;
             std::memcpy(parser._buffer.bkv_ + parser._buffer._head, _str, _strLen);
             parser._buffer._head += _strLen;
-        char* key = static_cast<char*>(std::malloc(_strLen + 1));
-        std::memcpy(key, _str, _strLen);
-        key[_strLen] = '\0';
-        std::stringstream m;
-        m << "String state finished parsing: " << key << " with net len: " << len;
-        Logger::log(LOG_INFO, m.str());
         }
 
         reset();
@@ -149,9 +141,6 @@ namespace game {
     }
     
     void BKV_Parser_State_String::parse(BKV_Parser& parser, const char c) {
-        std::stringstream m;
-        m << "String state parsing character: " << c;
-        Logger::log(LOG_INFO, m.str());
         parser._charactersRead++;
         
         if (!_strLen && ((c == '\'') || (c == '"'))) {
@@ -169,20 +158,20 @@ namespace game {
                 continueStr(parser, c);
             } else if ((c == '}') || (c == ',') || (c == ']')) {
                 if (!_strLen) {
-                    std::stringstream msg;
-                    msg << "Empty BKV string at index: " << parser._charactersRead;
+                    UTF8Str msg = FormatString::formatString("Empty BKV string at index: %ld.");
                     reset();
-                    throw std::runtime_error(msg.str());
+                    throw std::runtime_error(msg.get());
                 }
                 completeStr(parser, c);
             } else if (std::isspace(c)) {
                 // Whitespace, ignore
                 return;
             } else {
-                std::stringstream msg;
-                msg << "Invalid character in SBKV string at index " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                UTF8Str msg = FormatString::formatString("Invalid character in SBKV string at index %ld: %02x",
+                    parser._charactersRead, c
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
         }
     }

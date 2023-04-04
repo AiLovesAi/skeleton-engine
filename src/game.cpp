@@ -6,7 +6,6 @@
 
 using namespace game;
 
-/*
 #include <sstream>
 #include <memory>
 #include <common/data/file/gm_file.hpp>
@@ -21,46 +20,38 @@ void test() {
     Logger::log(LOG_INFO, msg.str());
     
     UTF8Str stringified{sizeof(data), std::shared_ptr<const char>(buffer, std::free)};
-    BKV_t bkv;
     try {
-        bkv = BKV::bkvFromSBKV(stringified);
-    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-    Logger::log(LOG_INFO, "Parsed BKV.");
-    File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data};
-    File::writeFile("bkv.txt", contents);
+        BKV_t bkv = BKV::bkvFromSBKV(stringified);
+        Logger::log(LOG_INFO, "Parsed BKV.");
+        File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data()};
+        File::writeFile("bkv.txt", contents);
 
-    UTF8Str sbkv;
-    try {
-        sbkv = SBKV::sbkvFromBKV(bkv);
-    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-    Logger::log(LOG_INFO, "Parsed SBKV.");
-    msg.str("");
-    msg << sbkv.get();
-    Logger::log(LOG_INFO, msg.str());
-    Logger::log(LOG_INFO, "Complete.");
-    
-    try {
+        UTF8Str sbkv = SBKV::sbkvFromBKV(bkv);
+        Logger::log(LOG_INFO, "Parsed SBKV.");
+        msg.str("");
+        msg << sbkv.get();
+        Logger::log(LOG_INFO, msg.str());
+        Logger::log(LOG_INFO, "Complete.");
+        
         bkv = BKV::bkvFromSBKV(stringified);
-    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-    Logger::log(LOG_INFO, "Reparsed BKV.");
-    contents.length() = static_cast<size_t>(bkv.size());
-    contents.data = bkv.get();
-    File::writeFile("bkv2.txt", contents);
-    
-    try {
+        Logger::log(LOG_INFO, "Reparsed BKV.");
+        File::FileContents contents2{static_cast<size_t>(bkv.size()), bkv.data()};
+        File::writeFile("bkv2.txt", contents2);
+        
         sbkv = SBKV::sbkvFromBKV(bkv);
+        Logger::log(LOG_INFO, "Reparsed SBKV.");
+        msg.str("");
+        msg << sbkv.get();
+        Logger::log(LOG_INFO, msg.str());
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-    Logger::log(LOG_INFO, "Reparsed SBKV.");
-    msg.str("");
-    msg << sbkv.get();
-    Logger::log(LOG_INFO, msg.str());
     
-}*/
+}
 
 int main (int argc, char** argv)
 {
     Core::init("../logs/latest.log", "../logs/crash.txt");
     
+    test();
     Client::init();
     Client& client = Client::instance();
     client.start();

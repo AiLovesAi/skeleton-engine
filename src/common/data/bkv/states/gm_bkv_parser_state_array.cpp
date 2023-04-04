@@ -5,15 +5,10 @@
 #include "../../../headers/string.hpp"
 #include "../../gm_endianness.hpp"
 
-#include <sstream>
 #include <stdexcept>
 
 namespace game {
     void BKV_Parser_State_Array::parse(BKV_Parser& parser, const char c) {
-        std::stringstream m;
-        m << "Array parsing character: '" << c << "', Array size: " << _size;
-        Logger::log(LOG_INFO, m.str());
-
         if (!_arrayStart) {
             _arrayStart = parser._buffer._head;
             _arrayTagHead = parser._buffer._tagHead;
@@ -40,8 +35,9 @@ namespace game {
                 // Continue array
                 _size++;
                 if (_size > BKV::BKV_ARRAY_MAX) {
-                    std::stringstream msg;
-                    msg << "Too many indicies in SBKV array at index " << parser._charactersRead << ": " << _size << "/" << BKV::BKV_ARRAY_MAX << " indicies.";
+                    UTF8Str msg = FormatString::formatString("Too many indicies in SBKV array at %ld: %ld/%ld indicies.",
+                        parser._charactersRead, _size, BKV::BKV_ARRAY_MAX
+                    );
                     reset();
                 }
                 parser._stateTree.pop(); // Back to specific tag state
@@ -59,10 +55,11 @@ namespace game {
                 parser._buffer._tagHead = parser._buffer._head;
                 parser._tag = 0;
             } else {
-                std::stringstream msg;
-                msg << "Invalid character in SBKV array at index " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                UTF8Str msg = FormatString::formatString("Invalid character in SBKV array at index %ld: %02x",
+                    parser._charactersRead, c
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
         }
     }

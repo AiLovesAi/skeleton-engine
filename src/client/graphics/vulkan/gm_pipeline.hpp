@@ -2,6 +2,8 @@
 
 #include "gm_graphics_device.hpp"
 
+#include <common/headers/string.hpp>
+
 #include <string>
 #include <vector>
 
@@ -32,8 +34,8 @@ namespace game {
             // Constructors
             Pipeline(
                 GraphicsDevice& graphicsDevice,
-                const std::string& vertFilepath,
-                const std::string& fragFilePath,
+                const UTF8Str& vertFilepath,
+                const UTF8Str& fragFilePath,
                 const PipelineConfigInfo& configInfo
             );
             ~Pipeline();
@@ -52,14 +54,14 @@ namespace game {
         private:
             // Functions
             void createGraphicsPipeline(
-                const std::string& vertFilepath,
-                const std::string& fragFilePath,
+                const UTF8Str& vertFilepath,
+                const UTF8Str& fragFilePath,
                 const PipelineConfigInfo& configInfo
             );
 
             void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
             
-            static std::vector<char> readFile(const std::string filePath);
+            static std::vector<char> readFile(const UTF8Str& filePath);
 
             // Variables
             GraphicsDevice& _graphicsDevice;

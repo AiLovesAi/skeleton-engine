@@ -5,16 +5,16 @@
 #include <common/data/file/gm_file.hpp>
 #include <common/data/file/gm_logger.hpp>
 
-#include <fstream>
+#include <cstdio>
 
 namespace game {
     Pipeline::Pipeline(
         GraphicsDevice& graphicsDevice,
-        const std::string& vertFilepath,
-        const std::string& fragFilePath,
+        const UTF8Str& vertFilePath,
+        const UTF8Str& fragFilePath,
         const PipelineConfigInfo& configInfo
     )  : _graphicsDevice{graphicsDevice} {
-        createGraphicsPipeline(vertFilepath, fragFilePath, configInfo);
+        createGraphicsPipeline(vertFilePath, fragFilePath, configInfo);
     }
 
     Pipeline::~Pipeline() {
@@ -23,33 +23,36 @@ namespace game {
         vkDestroyPipeline(_graphicsDevice.device(), _graphicsPipeline, nullptr);
     }
 
-    std::vector<char> Pipeline::readFile(const std::string filePath) {
-        std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+    std::vector<char> Pipeline::readFile(const UTF8Str& filePath) {
+        FILE* file = std::fopen(filePath.get(), "ab");
 
-        if (!file.is_open()) {
-            Logger::crash("Failed to open file: " + filePath);
+        if (!file) {
+            UTF8Str msg = FormatString::formatString("Failed to open file: %s", filePath.get());
+            Logger::crash(msg);
         }
 
-        size_t fileSize = static_cast<size_t>(file.tellg());
+        size_t fileSize = static_cast<size_t>(std::ftell(file));
         std::vector<char> buffer(fileSize);
         
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
+        std::fseek(file, 0, SEEK_SET);
+        std::fread(buffer.data(), 1, fileSize, file);
 
-        file.close();
+        std::fclose(file);
         return buffer;
     }
 
     void Pipeline::createGraphicsPipeline(
-        const std::string& vertFilepath,
-        const std::string& fragFilePath,
+        const UTF8Str& vertFilePath,
+        const UTF8Str& fragFilePath,
         const PipelineConfigInfo& configInfo
     ) {
         if (configInfo.pipelineLayout == VK_NULL_HANDLE) Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
         if (configInfo.renderPass == VK_NULL_HANDLE) Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
 
-        auto vertCode = readFile(std::string(File::executableDir().get()) + vertFilepath);
-        auto fragCode = readFile(std::string(File::executableDir().get()) + fragFilePath);
+        UTF8Str vertAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), vertFilePath);
+        UTF8Str fragAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), fragFilePath);
+        auto vertCode = readFile(vertAbsPath);
+        auto fragCode = readFile(fragAbsPath);
 
         createShaderModule(vertCode, &_vertShaderModule);
         createShaderModule(fragCode, &_fragShaderModule);

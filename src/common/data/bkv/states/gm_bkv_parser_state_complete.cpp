@@ -1,9 +1,9 @@
 #include "gm_bkv_parser_state_complete.hpp"
 
 #include "../gm_bkv_parser.hpp"
+#include "../../../headers/string.hpp"
 
 #include <cctype>
-#include <sstream>
 #include <stdexcept>
 
 namespace game {
@@ -13,9 +13,10 @@ namespace game {
         if (std::isspace(c) || (c == '\0')) {
             return;
         } else {
-            std::stringstream msg;
-            msg << "Enclosing BKV compound has already been closed and the bkv is finished at index: " << parser._charactersRead << ".";
-            throw std::runtime_error(msg.str());
+            UTF8Str msg = FormatString::formatString("Enclosing BKV compound has already been closed and the bkv is finished at index: %d.",
+                parser._charactersRead
+            );
+            throw std::runtime_error(msg.get());
         }
     }
 }

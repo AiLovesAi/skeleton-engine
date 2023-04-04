@@ -1,14 +1,12 @@
 #include "gm_window.hpp"
 
-#include <common/data/file/gm_file.hpp>
-#include <common/data/file/gm_logger.hpp>
+#include <common/headers/file.hpp>
+#include <common/headers/string.hpp>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #endif
 #include <stb_image.h>
-
-#include <sstream>
 
 namespace game {
     Window::Window(const UTF8Str& title) {
@@ -18,9 +16,8 @@ namespace game {
 
         {
             const char* monitorName = glfwGetMonitorName(monitor);
-            std::stringstream msg;
-            msg << "Using monitor: " << monitorName;
-            Logger::log(LOG_INFO, msg.str());
+            UTF8Str msg = FormatString::formatString("Using monitor: %s", monitorName);
+            Logger::log(LOG_INFO, msg);
         }
 
         // Set window width & height
@@ -37,9 +34,8 @@ namespace game {
 
         {
             const char* monitorName = glfwGetMonitorName(monitor);
-            std::stringstream msg;
-            msg << "Using monitor: " << monitorName;
-            Logger::log(LOG_INFO, msg.str());
+            UTF8Str msg = FormatString::formatString("Using monitor: %s", monitorName);
+            Logger::log(LOG_INFO, msg);
         }
 
         createWindow(title, mode);
@@ -92,9 +88,8 @@ namespace game {
     }
 
     void Window::errorCallback(int error, const char* description) {
-        std::stringstream msg;
-        msg << "GLFW error code " << error << ": " << description;
-        Logger::log(LOG_ERR, msg.str());
+        UTF8Str msg = FormatString::formatString("GLFW error code %d: %s", error, description);
+        Logger::log(LOG_ERR, msg);
     }
 
     void Window::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height) {

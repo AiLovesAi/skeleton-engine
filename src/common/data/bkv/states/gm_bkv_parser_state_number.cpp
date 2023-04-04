@@ -7,17 +7,15 @@
 
 #include <cfloat>
 #include <cmath>
-#include <sstream>
 
 namespace game {
     template <typename T>
     void BKV_Parser_State_Number::appendValue(BKV_Parser& parser, const T value) {
         const T val = Endianness::hton(value);
-        std::stringstream m;
-        m << "Number state parsed net value: " << static_cast<int64_t>(val) << " to be placed at " << parser._buffer._head << " with size " << sizeof(T);
-        Logger::log(LOG_INFO, m.str());
         try {
-            StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + (int64_t) sizeof(T), parser._buffer._head, parser._buffer._capacity);
+            StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + (int64_t) sizeof(T),
+                parser._buffer._head, parser._buffer._capacity
+            );
         } catch (std::runtime_error &e) { throw; }
         std::memcpy(parser._buffer.bkv_ + parser._buffer._head, &val, sizeof(T));
         parser._buffer._head += sizeof(T);
@@ -27,33 +25,30 @@ namespace game {
     void BKV_Parser_State_Number::parseInt(BKV_Parser& parser, const int64_t min, const int64_t max, const uint64_t umax) {
         if (parser._tag & BKV::BKV_UNSIGNED) {
             uint64_t val = std::strtoull(_numBuffer, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed unsigned int: " << val;
-        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow
             if (val > umax) {
-                std::stringstream msg;
-                msg << "BKV value overflows unsigned integer type at index " << parser._charactersRead << ": " << val << " > " << umax << ".";
+                UTF8Str msg = FormatString::formatString("BKV value overflows unsigned integer type at index %ld: %ld > %ld.",
+                    parser._charactersRead, val, umax
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
             try { appendValue(parser, static_cast<TU>(val)); } catch (std::runtime_error &e) { throw; }
         } else {
             int64_t val = std::strtoll(_numBuffer, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed int: " << val;
-        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow or underflow
             if (val < min) {
-                std::stringstream msg;
-                msg << "BKV value underflows signed integer type at index " << parser._charactersRead << ": " << val << " < " << min << ".";
+                UTF8Str msg = FormatString::formatString("BKV value underflows signed integer type at index %ld: %ld < %ld.",
+                    parser._charactersRead, val, min
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             } else if (val > max) {
-                std::stringstream msg;
-                msg << "BKV value overflows signed integer type at index " << parser._charactersRead << ": " << val << " > " << max << ".";
+                UTF8Str msg = FormatString::formatString("BKV value overflows signed integer type at index %ld: %ld > %ld.",
+                    parser._charactersRead, val, max
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
             try { appendValue(parser, static_cast<T>(val)); } catch (std::runtime_error &e) { throw; }
         }
@@ -63,33 +58,30 @@ namespace game {
         parser._tag |= BKV::BKV_I64;
         if (parser._tag & BKV::BKV_UNSIGNED) {
             uint64_t val = std::strtoull(_numBuffer, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed unsigned long: " << val;
-        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow
             if (val == UINT64_MAX) {
-                std::stringstream msg;
-                msg << "BKV value overflows unsigned long type at index " << parser._charactersRead << ": " << val << " >= " << UINT64_MAX << ".";
+                UTF8Str msg = FormatString::formatString("BKV value overflows unsigned long type at index %ld: %lu >= %lu.",
+                    parser._charactersRead, val, UINT64_MAX
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
             try { appendValue(parser, val); } catch (std::runtime_error &e) { throw; }
         } else {
             int64_t val = std::strtoll(_numBuffer, nullptr, 10);
-        std::stringstream m;
-        m << "Number state parsed long: " << val;
-        Logger::log(LOG_INFO, m.str());
             // Make sure value doesn't overflow or underflow
             if (val == INT64_MIN) {
-                std::stringstream msg;
-                msg << "BKV value underflows signed long type at index " << parser._charactersRead << ": " << val << " <= " << INT64_MIN << ".";
+                UTF8Str msg = FormatString::formatString("BKV value underflows signed long type at index %ld: %ld <= %ld.",
+                    parser._charactersRead, val, INT64_MIN
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             } else if (val == INT64_MAX) {
-                std::stringstream msg;
-                msg << "BKV value overflows signed long type at index " << parser._charactersRead << ": " << val << " >= " << INT64_MAX << ".";
+                UTF8Str msg = FormatString::formatString("BKV value overflows signed long type at index %ld: %ld >= %ld.",
+                    parser._charactersRead, val, INT64_MAX
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
             try { appendValue(parser, val); } catch (std::runtime_error &e) { throw; }
         }
@@ -98,22 +90,21 @@ namespace game {
     void BKV_Parser_State_Number::parseFloat(BKV_Parser& parser) {
         parser._tag |= BKV::BKV_FLOAT;
         double val = std::strtold(_numBuffer, nullptr);
-        std::stringstream m;
-        m << "Number state parsed float: " << val;
-        Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
         if ((val <= FLT_MIN) && (val >= -FLT_MIN)) {
             val = 0.0;
         } else if ((val <= -FLT_MAX) || (val == -HUGE_VALL)) {
-            std::stringstream msg;
-            msg << "BKV value underflows float at index " << parser._charactersRead << ": " << val << " <= " << FLT_MIN << ".";
+            UTF8Str msg = FormatString::formatString("BKV value underflows float at index %ld: %f <= %f",
+                parser._charactersRead, val, FLT_MIN
+            );
             reset();
-            throw std::runtime_error(msg.str());
+            throw std::runtime_error(msg.get());
         } else if ((val >= FLT_MAX) || (val == HUGE_VALL)) {
-            std::stringstream msg;
-            msg << "BKV value overflows float at index " << parser._charactersRead << ": " << val << " >= " << FLT_MAX << ".";
+            UTF8Str msg = FormatString::formatString("BKV value overflows float at index %ld: %f >= %f",
+                parser._charactersRead, val, FLT_MAX
+            );
             reset();
-            throw std::runtime_error(msg.str());
+            throw std::runtime_error(msg.get());
         }
         float v = Endianness::htonf(static_cast<float>(val));
         std::memcpy(parser._buffer.bkv_ + parser._buffer._head, &v, sizeof(float));
@@ -123,22 +114,21 @@ namespace game {
     void BKV_Parser_State_Number::parseDouble(BKV_Parser& parser) {
         parser._tag |= BKV::BKV_DOUBLE;
         double val = std::strtold(_numBuffer, nullptr);
-        std::stringstream m;
-        m << "Number state parsed double at index " << parser._charactersRead << ": " << val;
-        Logger::log(LOG_INFO, m.str());
         // Make sure value doesn't overflow or underflow
         if ((val <= DBL_MIN) && (val >= -DBL_MIN)) {
             val = 0.0;
         } else if ((val <= -DBL_MAX) || (val == -HUGE_VALL)) {
-            std::stringstream msg;
-            msg << "BKV value underflows double at index " << parser._charactersRead << ": " << val << " <= " << DBL_MIN << ".";
+            UTF8Str msg = FormatString::formatString("BKV value underflows double at index %ld: %f <= %f.",
+                parser._charactersRead, val, DBL_MIN
+            );
             reset();
-            throw std::runtime_error(msg.str());
+            throw std::runtime_error(msg.get());
         } else if ((val >= DBL_MAX) || (val == HUGE_VALL)) {
-            std::stringstream msg;
-            msg << "BKV value overflows double at index " << parser._charactersRead << ": " << val << " >= " << DBL_MAX << ".";
+            UTF8Str msg = FormatString::formatString("BKV value overflows double at index %ld: %f >= %f.",
+                parser._charactersRead, val, DBL_MAX
+            );
             reset();
-            throw std::runtime_error(msg.str());
+            throw std::runtime_error(msg.get());
         }
         double v = Endianness::htond(val);
         std::memcpy(parser._buffer.bkv_ + parser._buffer._head, &v, sizeof(double));
@@ -146,24 +136,19 @@ namespace game {
     }
     
     void BKV_Parser_State_Number::endNumber(BKV_Parser& parser, const char c) {
-        std::stringstream m;
-        m << "Number state ending number with character: " << c;
-        Logger::log(LOG_INFO, m.str());
         reset();
 
         if ((c == '}') || (c == ',') || (c == ']')) {
             try { parser.endKV(c); } catch (std::runtime_error &e) { throw; }
         } else {
-            std::stringstream msg;
-            msg << "Invalid character in SBKV number at index: " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
-            throw std::runtime_error(msg.str());
+            UTF8Str msg = FormatString::formatString("Invalid character in SBKV number at index %ld: %02x",
+                parser._charactersRead, c
+            );
+            throw std::runtime_error(msg.get());
         }
     }
 
     void BKV_Parser_State_Number::parse(BKV_Parser& parser, const char c) {
-        std::stringstream m;
-        m << "Number state parsing character: " << c;
-        Logger::log(LOG_INFO, m.str());
         parser._charactersRead++;
         
         if (std::isspace(c)) {
@@ -178,10 +163,11 @@ namespace game {
             else if (c == '-') _hasNegative = true;
 
             if (_bufferLen >= UINT8_MAX) {
-                std::stringstream msg;
-                msg << "Too many digits in SBKV number at index " << parser._charactersRead << ": " << _bufferLen + 1 << "/" << UINT8_MAX << " digits.";
+                UTF8Str msg = FormatString::formatString("Too many digits in SBKV number at index %ld: %lu/%lu digits.",
+                    parser._charactersRead, (_bufferLen + 1), UINT8_MAX
+                );
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
 
             _numBuffer[_bufferLen] = c;
@@ -195,10 +181,9 @@ namespace game {
                 case '}': {
                     // Use default (integer if possible, long otherwise)
                     if (!_bufferLen) {
-                        std::stringstream msg;
-                        msg << "BKV number has no value at index: " << parser._charactersRead;
+                        UTF8Str msg = FormatString::formatString("BKV number has no value at index %ld.", parser._charactersRead);
                         reset();
-                        throw std::runtime_error(msg.str());
+                        throw std::runtime_error(msg.get());
                     }
                     if (_hasDecimal) {
                         try { parseDouble(parser); } catch (std::runtime_error &e) { throw; }
@@ -208,10 +193,11 @@ namespace game {
                             // Make sure value doesn't overflow
                             if (val > UINT32_MAX) {
                                 if (val == UINT64_MAX) {
-                                    std::stringstream msg;
-                                    msg << "BKV value overflows long at index " << parser._charactersRead << ": " << val << " >= " << UINT64_MAX << ".";
+                                    UTF8Str msg = FormatString::formatString("BKV value overflows long at index %ld: %lu >= %lu.",
+                                        parser._charactersRead, val, UINT64_MAX
+                                    );
                                     reset();
-                                    throw std::runtime_error(msg.str());
+                                    throw std::runtime_error(msg.get());
                                 }
                                 parser._tag |= BKV::BKV_I64;
                                 try { appendValue(parser, val); } catch (std::runtime_error &e) { throw; }
@@ -224,15 +210,17 @@ namespace game {
                             // Make sure value doesn't overflow or underflow
                             if ((val < INT32_MIN) || (val > INT32_MAX)) {
                                 if (val == INT64_MIN) {
-                                    std::stringstream msg;
-                                    msg << "BKV value underflows long at index " << parser._charactersRead << ": " << val << " <= " << INT64_MIN << ".";
+                                    UTF8Str msg = FormatString::formatString("BKV value underflows long at index %ld: %ld <= %ld.",
+                                        parser._charactersRead, val, INT64_MIN
+                                    );
                                     reset();
-                                    throw std::runtime_error(msg.str());
+                                    throw std::runtime_error(msg.get());
                                 } else if (val == INT64_MAX) {
-                                    std::stringstream msg;
-                                    msg << "BKV value overflows long at index " << parser._charactersRead << ": " << val << " >= " << INT64_MAX << ".";
+                                    UTF8Str msg = FormatString::formatString("BKV value overflows long at index %ld: %ld >= %ld.",
+                                        parser._charactersRead, val, INT64_MAX
+                                    );
                                     reset();
-                                    throw std::runtime_error(msg.str());
+                                    throw std::runtime_error(msg.get());
                                 }
                                 parser._tag |= BKV::BKV_I64;
                                 try { appendValue(parser, val); } catch (std::runtime_error &e) { throw; }
@@ -275,18 +263,20 @@ namespace game {
                 case 'U':
                 case 'u': {
                     if (_hasNegative) {
-                        std::stringstream msg;
-                        msg << "Negative BKV number is supposed to be unsigned at index: " << parser._charactersRead;
+                        UTF8Str msg = FormatString::formatString("Negative BKV number is supposed to be unsigned at %ld.",
+                            parser._charactersRead
+                        );
                         reset();
-                        throw std::runtime_error(msg.str());
+                        throw std::runtime_error(msg.get());
                     }
                     parser._tag |= BKV::BKV_UNSIGNED;
                 } break;
                 default: {
-                    std::stringstream msg;
-                    msg << "Invalid character in SBKV number at index: " << parser._charactersRead << ": 0x" << std::hex << ((c & 0xf0) >> 4) << std::hex << (c & 0xf);
+                    UTF8Str msg = FormatString::formatString("Invalid character in SBKV number at %ld: %02x.",
+                        parser._charactersRead, c
+                    );
                     reset();
-                    throw std::runtime_error(msg.str());
+                    throw std::runtime_error(msg.get());
                 }
             }
         }

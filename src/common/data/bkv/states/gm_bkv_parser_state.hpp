@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cctype>
-#include <sstream>
 #include <stdexcept>
 
 namespace game {

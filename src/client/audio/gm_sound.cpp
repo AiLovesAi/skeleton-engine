@@ -1,7 +1,5 @@
 #include "gm_sound.hpp"
 
-#include <fstream>
-
 namespace game {
     Sound::Sound(const std::string& id) {
         // TODO Find "minecraft:soundid" in soundId file

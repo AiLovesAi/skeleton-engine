@@ -3,9 +3,6 @@
 #include "../../headers/string.hpp"
 #include "../gm_endianness.hpp"
 
-#include "../file/gm_logger.hpp"
-#include <sstream>
-
 #include <cstring>
 #include <memory>
 #include <stdexcept>
@@ -83,9 +80,6 @@ namespace game {
     template <typename T>
     inline void setSBKVValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
         T value;
         std::memcpy(&value, data + i + keyLen + 1, sizeof(T));
         value = Endianness::ntoh(value);
@@ -111,9 +105,6 @@ namespace game {
     template <typename T>
     inline void setSBKVArray(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
         try {
             StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
@@ -152,9 +143,6 @@ namespace game {
 
     inline void setSBKVValueDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
         double v;
         std::memcpy(&v, data + i + keyLen + 1, sizeof(double));
         v = Endianness::ntohd(v);
@@ -180,9 +168,6 @@ namespace game {
 
     inline void setSBKVArrayDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
         try {
             StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
@@ -220,9 +205,6 @@ namespace game {
 
     inline void setSBKVValueFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
         float v;
         std::memcpy(&v, data + i + keyLen + 1, sizeof(float));
         v = Endianness::ntohf(v);
@@ -248,9 +230,6 @@ namespace game {
 
     inline void setSBKVArrayFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-    std::stringstream m;
-    m << "Key length: " << std::to_string(keyLen);
-    Logger::log(LOG_INFO, m.str());
         try {
             StringBuffer::checkResize(sbkv, head + keyLen + 4, head, capacity);
         } catch (std::runtime_error& e) { throw; }
@@ -373,9 +352,6 @@ namespace game {
     inline void openSBKVCompound(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& depth, int64_t& capacity) {
         depth++;
         const uint8_t keyLen = data[++i];
-        std::stringstream m;
-        m << "Parsing compound with key length: " << std::to_string(keyLen);
-        Logger::log(LOG_INFO, m.str());
         if (depth <= 1) {
             try {
                 StringBuffer::checkResize(sbkv, head + 1, head, capacity);
@@ -400,7 +376,6 @@ namespace game {
     }
 
     inline void closeSBKVCompound(char*& sbkv, int64_t& i, int64_t& head, int64_t& depth, int64_t& capacity) {
-        Logger::log(LOG_INFO, "Closing compound.");
         depth--;
         sbkv[head - 1] = '}'; // Replace last comma with close brace
         if (depth > 0) {
@@ -420,101 +395,77 @@ namespace game {
                 openSBKVCompound(data, sbkv, i, head, depth, capacity);
                 break;
             case BKV::BKV_UI8: // Key:Xub
-                Logger::log(LOG_INFO, "Parsing UI8");
                 setSBKVValue<uint8_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI8_ARRAY: // Key:[Xub,Yub,Zub],
-                Logger::log(LOG_INFO, "Parsing UI8 Array");
                 setSBKVArray<uint8_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I8: // Key:Xb,
-                Logger::log(LOG_INFO, "Parsing I8");
                 setSBKVValue<int8_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I8_ARRAY: // Key:[Xb,Yb,Zb],
-                Logger::log(LOG_INFO, "Parsing I8 Array");
                 setSBKVArray<int8_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI16: // Key:Xus,
-                Logger::log(LOG_INFO, "Parsing UI16");
                 setSBKVValue<uint16_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI16_ARRAY: // Key:[Xus,Yus,Zus],
-                Logger::log(LOG_INFO, "Parsing UI16 Array");
                 setSBKVArray<uint16_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I16: // Key:Xs,
-                Logger::log(LOG_INFO, "Parsing I16");
                 setSBKVValue<int16_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I16_ARRAY: // Key:[Xs,Ys,Zs]
-                Logger::log(LOG_INFO, "Parsing I16 Array");
                 setSBKVArray<int16_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI32: // Key:Xu,
-                Logger::log(LOG_INFO, "Parsing UI32");
                 setSBKVValue<uint32_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI32_ARRAY: // Key:[Xu,Yu,Zu]
-                Logger::log(LOG_INFO, "Parsing UI32 Array");
                 setSBKVArray<uint32_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I32: // Key:X,
-                Logger::log(LOG_INFO, "Parsing I32");
                 setSBKVValue<int32_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I32_ARRAY: // Key:[X,Y,Z],
-                Logger::log(LOG_INFO, "Parsing I32 Array");
                 setSBKVArray<int32_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI64: // Key:Xul,
-                Logger::log(LOG_INFO, "Parsing UI64");
                 setSBKVValue<uint64_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_UI64_ARRAY: // Key:[Xul,Yul,Zul],
-                Logger::log(LOG_INFO, "Parsing UI64 Array");
                 setSBKVArray<uint64_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I64: // Key:Xl,
-                Logger::log(LOG_INFO, "Parsing I64");
                 setSBKVValue<int64_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_I64_ARRAY: // Key:[Xl,Yl,Zl],
-                Logger::log(LOG_INFO, "Parsing I64 Array");
                 setSBKVArray<int64_t>(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_FLOAT: // Key:X.f,
-                Logger::log(LOG_INFO, "Parsing Float");
                 setSBKVValueFloat(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_FLOAT_ARRAY: // Key:[X.f,Y.f,Z.f],
-                Logger::log(LOG_INFO, "Parsing Float Array");
                 setSBKVArrayFloat(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_DOUBLE: // Key:X.,
-                Logger::log(LOG_INFO, "Parsing Double");
                 setSBKVValueDouble(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_DOUBLE_ARRAY: // Key:[X.,Y.,Z.],
-                Logger::log(LOG_INFO, "Parsing Double Array");
                 setSBKVArrayDouble(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_STR: // Key:Str,
-                Logger::log(LOG_INFO, "Parsing String");
                 setSBKVValueString(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_STR_ARRAY: // Key:[Str1,Str2,Str3],
-                Logger::log(LOG_INFO, "Parsing String Array");
                 setSBKVArrayString(data, sbkv, i, head, capacity);
                 break;
             case BKV::BKV_BOOL: // Key:true/false,
-                Logger::log(LOG_INFO, "Parsing Boolean");
                 setSBKVValueBool(data, sbkv, i, head, capacity);
                 break;
             default: {
-                std::stringstream msg;
-                msg << "Invalid character in BKV at index " << i << ": 0x" << std::hex << ((data[i] & 0xf0) >> 4) << std::hex << (data[i] & 0xf);
-                throw std::runtime_error(msg.str());
+                UTF8Str msg = FormatString::formatString("Invalid character in BKV at index %ld: %02x.", i, data[i]);
+                throw std::runtime_error(msg.get());
             }
         }
     }
@@ -526,9 +477,6 @@ namespace game {
         const uint8_t* data = bkv.get();
         int64_t head, i, depth;
         for (head = 0, i = 0, depth = 0; i < bkv.size(); i++) {
-            std::stringstream m;
-            m << "Parsing character: 0x" << std::hex << ((data[i] & 0xf0) >> 4) << std::hex << (data[i] & 0xf);
-            Logger::log(LOG_INFO, m.str());
             sbkvParse(data, sbkv, i, head, depth, capacity);
         }
 

@@ -10,7 +10,7 @@
 namespace game {
     void BKV_Parser::openCompound() {
         if (_tag & BKV::BKV_ARRAY) {
-            UTF8Str msg = FormatString::formatString("Compound in unclosed BKV array at index %d", _charactersRead);
+            UTF8Str msg = FormatString::formatString("Compound in unclosed BKV array at %ld", _charactersRead);
             throw std::runtime_error(msg.get());
         }
         
@@ -29,12 +29,11 @@ namespace game {
         _buffer._valHead = _buffer._head;
         _buffer._tagHead = _buffer._head;
         
-        UTF8Str m = FormatString::formatString("Opening compound with new depth: %d", _depth.size());
-        Logger::log(LOG_INFO, m);
         if (_depth.size() > BKV::BKV_COMPOUND_DEPTH_MAX) {
-            std::stringstream msg;
-            msg << "Reached maximum compound depth in SBKV at index " << _charactersRead << ": " << _depth.size() << "/" << BKV::BKV_COMPOUND_DEPTH_MAX;
-            throw std::runtime_error(msg.str());
+            UTF8Str msg = FormatString::formatString("Reached maximum compound depth in SBKV at index %ld: %lu/%lu.",
+                _charactersRead, _depth.size(), BKV::BKV_COMPOUND_DEPTH_MAX
+            );
+            throw std::runtime_error(msg.get());
         }
     }
 
@@ -47,15 +46,13 @@ namespace game {
 
         int64_t size = _buffer._head - _depth.top() + sizeof(uint32_t);
         if ((size <= 0) || (size > BKV::BKV_COMPOUND_MAX)) {
-            std::stringstream msg;
-            msg << "BKV compound bigger than maximum size at index" << _depth.top() << ": " << size << "/" << BKV::BKV_COMPOUND_MAX;
-            throw std::runtime_error(msg.str());
+            UTF8Str msg = FormatString::formatString("BKV compound bigger than maximum size at index %d: %ld/%ld",
+                _depth.top(), size, BKV::BKV_COMPOUND_MAX
+            );
+            throw std::runtime_error(msg.get());
         }
         uint32_t len = Endianness::hton(static_cast<uint32_t>(size));
         std::memcpy(_buffer.bkv_ + _depth.top(), &len, BKV::BKV_COMPOUND_SIZE);
-        std::stringstream m;
-        m << "Closing compound with new depth: " << _depth.size() - 1 << " Length of " << size << " (net " << len << ") put at " << _depth.top();
-        Logger::log(LOG_INFO, m.str());
         _depth.pop();
         _buffer._valHead = _buffer._head;
         _buffer._tagHead = _buffer._head;
@@ -72,35 +69,30 @@ namespace game {
     }
 
     void BKV_Parser::endKV(const char c) {
-        std::stringstream m;
-        m << "Ending key value with character: " << c;
-        Logger::log(LOG_INFO, m.str());
-
         _buffer._valHead = _buffer._head;
         if (_tag & BKV::BKV_ARRAY) {
             if (c == '}') {
-                std::stringstream msg;
-                msg << "Closing character is '}' when in SBKV array at index: " << _charactersRead;
-                throw std::runtime_error(msg.str());
+                UTF8Str msg = FormatString::formatString("Closing character is '}' when in SBKV array at index: %ld", _charactersRead);
+                throw std::runtime_error(msg.get());
             }
 
             // Make sure tag has not changed
             if (!_arrayState._arrayTag) {
                 _arrayState._arrayTag = _tag;
             } else if (_tag != _arrayState._arrayTag) {
-                std::stringstream msg;
-                msg << "Array value changed data type at index: " << _charactersRead;
+                UTF8Str msg = FormatString::formatString("Array value changed data type at index: %ld", _charactersRead);
                 reset();
-                throw std::runtime_error(msg.str());
+                throw std::runtime_error(msg.get());
             }
 
             _stateTree.push(&_arrayState);
             try { state()->parse(*this, c); } catch (std::runtime_error &e) { throw; }
         } else {
             if (c == ']') {
-                std::stringstream msg;
-                msg << "Closing character is ']' when not in SBKV array at index: " << _charactersRead;
-                throw std::runtime_error(msg.str());
+                UTF8Str msg = FormatString::formatString("Closing character is ']' when not in SBKV array at index: %ld",
+                    _charactersRead
+                );
+                throw std::runtime_error(msg.get());
             }
             
             _buffer.bkv_[_buffer._tagHead] = _tag;
