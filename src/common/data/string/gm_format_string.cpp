@@ -904,13 +904,13 @@ namespace game {
     }
 
     bool FormatString::strToBool(const char*__restrict__ str, const int64_t len) {
-        if ((len >= 4) &&
+        if ((len == 4) &&
             ((str[0] == 't') || (str[0] == 'T')) &&
             ((str[1] == 'r') || (str[1] == 'R')) &&
             ((str[2] == 'u') || (str[2] == 'U')) &&
             ((str[3] == 'e') || (str[3] == 'E'))
-        ) return 1;
+        ) return true;
         
-        return 0;
+        return false;
     }
 }
