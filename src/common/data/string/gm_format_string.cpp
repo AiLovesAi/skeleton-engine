@@ -748,7 +748,7 @@ namespace game {
         return true;
     }
 
-    UTF8Str FormatString::formatString(const char* str, ...) noexcept {
+    UTF8Str FormatString::formatString(const char*__restrict__ str, ...) noexcept {
         va_list args;
         va_start(args, str);
 
@@ -796,7 +796,104 @@ namespace game {
         return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
     }
 
-    int32_t FormatString::strToInt(const char* str, const int64_t len) {
-        // TODO
+    template <typename T>
+    void FormatString::_strToInt(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result) {
+        T oldResult = 0;
+        result = 0;
+        uint8_t digit;
+        char c;
+        for (int64_t i = 0; i < len; i++) {
+            c = str[i];
+            if (std::isalnum(c)) {
+                if (std::isdigit(c)) {
+                    digit = c - '0';
+                } else if ((c >= 'a') || (c <= 'z')) {
+                    digit = c - 'a' + 10;
+                } else if ((c >= 'A') || (c <= 'Z')) {
+                    digit = c - 'A' + 10;
+                }
+
+                // Not our base
+                if (digit >= base) {
+                    UTF8Str msg = formatString("Unexpected character in strToInt(): %s", str);
+                    throw std::runtime_error(msg.get());
+                }
+
+                oldResult = result;
+                result = (result * base) + digit;
+
+                // Test for overflow
+                if (result < oldResult) {
+                    UTF8Str msg = formatString("Integer overflows strToInt(): %s", str);
+                    throw std::runtime_error(msg.get());
+                }
+            } else if ((c != '-') && (i == 0)){
+                UTF8Str msg = formatString("Unexpected character in strToInt(): %s", str);
+                throw std::runtime_error(msg.get());
+            }
+        }
+    }
+
+    
+    template <typename T>
+    void FormatString::_strToFloat(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result) {
+        result = static_cast<T>(0);
+        T fraction = result;
+        uint8_t digit;
+        bool hasFraction = false;
+        int16_t exponent = 0;
+        char c;
+        for (int64_t i = 0; i < len; i++) {
+            c = str[i];
+            if (std::isalnum(c)) {
+                if (std::isdigit(c)) {
+                    digit = c - '0';
+                } else if ((c >= 'a') || (c <= 'z')) {
+                    digit = c - 'a' + 10;
+                } else if ((c >= 'A') || (c <= 'Z')) {
+                    digit = c - 'A' + 10;
+                }
+
+                // Not our base
+                if (digit >= base) {
+                    UTF8Str msg = formatString("Unexpected character in strToFloat(): %s", str);
+                    throw std::runtime_error(msg.get());
+                }
+
+                if (hasFraction) {
+                    fraction = (fraction * static_cast<T>(base)) + static_cast<T>(digit);
+                    exponent--;
+                } else {
+                    result = (result * static_cast<T>(base)) + static_cast<T>(digit);
+                }
+            } else if (c == '.') {
+                hasFraction = true;
+            } else {
+                UTF8Str msg = formatString("Unexpected character in strToFloat(): %s", str);
+                throw std::runtime_error(msg.get());
+            }
+        }
+
+        result += fraction / std::pow(base, -exponent);
+
+        // Test for overflow
+        if (std::isinf(result)) {
+            UTF8Str msg = formatString("Float overflows strToFloat(): %s", str);
+            throw std::runtime_error(msg.get());
+        }
+        
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+    }
+
+    bool FormatString::strToBool(const char*__restrict__ str, const int64_t len) {
+        if ((len >= 4) &&
+            ((str[0] == 't') || (str[0] == 'T')) &&
+            ((str[1] == 'r') || (str[1] == 'R')) &&
+            ((str[2] == 'u') || (str[2] == 'U')) &&
+            ((str[3] == 'e') || (str[3] == 'E'))
+        ) return 1;
+        
+        return 0;
     }
 }

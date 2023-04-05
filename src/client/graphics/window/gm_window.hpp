@@ -41,7 +41,7 @@ class Window {
         void createWindow(const UTF8Str& title, const GLFWvidmode* mode);
 
         // Callback functions
-        static void errorCallback(int error, const char* description);
+        static void errorCallback(int error, const char*__restrict__ description);
         static void framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height);
         static void focusCallback(GLFWwindow* glfwWindow, int focused);
 

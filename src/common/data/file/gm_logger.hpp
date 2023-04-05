@@ -31,7 +31,7 @@ namespace game {
             static inline void log(const int logType, const std::string& message) {
                 log(logType, UTF8Str{static_cast<int64_t>(message.length()), std::shared_ptr<const char>(message.c_str(), [](const char*){})});
             }
-            static inline void log(const int logType, const char* message) {
+            static inline void log(const int logType, const char*__restrict__ message) {
                 log(logType, UTF8Str{static_cast<int64_t>(std::strlen(message)), std::shared_ptr<const char>(message, [](const char*){})});
             }
             static void log(const int logType, const UTF8Str& message);
@@ -39,7 +39,7 @@ namespace game {
             static inline void logSync(const int logType, const std::string& message, const std::thread::id& threadId) {
                 logSync(logType, UTF8Str{static_cast<int64_t>(message.length()), std::shared_ptr<const char>(message.c_str(), [](const char*){})}, threadId);
             }
-            static inline void logSync(const int logType, const char* message, const std::thread::id& threadId) {
+            static inline void logSync(const int logType, const char*__restrict__ message, const std::thread::id& threadId) {
                 logSync(logType, UTF8Str{static_cast<int64_t>(std::strlen(message)), std::shared_ptr<const char>(message, [](const char*){})}, threadId);
             }
             static inline void logSync(const int logType, const UTF8Str& message, const std::thread::id& threadId) {
@@ -49,7 +49,7 @@ namespace game {
             [[noreturn]] static inline void crash(const std::string& message) {
                 crash(UTF8Str{static_cast<int64_t>(message.length()), std::shared_ptr<const char>(message.c_str(), [](const char*){})});
             }
-            [[noreturn]] static inline void crash(const char* message) {
+            [[noreturn]] static inline void crash(const char*__restrict__ message) {
                 crash(UTF8Str{static_cast<int64_t>(std::strlen(message)), std::shared_ptr<const char>(message, [](const char*){})});
             }
             [[noreturn]] static void crash(const UTF8Str& message);

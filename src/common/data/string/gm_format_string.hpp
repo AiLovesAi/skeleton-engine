@@ -16,23 +16,74 @@ namespace game {
             };
 
             // Functions
-            static UTF8Str formatString(const char* str, ...) noexcept;
+            static UTF8Str formatString(const char *__restrict__ str, ...) noexcept;
             
-            static inline int32_t strToInt(const char* str) { return strToInt(str, std::strlen(str)); }
-            static inline uint32_t strToUInt(const char* str) { return strToUInt(str, std::strlen(str)); }
-            static inline int64_t strToLong(const char* str) { return strToLong(str, std::strlen(str)); }
-            static inline uint64_t strToULong(const char* str) { return strToULong(str, std::strlen(str)); }
-            static inline float strToFloat(const char* str) { return strToFloat(str, std::strlen(str)); }
-            static inline double strToDouble(const char* str) { return strToDouble(str, std::strlen(str)); }
-            static inline bool strToBool(const char* str) { return strToBool(str, std::strlen(str)); }
+            static inline int32_t strToInt(const char *__restrict__ str) { return strToInt(str, std::strlen(str)); }
+            static inline uint32_t strToUInt(const char *__restrict__ str) { return strToUInt(str, std::strlen(str)); }
+            static inline int64_t strToLong(const char *__restrict__ str) { return strToLong(str, std::strlen(str)); }
+            static inline uint64_t strToULong(const char *__restrict__ str) { return strToULong(str, std::strlen(str)); }
+            static inline float strToFloat(const char *__restrict__ str) { return strToFloat(str, std::strlen(str)); }
+            static inline double strToDouble(const char *__restrict__ str) { return strToDouble(str, std::strlen(str)); }
+            static inline bool strToBool(const char *__restrict__ str) { return strToBool(str, std::strlen(str)); }
 
-            static int32_t strToInt(const char* str, const int64_t len);
-            static uint32_t strToUInt(const char* str, const int64_t len);
-            static int64_t strToLong(const char* str, const int64_t len);
-            static uint64_t strToULong(const char* str, const int64_t len);
-            static float strToFloat(const char* str, const int64_t len);
-            static double strToDouble(const char* str, const int64_t len);
-            static bool strToBool(const char* str, const int64_t len);
+            static inline int32_t strToInt(const char *__restrict__ str, const int64_t len) {
+                return strToInt(str, len, 10);
+            }
+            static inline uint32_t strToUInt(const char *__restrict__ str, const int64_t len) {
+                return strToUInt(str, len, 10);
+            }
+            static inline int64_t strToLong(const char *__restrict__ str, const int64_t len) {
+                return strToLong(str, len, 10);
+            }
+            static inline uint64_t strToULong(const char *__restrict__ str, const int64_t len) {
+                return strToULong(str, len, 10);
+            }
+            static inline float strToFloat(const char *__restrict__ str, const int64_t len) {
+                return strToFloat(str, len, 10);
+            }
+            static inline double strToDouble(const char *__restrict__ str, const int64_t len) {
+                return strToDouble(str, len, 10);
+            }
+
+            static inline int32_t strToInt(const char *__restrict__ str, const int64_t len, const uint8_t base) {
+                int32_t result;
+                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+
+                // Check for negative values
+                if (str[0] == '-') result = -result;
+
+                return result;
+            }
+            static inline uint32_t strToUInt(const char *__restrict__ str, const int64_t len, const uint8_t base) {
+                uint32_t result;
+                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+                return result;
+            }
+            static inline int64_t strToLong(const char *__restrict__ str, const int64_t len, const uint8_t base) {
+                int64_t result;
+                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+
+                // Check for negative values
+                if (str[0] == '-') result = -result;
+
+                return result;
+            }
+            static inline uint64_t strToULong(const char *__restrict__ str, const int64_t len, const uint8_t base) {
+                uint64_t result;
+                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+                return result;
+            }
+            static inline float strToFloat(const char *__restrict__ str, const int64_t len, const uint8_t base) {
+                float result;
+                try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+                return result;
+            }
+            static inline double strToDouble(const char *__restrict__ str, const int64_t len, const uint8_t base) {
+                double result;
+                try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+                return result;
+            }
+            static bool strToBool(const char *__restrict__ str, const int64_t len);
             
             template <typename T>
             static inline UTF8Str intToStr(T val) { return intToStr(val, 10); }
@@ -49,11 +100,17 @@ namespace game {
             static inline UTF8Str floatToStr(T val, uint8_t base) { return floatToStr(val, base, 0); }
 
             template <typename T>
-            static inline UTF8Str intToStr(T val, uint8_t base, int64_t minDigits) { return intToStr(val, base, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str intToStr(T val, uint8_t base, int64_t minDigits) {
+                return intToStr(val, base, minDigits, FORMAT_DIGITAL);
+            }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base, int64_t precision) { return floatToStr(val, base, precision, 0); }
+            static inline UTF8Str floatToStr(T val, uint8_t base, int64_t precision) {
+                return floatToStr(val, base, precision, 0);
+            }
             template <typename T>
-            static inline UTF8Str floatToStr(T val, uint8_t base, int64_t precision, int64_t minDigits) { return floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL); }
+            static inline UTF8Str floatToStr(T val, uint8_t base, int64_t precision, int64_t minDigits) {
+                return floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
+            }
 
             // Variables
             static constexpr int MAX_DIGITS = 18; // 2^63 - 1 = 9.223372036854775807E18, so use 18 since we can hold 19 digits max
@@ -91,6 +148,11 @@ namespace game {
             };
 
             // Functions
+            template <typename T>
+            static void _strToInt(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result);
+            template <typename T>
+            static void _strToFloat(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result);
+
             template <typename T>
             static UTF8Str _intToStr(T val, uint8_t base, int64_t minDigits, const int32_t flags) noexcept;
             template <typename T>

@@ -15,10 +15,10 @@ namespace game {
             StringBuffer(const size_t capacity) : _capacity{capacity} {
                 _buffer = static_cast<char*>(std::malloc(BUFSIZ));
             }
-            StringBuffer(const char* str, const size_t len) : _len{len}, _capacity{len + 1} {
+            StringBuffer(const char*__restrict__ str, const size_t len) : _len{len}, _capacity{len + 1} {
                 _buffer = static_cast<char*>(std::malloc(_capacity));
             }
-            StringBuffer(const char* str) {
+            StringBuffer(const char*__restrict__ str) {
                 _len = std::strlen(str);
                 _capacity = _len + 1;
                 _buffer = static_cast<char*>(std::malloc(_capacity));
@@ -32,14 +32,14 @@ namespace game {
             inline void clear() { _len = 0; }
             UTF8Str str();
             
-            inline void set(const char* str) { set(str, std::strlen(str)); }
-            inline void set(const char* str, const size_t len) {
+            inline void set(const char*__restrict__ str) { set(str, std::strlen(str)); }
+            inline void set(const char*__restrict__ str, const size_t len) {
                 std::memcpy(_buffer, str, len);
                 _len = len;
             }
 
-            inline size_t append(const char* str) { return append(str, std::strlen(str)); }
-            size_t append(const char* str, const size_t len);
+            inline size_t append(const char*__restrict__ str) { return append(str, std::strlen(str)); }
+            size_t append(const char*__restrict__ str, const size_t len);
             size_t append(const UTF8Str& str);
             size_t append(const char c);
 

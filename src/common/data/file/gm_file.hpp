@@ -34,7 +34,9 @@ namespace game {
             static void const ensureParentDir(const UTF8Str& path);
             
             static FileContents const readFile(const char* filepath);
-            static void const writeFile(const char* filepath, const FileContents& contents) { writeFile(filepath, contents, false); }
+            static inline void const writeFile(const char* filepath, const FileContents& contents) {
+                writeFile(filepath, contents, false);
+            }
             static void const writeFile(const char* filepath, const FileContents& contents, const bool append);
             
             static UTF8Str executableDir() { return _executableDir; }

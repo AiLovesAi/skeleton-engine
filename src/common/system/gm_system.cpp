@@ -101,10 +101,10 @@ namespace game {
 
         for(unsigned int i = 0x80000002; i <= 0x80000004; i++) {
             CPUID cpuID(i, 0);
-            mModelName.append(String::asAscii((const char*) &cpuID.RAX(), 4));
-            mModelName.append(String::asAscii((const char*) &cpuID.RBX(), 4));
-            mModelName.append(String::asAscii((const char*) &cpuID.RCX(), 4));
-            mModelName.append(String::asAscii((const char*) &cpuID.RDX(), 4));
+            mModelName.append(String::asAscii(reinterpret_cast<const char*>(&cpuID.RAX()), 4));
+            mModelName.append(String::asAscii(reinterpret_cast<const char*>(&cpuID.RBX()), 4));
+            mModelName.append(String::asAscii(reinterpret_cast<const char*>(&cpuID.RCX()), 4));
+            mModelName.append(String::asAscii(reinterpret_cast<const char*>(&cpuID.RDX()), 4));
         }
 
         System::_CPU = mModelName.str();

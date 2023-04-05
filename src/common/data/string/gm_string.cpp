@@ -31,7 +31,7 @@ namespace game {
         str[strLen + 2] = '\0';
     }
 
-    int64_t String::insert(char*& str, const int64_t strLen, const char* insertStr, const int64_t insertStrLen, const int64_t pos) noexcept {
+    int64_t String::insert(char*& str, const int64_t strLen, const char*__restrict__ insertStr, const int64_t insertStrLen, const int64_t pos) noexcept {
         // Copy str to buffer after pos
         const int64_t rem = strLen - pos;
         char* buffer = static_cast<char*>(std::malloc(rem));
@@ -51,7 +51,7 @@ namespace game {
         return len;
     }
 
-    bool String::isAscii(const char* str, const int64_t len) noexcept {
+    bool String::isAscii(const char*__restrict__ str, const int64_t len) noexcept {
         char c;
         for (int64_t i = 0; i < len; i++) {
             c = str[i];
@@ -61,7 +61,7 @@ namespace game {
         return true;
     }
 
-    UTF8Str String::asAscii(const char* str, const int64_t len) noexcept {
+    UTF8Str String::asAscii(const char*__restrict__ str, const int64_t len) noexcept {
         char* dst = static_cast<char*>(std::malloc(len + 1));
 
         char c;

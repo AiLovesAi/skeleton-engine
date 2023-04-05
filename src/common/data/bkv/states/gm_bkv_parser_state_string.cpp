@@ -73,12 +73,12 @@ namespace game {
 
     void BKV_Parser_State_String::checkForBool(BKV_Parser& parser) {
         // Check if this is a boolean "true" or "false"
-        if ((_strLen == 4) && (
+        if ((_strLen == 4) && 
             ((_str[0] == 't') || (_str[0] == 'T')) &&
             ((_str[1] == 'r') || (_str[1] == 'R')) &&
             ((_str[2] == 'u') || (_str[2] == 'U')) &&
             ((_str[3] == 'e') || (_str[3] == 'E'))
-        )) {
+        ) {
             parser._tag &= ~BKV::BKV_STR;
             parser._tag |= BKV::BKV_BOOL;
             try {

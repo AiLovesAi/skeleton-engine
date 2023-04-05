@@ -87,7 +87,7 @@ namespace game {
         }
     }
 
-    void Window::errorCallback(int error, const char* description) {
+    void Window::errorCallback(int error, const char*__restrict__ description) {
         UTF8Str msg = FormatString::formatString("GLFW error code %d: %s", error, description);
         Logger::log(LOG_ERR, msg);
     }

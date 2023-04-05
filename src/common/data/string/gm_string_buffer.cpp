@@ -12,7 +12,7 @@ namespace game {
         return UTF8Str{static_cast<int64_t>(_len), std::shared_ptr<const char>(copy, std::free)};
     }
 
-    size_t StringBuffer::append(const char* str, const size_t len) {
+    size_t StringBuffer::append(const char*__restrict__ str, const size_t len) {
         try {
             checkResize(_buffer, _len + len, _len, _capacity);
         } catch (std::runtime_error& e) { Logger::crash(e.what()); }

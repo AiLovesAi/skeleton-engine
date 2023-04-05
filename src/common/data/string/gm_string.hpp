@@ -17,7 +17,7 @@ namespace game {
             static void insert(char*& str, const int64_t strLen, const char c, const int64_t pos) noexcept;
             // NOTE: Must have enough memory
             // @return Length of the new string
-            static inline int64_t insert(char*& str, const char* insertStr, const int64_t pos) {
+            static inline int64_t insert(char*& str, const char*__restrict__ insertStr, const int64_t pos) {
                 return insert(
                     str, static_cast<int64_t>(std::strlen(str)),
                     insertStr, static_cast<int64_t>(std::strlen(insertStr)),
@@ -25,19 +25,19 @@ namespace game {
                 );
             }
             static int64_t insert(char*& str, const int64_t strLen, 
-                const char* insertStr, const int64_t insertStrLen, const int64_t pos
+                const char*__restrict__ insertStr, const int64_t insertStrLen, const int64_t pos
             ) noexcept;
 
             // NOTE: Must have enough memory
             // @return Length of the new string
-            static inline int64_t prepend(char*& str, const char* prependStr) { return insert(str, prependStr, 0); }
-            static inline int64_t prepend(char*& str, const int64_t strLen, const char* prependStr, const int64_t prependStrLen) {
+            static inline int64_t prepend(char*& str, const char*__restrict__ prependStr) { return insert(str, prependStr, 0); }
+            static inline int64_t prepend(char*& str, const int64_t strLen, const char*__restrict__ prependStr, const int64_t prependStrLen) {
                 return insert(str, strLen, prependStr, prependStrLen, 0);
             }
 
-            static inline bool isAscii(const char* str) { return isAscii(str, std::strlen(str)); }
-            static bool isAscii(const char* str, const int64_t len) noexcept;
-            static inline UTF8Str asAscii(const char* str) { return asAscii(str, std::strlen(str)); }
-            static UTF8Str asAscii(const char* str, const int64_t len) noexcept;
+            static inline bool isAscii(const char*__restrict__ str) { return isAscii(str, std::strlen(str)); }
+            static bool isAscii(const char*__restrict__ str, const int64_t len) noexcept;
+            static inline UTF8Str asAscii(const char*__restrict__ str) { return asAscii(str, std::strlen(str)); }
+            static UTF8Str asAscii(const char*__restrict__ str, const int64_t len) noexcept;
     };
 }

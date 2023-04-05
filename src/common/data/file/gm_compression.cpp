@@ -11,7 +11,7 @@
 #include <mutex>
 
 namespace game {
-    inline void initDecoder(lzma_stream *stream, const char* filepath) {
+    inline void initDecoder(lzma_stream *stream, const char*__restrict__ filepath) {
         // The .xz format allows concatenating compressed files as is:
         //
         //     echo foo | xz > foobar.xz
@@ -50,7 +50,7 @@ namespace game {
         }
     }
 
-    File::FileContents const Compression::decompressFile(const char* filepath) {
+    File::FileContents const Compression::decompressFile(const char*__restrict__ filepath) {
         lzma_stream stream = LZMA_STREAM_INIT;
         initDecoder(&stream, filepath);
 	    lzma_action action = LZMA_RUN;
@@ -147,7 +147,7 @@ namespace game {
         return File::FileContents{head, std::shared_ptr<const uint8_t>(data, std::free)};;
     }
 
-    inline void initEncoder(lzma_stream* stream, const char* filepath) {
+    inline void initEncoder(lzma_stream* stream, const char*__restrict__ filepath) {
         lzma_mt mt = {
             .flags = 0,
             .threads = std::min(System::cpuThreadCount(), static_cast<uint32_t>(8)),
@@ -185,7 +185,7 @@ namespace game {
         }
     }
 
-    void const Compression::compressFile(const char* filepath, const File::FileContents& contents, const bool append) {
+    void const Compression::compressFile(const char*__restrict__ filepath, const File::FileContents& contents, const bool append) {
         lzma_stream stream = LZMA_STREAM_INIT;
         initEncoder(&stream, filepath);
 	    lzma_action action = LZMA_RUN;

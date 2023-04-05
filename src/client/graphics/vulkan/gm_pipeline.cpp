@@ -46,11 +46,15 @@ namespace game {
         const UTF8Str& fragFilePath,
         const PipelineConfigInfo& configInfo
     ) {
-        if (configInfo.pipelineLayout == VK_NULL_HANDLE) Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
-        if (configInfo.renderPass == VK_NULL_HANDLE) Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
+        if (configInfo.pipelineLayout == VK_NULL_HANDLE) {
+            Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
+        }
+        if (configInfo.renderPass == VK_NULL_HANDLE) {
+            Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
+        }
 
-        UTF8Str vertAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), vertFilePath);
-        UTF8Str fragAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), fragFilePath);
+        UTF8Str vertAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), vertFilePath.get());
+        UTF8Str fragAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), fragFilePath.get());
         auto vertCode = readFile(vertAbsPath);
         auto fragCode = readFile(fragAbsPath);
 

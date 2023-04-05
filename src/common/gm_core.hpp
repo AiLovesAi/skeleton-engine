@@ -9,7 +9,7 @@ namespace game {
     class Core{
         public:
             // Functions
-            static void init(const char* logFile, const char* crashFile);
+            static void init(const char*__restrict__ logFile, const char*__restrict__ crashFile);
 
             // Variables
             static const UTF8Str EMPTYSTR;

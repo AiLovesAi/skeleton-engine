@@ -14,7 +14,7 @@ namespace game {
     UTF8Str Core::VERSION = Core::EMPTYSTR;
     std::atomic<bool> Core::running = false;
 
-    void Core::init(const char* logFile, const char* crashFile) {
+    void Core::init(const char*__restrict__ logFile, const char*__restrict__ crashFile) {
         Threads::registerThread(std::this_thread::get_id(),
             UTF8Str{sizeof("Main") - 1, std::shared_ptr<const char>("Main", [](const char*){})}
         );
