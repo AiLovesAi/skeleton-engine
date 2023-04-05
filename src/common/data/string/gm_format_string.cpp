@@ -25,6 +25,23 @@ namespace game {
             if (flags & FORMAT_SIGNED) str[len++] = '+';
             else if (flags & FORMAT_SIGN_PADDING) str[len++] = ' ';
             str[len++] = '0';
+
+            // Prepend with padding if necessary
+            if ((digits < minDigits) && !(flags & FORMAT_LEFT_JUSTIFIED)) {
+                if ((flags & FORMAT_ZERO_PADDED) && !(flags & FORMAT_SCIENTIFIC)) {
+                    do {
+                        str[len++] = '0';
+                        digits++;
+                    }
+                    while (digits < minDigits);
+                } else {
+                    do {
+                        str[len++] = ' ';
+                        digits++;
+                    }
+                    while (digits < minDigits);
+                }
+            }
         } else {
             if (isNeg) val *= -1;
 

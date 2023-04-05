@@ -129,7 +129,7 @@ namespace game {
             UTF8Str msg = FormatString::formatString(
                 // Crash report
                 "---- Crash Report ----\n"
-                "Time: %d/%d/%d %d:%02d %s\n"
+                "Time: %d/%d/%d %d:%02d %s\n" // M/D/YYYY H:MM XM
                 "Description: %s\n\n"
                 "--- System Details ---\n"
                 "Operating System: %s\n"
