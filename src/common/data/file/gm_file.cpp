@@ -1,7 +1,6 @@
 #include "gm_file.hpp"
 
 #include "gm_logger.hpp"
-#include "../../gm_core.hpp"
 #include "../../system/gm_system.hpp"
 #include "../../headers/string.hpp"
 
@@ -32,7 +31,7 @@
 namespace fs = std::filesystem;
 
 namespace game {
-    UTF8Str File::_executableDir = Core::EMPTYSTR;
+    UTF8Str File::_executableDir = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};;
     std::mutex File::_fileMtx;
 
     void File::init() {

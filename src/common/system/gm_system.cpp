@@ -1,6 +1,5 @@
 #include "gm_system.hpp"
 
-#include "../gm_core.hpp"
 #include "../data/file/gm_logger.hpp"
 #include "../headers/string.hpp"
 
@@ -23,9 +22,9 @@
 namespace game {
     uint32_t System::_CPU_THREAD_COUNT;
     size_t System::_PHYSICAL_MEMORY;
-    UTF8Str System::_OS = Core::EMPTYSTR;
-    UTF8Str System::_CPU = Core::EMPTYSTR;
-    UTF8Str System::_GPU = Core::EMPTYSTR;
+    UTF8Str System::_OS = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};
+    UTF8Str System::_CPU = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};
+    UTF8Str System::_GPU = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};
 
     void System::init() {
         findOS();

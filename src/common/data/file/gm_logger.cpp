@@ -133,14 +133,13 @@ namespace game {
                 "Description: %s\n\n"
                 "--- System Details ---\n"
                 "Operating System: %s\n"
-                "Physical Memory: %luB\n"
+                "Physical Memory: %lu Bytes\n"
                 "CPU: %s\n"
                 "CPU Threads: %d\n"
                 "Graphics Device: %s\n"
-                "Crashing Thread: %s\n"
-                ,
+                "Crashing Thread: %s\n",
                 
-                // Error time/description
+                // What happened and when
                 (now->tm_mon + 1), now->tm_mday, (now->tm_year - 100), // Date
                 (now->tm_hour % 12), now->tm_min, ((now->tm_hour < 12) ? "AM" : "PM"), // Time
                 message.get(), // Description

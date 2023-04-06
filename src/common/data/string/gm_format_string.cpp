@@ -219,7 +219,7 @@ namespace game {
         int64_t len = 0;
 
         // Find integer part
-        const int32_t integer = static_cast<int32_t>(std::floor(absVal));
+        const int64_t integer = static_cast<int64_t>(std::floor(absVal));
 
         // Find decimal part
         T decimal = absVal - static_cast<T>(integer);
@@ -229,7 +229,7 @@ namespace game {
         decimal *= std::pow(base, precision);
 
         // Get decimal part
-        const UTF8Str decimalStr = _intToStr(static_cast<int32_t>(std::floor(decimal)), base, 0, flags & FORMAT_UPPERCASE);
+        const UTF8Str decimalStr = _intToStr(static_cast<int64_t>(std::floor(decimal)), base, 0, flags & FORMAT_UPPERCASE);
 
         // Find zeroes between decimal and end
         // NOTE: When the decimal is raised to precision, it will first get rid of the leading zeroes,
@@ -302,24 +302,10 @@ namespace game {
         T absN = isNeg ? -val : val;
         
         // Input validation
-        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-9999") + minDigits));
-        int64_t len = 0;
         if (std::isnan(val)) {
-            const char nanStr[] = "NaN";
-            len += sizeof(nanStr) - 1;
-            std::memcpy(str, nanStr, len);
-
-            str[len] = '\0';
-            str = static_cast<char*>(std::realloc(str, len + 1));
-            return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+            return UTF8Str{sizeof("NaN") - 1, std::shared_ptr<const char>("NaN", [](const char*){})};
         } else if (std::isinf(val)) {
-            const char infStr[] = "Inf";
-            len += sizeof(infStr) - 1;
-            std::memcpy(str, infStr, len);
-
-            str[len] = '\0';
-            str = static_cast<char*>(std::realloc(str, len + 1));
-            return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+            return UTF8Str{sizeof("Inf") - 1, std::shared_ptr<const char>("Inf", [](const char*){})};
         }
         if (precision > MAX_DIGITS) precision = 6;
         if (base <= 1 || base > 36) base = 10;
@@ -746,6 +732,33 @@ namespace game {
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
             } return false;
+            case 'b': { // Boolean
+                const bool boolean = static_cast<bool>(va_arg(args, int));
+                UTF8Str valStr = FormatString::boolToStr(boolean);
+                try {
+                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                } catch (std::runtime_error& e) { throw; }
+                std::memcpy(dst + len, valStr.get(), valStr.length());
+                len += valStr.length();
+            } return false;
+            case 'B': { // Uppercase boolean
+                const bool boolean = static_cast<bool>(va_arg(args, int));
+                if (flags & FORMAT_LONG) {
+                    UTF8Str valStr = FormatString::boolToStr(boolean, UPPERCASE_ALL);
+                    try {
+                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.get(), valStr.length());
+                    len += valStr.length();
+                } else {
+                    UTF8Str valStr = FormatString::boolToStr(boolean, UPPERCASE_FIRST);
+                    try {
+                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.get(), valStr.length());
+                    len += valStr.length();
+                }
+            } return false;
             case 'n': { // Store currently written characters in variable (signed int); print nothing
                     int64_t* storage = va_arg(args, int64_t*);
                     if (storage) *storage = len;
@@ -832,7 +845,7 @@ namespace game {
 
                 // Not our base
                 if (digit >= base) {
-                    UTF8Str msg = formatString("Unexpected character in strToInt(): %s", str);
+                    UTF8Str msg = formatString("Unexpected character (%c) in strToInt(): %s", c, str);
                     throw std::runtime_error(msg.get());
                 }
 
@@ -844,8 +857,8 @@ namespace game {
                     UTF8Str msg = formatString("Integer overflows strToInt(): %s", str);
                     throw std::runtime_error(msg.get());
                 }
-            } else if ((c != '-') && (i == 0)){
-                UTF8Str msg = formatString("Unexpected character in strToInt(): %s", str);
+            } else if (!((c == '-') || (c == '+')) && (i == 0)) {
+                UTF8Str msg = formatString("Unexpected character (%c) in strToInt(): %s", c, str);
                 throw std::runtime_error(msg.get());
             }
         }
@@ -873,7 +886,7 @@ namespace game {
 
                 // Not our base
                 if (digit >= base) {
-                    UTF8Str msg = formatString("Unexpected character in strToFloat(): %s", str);
+                    UTF8Str msg = formatString("Unexpected character (%c) in strToFloat(): %s", c, str);
                     throw std::runtime_error(msg.get());
                 }
 
@@ -885,8 +898,8 @@ namespace game {
                 }
             } else if (c == '.') {
                 hasFraction = true;
-            } else {
-                UTF8Str msg = formatString("Unexpected character in strToFloat(): %s", str);
+            } else if (!((c == '-') || (c == '+')) && (i == 0)) {
+                UTF8Str msg = formatString("Unexpected character (%c) in strToFloat(): %s", c, str);
                 throw std::runtime_error(msg.get());
             }
         }
@@ -901,6 +914,45 @@ namespace game {
         
         // Check for negative values
         if (str[0] == '-') result = -result;
+    }
+    
+    int32_t FormatString::strToInt(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
+        int32_t result;
+        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    uint32_t FormatString::strToUInt(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
+        uint32_t result;
+        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+        return result;
+    }
+    int64_t FormatString::strToLong(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
+        int64_t result;
+        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    uint64_t FormatString::strToULong(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
+        uint64_t result;
+        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+        return result;
+    }
+    float FormatString::strToFloat(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
+        float result;
+        try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+        return result;
+    }
+    double FormatString::strToDouble(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
+        double result;
+        try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
+        return result;
     }
 
     bool FormatString::strToBool(const char*__restrict__ str, const int64_t len) {

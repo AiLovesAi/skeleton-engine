@@ -9,9 +9,8 @@
 #include <random>
 
 namespace game {
-    const UTF8Str Core::EMPTYSTR = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};
-    UTF8Str Core::TITLE = Core::EMPTYSTR;
-    UTF8Str Core::VERSION = Core::EMPTYSTR;
+    UTF8Str Core::TITLE = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};;
+    UTF8Str Core::VERSION = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};;
     std::atomic<bool> Core::running = false;
 
     void Core::init(const char*__restrict__ logFile, const char*__restrict__ crashFile) {

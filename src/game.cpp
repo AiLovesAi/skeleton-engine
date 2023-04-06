@@ -12,6 +12,24 @@ using namespace game;
 #include <common/data/bkv/gm_bkv.hpp>
 #include <common/data/bkv/gm_sbkv.hpp>
 void test() {
+    try {
+        uint64_t a = FormatString::strToULong("ffffffffffffffff", 16);
+        UTF8Str a1 = FormatString::formatString("%lx", a);
+        Logger::log(LOG_INFO, a1);
+        int32_t b = FormatString::strToInt("-69696969");
+        UTF8Str b1 = FormatString::formatString("%ld", b);
+        Logger::log(LOG_INFO, b1);
+        float c = FormatString::strToFloat("-0.00012345");
+        UTF8Str c1 = FormatString::formatString("%f", c);
+        Logger::log(LOG_INFO, c1);
+        double d = FormatString::strToDouble("-0000.0000000000000000694206942069420694206942069420314159265358972");
+        UTF8Str d1 = FormatString::formatString("%.10f", d);
+        Logger::log(LOG_INFO, d1);
+        bool e = FormatString::strToBool("TRUE");
+        UTF8Str e1 = FormatString::formatString("%B", e);
+        Logger::log(LOG_INFO, e1);
+    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+
     char8_t data[] = u8"{ Test:{ id:-127., str: hi,\"☺☺☺\":-69, '☺☺☺':ok, names:[\"Tyrone\", 'dodo', '錯世☺', Steve] soul:{ personality:crappy-go-fucky, lifespan:'3 gays to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.1f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
     char *buffer = static_cast<char*>(std::malloc(sizeof(data)));
     std::memcpy(buffer, data, sizeof(data));

@@ -12,8 +12,6 @@ namespace game {
             static void init(const char*__restrict__ logFile, const char*__restrict__ crashFile);
 
             // Variables
-            static const UTF8Str EMPTYSTR;
-            
             static UTF8Str TITLE;
             static UTF8Str VERSION;
 

@@ -18,71 +18,39 @@ namespace game {
             // Functions
             static UTF8Str formatString(const char *__restrict__ str, ...) noexcept;
             
-            static inline int32_t strToInt(const char *__restrict__ str) { return strToInt(str, std::strlen(str)); }
-            static inline uint32_t strToUInt(const char *__restrict__ str) { return strToUInt(str, std::strlen(str)); }
-            static inline int64_t strToLong(const char *__restrict__ str) { return strToLong(str, std::strlen(str)); }
-            static inline uint64_t strToULong(const char *__restrict__ str) { return strToULong(str, std::strlen(str)); }
-            static inline float strToFloat(const char *__restrict__ str) { return strToFloat(str, std::strlen(str)); }
-            static inline double strToDouble(const char *__restrict__ str) { return strToDouble(str, std::strlen(str)); }
+            static inline int32_t strToInt(const char *__restrict__ str) { return strToInt(str, 10); }
+            static inline uint32_t strToUInt(const char *__restrict__ str) { return strToUInt(str, 10); }
+            static inline int64_t strToLong(const char *__restrict__ str) { return strToLong(str, 10); }
+            static inline uint64_t strToULong(const char *__restrict__ str) { return strToULong(str, 10); }
+            static inline float strToFloat(const char *__restrict__ str) { return strToFloat(str, 10); }
+            static inline double strToDouble(const char *__restrict__ str) { return strToDouble(str, 10); }
             static inline bool strToBool(const char *__restrict__ str) { return strToBool(str, std::strlen(str)); }
 
-            static inline int32_t strToInt(const char *__restrict__ str, const int64_t len) {
-                return strToInt(str, len, 10);
+            static inline int32_t strToInt(const char *__restrict__ str, const uint8_t base) {
+                return strToInt(str, base, std::strlen(str));
             }
-            static inline uint32_t strToUInt(const char *__restrict__ str, const int64_t len) {
-                return strToUInt(str, len, 10);
+            static inline uint32_t strToUInt(const char *__restrict__ str, const uint8_t base) {
+                return strToUInt(str, base, std::strlen(str));
             }
-            static inline int64_t strToLong(const char *__restrict__ str, const int64_t len) {
-                return strToLong(str, len, 10);
+            static inline int64_t strToLong(const char *__restrict__ str, const uint8_t base) {
+                return strToLong(str, base, std::strlen(str));
             }
-            static inline uint64_t strToULong(const char *__restrict__ str, const int64_t len) {
-                return strToULong(str, len, 10);
+            static inline uint64_t strToULong(const char *__restrict__ str, const uint8_t base) {
+                return strToULong(str, base, std::strlen(str));
             }
-            static inline float strToFloat(const char *__restrict__ str, const int64_t len) {
-                return strToFloat(str, len, 10);
+            static inline float strToFloat(const char *__restrict__ str, const uint8_t base) {
+                return strToFloat(str, base, std::strlen(str));
             }
-            static inline double strToDouble(const char *__restrict__ str, const int64_t len) {
-                return strToDouble(str, len, 10);
+            static inline double strToDouble(const char *__restrict__ str, const uint8_t base) {
+                return strToDouble(str, base, std::strlen(str));
             }
 
-            static inline int32_t strToInt(const char *__restrict__ str, const int64_t len, const uint8_t base) {
-                int32_t result;
-                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-
-                // Check for negative values
-                if (str[0] == '-') result = -result;
-
-                return result;
-            }
-            static inline uint32_t strToUInt(const char *__restrict__ str, const int64_t len, const uint8_t base) {
-                uint32_t result;
-                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-                return result;
-            }
-            static inline int64_t strToLong(const char *__restrict__ str, const int64_t len, const uint8_t base) {
-                int64_t result;
-                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-
-                // Check for negative values
-                if (str[0] == '-') result = -result;
-
-                return result;
-            }
-            static inline uint64_t strToULong(const char *__restrict__ str, const int64_t len, const uint8_t base) {
-                uint64_t result;
-                try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-                return result;
-            }
-            static inline float strToFloat(const char *__restrict__ str, const int64_t len, const uint8_t base) {
-                float result;
-                try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-                return result;
-            }
-            static inline double strToDouble(const char *__restrict__ str, const int64_t len, const uint8_t base) {
-                double result;
-                try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-                return result;
-            }
+            static int32_t strToInt(const char *__restrict__ str, const uint8_t base, const int64_t len);
+            static uint32_t strToUInt(const char *__restrict__ str, const uint8_t base, const int64_t len);
+            static int64_t strToLong(const char *__restrict__ str, const uint8_t base, const int64_t len);
+            static uint64_t strToULong(const char *__restrict__ str, const uint8_t base, const int64_t len);
+            static float strToFloat(const char *__restrict__ str, const uint8_t base, const int64_t len);
+            static double strToDouble(const char *__restrict__ str, const uint8_t base, const int64_t len);
             static bool strToBool(const char *__restrict__ str, const int64_t len);
             
             template <typename T>
