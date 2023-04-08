@@ -3,56 +3,24 @@
 #include "../gm_bkv.hpp"
 #include "../gm_bkv_parser.hpp"
 #include "../../gm_endianness.hpp"
-#include "../../../headers/string.hpp"
 
 #include <stdexcept>
 
 namespace game {
-    char BKV_Parser_State_String::getEscapeChar(const char c) {
-        switch (c) {
-            case '\"': return '\"';
-            case '\'': return '\'';
-            case '\\': return '\\';
-            case '0': return '\0';
-            case '1': return '\1';
-            case '2': return '\2';
-            case '3': return '\3';
-            case '4': return '\4';
-            case '5': return '\5';
-            case '6': return '\6';
-            case '7': return '\7';
-            case 'a': return '\a';
-            case 'b': return '\b';
-            case 'f': return '\f';
-            case 'n': return '\n';
-            case 'r': return '\r';
-            case 't': return '\t';
-            case 'v': return '\v';
-            default: return -1;
-        }
-    }
-    
     void BKV_Parser_State_String::continueStr(BKV_Parser& parser, const char c) {
         // Build string
-        if (_strLen >= BKV::BKV_STR_MAX) {
+        if (_str.len() >= BKV::BKV_STR_MAX) {
             UTF8Str msg = FormatString::formatString("Too many characters in SBKV string at index %ld: %ld/%ld characters.",
-                parser._charactersRead, (_strLen + 1), BKV::BKV_STR_MAX);
+                parser._charactersRead, (_str.len() + 1), BKV::BKV_STR_MAX);
             reset();
             throw std::runtime_error(msg.get());
-        }
-
-        try {
-            StringBuffer::checkResize(_str, _strLen + 1, _strLen, _strCapacity);
-        } catch (std::runtime_error &e) {
-            reset();
-            throw;
         }
 
         // Toggle break character after it breaks once
         if (_escapeChar) {
             _escapeChar = false;
 
-            char b = BKV_Parser_State_String::getEscapeChar(c);
+            char b = String::escapeChar(c);
             if (b < 0) {
                 UTF8Str msg = FormatString::formatString("Invalid break character in SBKV string at index %ld: %02x",
                     parser._charactersRead, c
@@ -61,49 +29,56 @@ namespace game {
                 throw std::runtime_error(msg.get());
             }
             
-            _str[_strLen] = c;
-            _strLen++;
+            try { _str.append(b); } catch (std::runtime_error& e) {
+                reset();
+                throw;
+            }
         } else if (c == '\\') {
             _escapeChar = true;
         } else {
-            _str[_strLen] = c;
-            _strLen++;
+            try { _str.append(c); } catch (std::runtime_error& e) {
+                reset();
+                throw;
+            }
         }
     }
 
     void BKV_Parser_State_String::checkForBool(BKV_Parser& parser) {
         // Check if this is a boolean "true" or "false"
-        if (FormatString::strToBool(reinterpret_cast<const char*>(_str), _strLen)) {
+        if (FormatString::strToBool(_str.get(), _str.len())) {
             parser._tag &= ~BKV::BKV_STR;
             parser._tag |= BKV::BKV_BOOL;
+
             try {
-                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + 1, parser._buffer._head, parser._buffer._capacity);
+                StringBuffer::checkResize(parser._buffer._bkv, parser._buffer._head + 1, parser._buffer._head, parser._buffer._capacity);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
 
             // 0x01 for true
-            parser._buffer.bkv_[parser._buffer._head] = 0x01;
+            parser._buffer._bkv[parser._buffer._head] = 0x01;
             parser._buffer._head++;
-        } else if ((_strLen == 5) && (
-            ((_str[0] == 'f') || (_str[0] == 'F')) &&
-            ((_str[1] == 'a') || (_str[1] == 'A')) &&
-            ((_str[2] == 'l') || (_str[2] == 'L')) &&
-            ((_str[3] == 's') || (_str[3] == 'S')) &&
-            ((_str[4] == 'e') || (_str[4] == 'E'))
+        } else if ((_str.len() == 5) && (
+            (_str.cmp('f', 0) || _str.cmp('F', 0)) &&
+            (_str.cmp('a', 1) || _str.cmp('A', 1)) &&
+            (_str.cmp('l', 2) || _str.cmp('L', 2)) &&
+            (_str.cmp('s', 3) || _str.cmp('S', 3)) &&
+            (_str.cmp('e', 4) || _str.cmp('E', 4))
         )) {
             parser._tag &= ~BKV::BKV_STR;
             parser._tag |= BKV::BKV_BOOL;
             try {
-                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + 1, parser._buffer._head, parser._buffer._capacity);
+                StringBuffer::checkResize(parser._buffer._bkv, parser._buffer._head + 1,
+                    parser._buffer._head, parser._buffer._capacity
+                );
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
 
-            // 0x01 for false
-            parser._buffer.bkv_[parser._buffer._head] = 0x00;
+            // 0x00 for false
+            parser._buffer._bkv[parser._buffer._head] = 0x00;
             parser._buffer._head++;
         }
     }
@@ -117,18 +92,22 @@ namespace game {
         if (!(parser._tag & BKV::BKV_BOOL)) {
             // Must be string, copy to buffer
             parser._tag |= BKV::BKV_STR;
-            const uint16_t len = Endianness::hton(static_cast<uint16_t>(_strLen));
+            const uint16_t len = Endianness::hton(static_cast<uint16_t>(_str.len()));
             try {
-                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + BKV::BKV_STR_SIZE + _strLen, parser._buffer._head, parser._buffer._capacity);
+                StringBuffer::checkResize(parser._buffer._bkv,
+                    parser._buffer._head + BKV::BKV_STR_SIZE + static_cast<int64_t>(_str.len()),
+                    parser._buffer._head,
+                    parser._buffer._capacity
+                );
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
             }
 
-            std::memcpy(parser._buffer.bkv_ + parser._buffer._head, &len, BKV::BKV_STR_SIZE);
+            std::memcpy(parser._buffer._bkv + parser._buffer._head, &len, BKV::BKV_STR_SIZE);
             parser._buffer._head += BKV::BKV_STR_SIZE;
-            std::memcpy(parser._buffer.bkv_ + parser._buffer._head, _str, _strLen);
-            parser._buffer._head += _strLen;
+            std::memcpy(parser._buffer._bkv + parser._buffer._head, _str.get(), _str.len());
+            parser._buffer._head += _str.len();
         }
 
         reset();
@@ -138,7 +117,7 @@ namespace game {
     void BKV_Parser_State_String::parse(BKV_Parser& parser, const char c) {
         parser._charactersRead++;
         
-        if (!_strLen && ((c == '\'') || (c == '"'))) {
+        if (!_str.len() && ((c == '\'') || (c == '"'))) {
             _strChar = c;
         } else if (_strChar > 0) { // Any UTF-8 string allowed
             // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
@@ -152,7 +131,7 @@ namespace game {
             if (!_strChar && (std::isalnum(c) || std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-')) {
                 continueStr(parser, c);
             } else if ((c == '}') || (c == ',') || (c == ']')) {
-                if (!_strLen) {
+                if (!_str.len()) {
                     UTF8Str msg = FormatString::formatString("Empty BKV string at index: %ld.");
                     reset();
                     throw std::runtime_error(msg.get());

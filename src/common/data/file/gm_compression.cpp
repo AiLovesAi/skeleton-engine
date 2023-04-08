@@ -92,7 +92,7 @@ namespace game {
                 
                 // Check if data can fit buffer
                 if (capacity < head) {
-                    capacity <<= 1;
+                    capacity = head * 2;
                     data = static_cast<uint8_t*>(std::realloc(data, capacity));
                 }
                 std::memcpy(data + (head - c), outbuf, c);

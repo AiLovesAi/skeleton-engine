@@ -53,8 +53,8 @@ namespace game {
         
         _renderPassInfo.renderPass = _swapChain->renderPass();
         _renderPassInfo.renderArea.extent = _swapChain->extent();
-        _viewport.width = static_cast<float>(_swapChain->width());
-        _viewport.height = static_cast<float>(_swapChain->height());
+        _viewport.width = static_cast<float32_t>(_swapChain->width());
+        _viewport.height = static_cast<float32_t>(_swapChain->height());
         _scissor.extent = _swapChain->extent();
     }
 

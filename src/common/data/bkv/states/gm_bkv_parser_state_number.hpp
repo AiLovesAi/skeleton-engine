@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gm_bkv_parser_state.hpp"
+#include "../../../headers/string.hpp"
 
 namespace game {
     class BKV_Parser;
@@ -13,7 +14,6 @@ namespace game {
             
             // Functions
             void reset() {
-                _bufferLen = 0;
                 _hasDecimal = false;
                 _hasNegative = false;
             }
@@ -22,17 +22,11 @@ namespace game {
         private:
             // Functions
             template <typename T>
-            void appendValue(BKV_Parser& parser, const T value);
-            template <typename T, typename TU>
-            void parseInt(BKV_Parser& parser, const int64_t min, const int64_t max, const uint64_t umax);
-            void parseLong(BKV_Parser& parser);
-            void parseFloat(BKV_Parser& parser);
-            void parseDouble(BKV_Parser& parser);
-            void endNumber(BKV_Parser& parser, const char c);
+            void _appendValue(BKV_Parser& parser, const T value);
+            void _endNumber(BKV_Parser& parser, const char c);
 
             // Variables
-            char _numBuffer[UINT8_MAX];
-            size_t _bufferLen = 0;
+            StringBuffer _numBuffer;
             bool _hasDecimal = false;
             bool _hasNegative = false;
     };

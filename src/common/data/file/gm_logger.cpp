@@ -73,7 +73,7 @@ namespace game {
                 Logger::crash("(SIGFPE) Floating point exception caused by overflow/underflow or division by zero.");
                 break;
             case SIGSEGV:
-                Logger::crash("(SIGSEGV) Attempted to read/write memory whose address was not allocated.");
+                Logger::crash("(SIGSEGV) Attempted to read/write memory whose address was not allocated or accessible.");
                 break;
             case SIGABRT:
                 Logger::crash("(SIGABRT) Abort signal was raised.");

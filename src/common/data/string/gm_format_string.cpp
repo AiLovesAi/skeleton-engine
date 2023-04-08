@@ -3,8 +3,8 @@
 #include "gm_string.hpp"
 #include "gm_string_buffer.hpp"
 #include "../file/gm_logger.hpp"
+#include "../../headers/float.hpp"
 
-#include <cmath>
 #include <cstdarg>
 #include <cstring>
 
@@ -629,7 +629,7 @@ namespace game {
             } return false;
             case 'f':
             case 'F': { // Float
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags);
                 try {
@@ -639,7 +639,7 @@ namespace game {
                 len += valStr.length();
             } return false;
             case 'e': { // Scientific notation
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags | FORMAT_SCIENTIFIC_LOWERCASE);
                 try {
@@ -649,7 +649,7 @@ namespace game {
                 len += valStr.length();
             } return false;
             case 'E': { // Scientific notation uppercase
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags | FORMAT_SCIENTIFIC_UPPERCASE);
                 try {
@@ -659,7 +659,7 @@ namespace game {
                 len += valStr.length();
             } return false;
             case 'g': { // Shortest of %f or %e
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
                 exponent = (exponent < 0) ? -exponent : exponent;
@@ -673,7 +673,7 @@ namespace game {
                 len += valStr.length();
             } return false;
             case 'G': { // Shortest of %F or %E
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 int64_t exponent = static_cast<int64_t>(std::ceil(std::log10(std::fabs(val))));
                 exponent = (exponent < 0) ? -exponent : exponent;
@@ -687,7 +687,7 @@ namespace game {
                 len += valStr.length();
             } return false;
             case 'a': { // Signed hex float
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, flags);
                 try {
@@ -697,7 +697,7 @@ namespace game {
                 len += valStr.length();
             } return false;
             case 'A': { // Signed hex float uppercase
-                double val = va_arg(args, double);
+                float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, flags | FORMAT_UPPERCASE);
                 try {
@@ -824,135 +824,6 @@ namespace game {
         dst[len] = '\0';
         dst = static_cast<char*>(std::realloc(dst, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
-    }
-
-    template <typename T>
-    void FormatString::_strToInt(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result) {
-        T oldResult = 0;
-        result = 0;
-        uint8_t digit;
-        char c;
-        for (int64_t i = 0; i < len; i++) {
-            c = str[i];
-            if (std::isalnum(c)) {
-                if (std::isdigit(c)) {
-                    digit = c - '0';
-                } else if ((c >= 'a') || (c <= 'z')) {
-                    digit = c - 'a' + 10;
-                } else if ((c >= 'A') || (c <= 'Z')) {
-                    digit = c - 'A' + 10;
-                }
-
-                // Not our base
-                if (digit >= base) {
-                    UTF8Str msg = formatString("Unexpected character (%c) in strToInt(): %s", c, str);
-                    throw std::runtime_error(msg.get());
-                }
-
-                oldResult = result;
-                result = (result * base) + digit;
-
-                // Test for overflow
-                if (result < oldResult) {
-                    UTF8Str msg = formatString("Integer overflows strToInt(): %s", str);
-                    throw std::runtime_error(msg.get());
-                }
-            } else if (!((c == '-') || (c == '+')) && (i == 0)) {
-                UTF8Str msg = formatString("Unexpected character (%c) in strToInt(): %s", c, str);
-                throw std::runtime_error(msg.get());
-            }
-        }
-    }
-
-    
-    template <typename T>
-    void FormatString::_strToFloat(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result) {
-        result = static_cast<T>(0);
-        T fraction = result;
-        uint8_t digit;
-        bool hasFraction = false;
-        int16_t exponent = 0;
-        char c;
-        for (int64_t i = 0; i < len; i++) {
-            c = str[i];
-            if (std::isalnum(c)) {
-                if (std::isdigit(c)) {
-                    digit = c - '0';
-                } else if ((c >= 'a') || (c <= 'z')) {
-                    digit = c - 'a' + 10;
-                } else if ((c >= 'A') || (c <= 'Z')) {
-                    digit = c - 'A' + 10;
-                }
-
-                // Not our base
-                if (digit >= base) {
-                    UTF8Str msg = formatString("Unexpected character (%c) in strToFloat(): %s", c, str);
-                    throw std::runtime_error(msg.get());
-                }
-
-                if (hasFraction) {
-                    fraction = (fraction * static_cast<T>(base)) + static_cast<T>(digit);
-                    exponent--;
-                } else {
-                    result = (result * static_cast<T>(base)) + static_cast<T>(digit);
-                }
-            } else if (c == '.') {
-                hasFraction = true;
-            } else if (!((c == '-') || (c == '+')) && (i == 0)) {
-                UTF8Str msg = formatString("Unexpected character (%c) in strToFloat(): %s", c, str);
-                throw std::runtime_error(msg.get());
-            }
-        }
-
-        result += fraction / std::pow(base, -exponent);
-
-        // Test for overflow
-        if (std::isinf(result)) {
-            UTF8Str msg = formatString("Float overflows strToFloat(): %s", str);
-            throw std::runtime_error(msg.get());
-        }
-        
-        // Check for negative values
-        if (str[0] == '-') result = -result;
-    }
-    
-    int32_t FormatString::strToInt(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
-        int32_t result;
-        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-
-        // Check for negative values
-        if (str[0] == '-') result = -result;
-
-        return result;
-    }
-    uint32_t FormatString::strToUInt(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
-        uint32_t result;
-        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-        return result;
-    }
-    int64_t FormatString::strToLong(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
-        int64_t result;
-        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-
-        // Check for negative values
-        if (str[0] == '-') result = -result;
-
-        return result;
-    }
-    uint64_t FormatString::strToULong(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
-        uint64_t result;
-        try { _strToInt(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-        return result;
-    }
-    float FormatString::strToFloat(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
-        float result;
-        try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-        return result;
-    }
-    double FormatString::strToDouble(const char *__restrict__ str,  const uint8_t base, const int64_t len) {
-        double result;
-        try { _strToFloat(str, len, base, result); } catch (std::runtime_error& e) { throw; }
-        return result;
     }
 
     bool FormatString::strToBool(const char*__restrict__ str, const int64_t len) {

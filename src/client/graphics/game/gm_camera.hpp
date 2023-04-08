@@ -2,6 +2,7 @@
 
 #include "../window/gm_window.hpp"
 
+#include <common/headers/float.hpp>
 #include <server/entities/gm_entity.hpp>
 #include <server/world/gm_world.hpp>
 
@@ -19,19 +20,19 @@ namespace game {
                 const Entity entity,
                 World& world,
                 Window& window,
-                float fov,
-                float clipNear,
-                float clipFar
+                float32_t fov,
+                float32_t clipNear,
+                float32_t clipFar
             );
         
             // Functions
-            void update(const double lag);
+            void update(const float128_t lag);
             void updateView();
             void updatePerspective();
 
-            const void setFOV(const float fov) { _fov = fov; updatePerspective(); }
+            const void setFOV(const float32_t fov) { _fov = fov; updatePerspective(); }
 
-            const float fov() const { return _fov; }
+            const float32_t fov() const { return _fov; }
             const glm::mat4 projection() const { return _projectionMatrix; }
             const glm::mat4 view() const { return _viewMatrix; }
             
@@ -45,9 +46,9 @@ namespace game {
 
             Window& _window;
 
-            float _fov;
-            float _clipNear;
-            float _clipFar;
+            float32_t _fov;
+            float32_t _clipNear;
+            float32_t _clipFar;
 
             glm::mat4 _projectionMatrix{1.0f};
             glm::mat4 _viewMatrix{1.0f};

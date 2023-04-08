@@ -2,6 +2,7 @@
 
 #include "gm_utf8.hpp"
 
+#include <cmath>
 #include <cstring>
 #include <memory>
 
@@ -18,39 +19,113 @@ namespace game {
             // Functions
             static UTF8Str formatString(const char *__restrict__ str, ...) noexcept;
             
-            static inline int32_t strToInt(const char *__restrict__ str) { return strToInt(str, 10); }
-            static inline uint32_t strToUInt(const char *__restrict__ str) { return strToUInt(str, 10); }
-            static inline int64_t strToLong(const char *__restrict__ str) { return strToLong(str, 10); }
-            static inline uint64_t strToULong(const char *__restrict__ str) { return strToULong(str, 10); }
-            static inline float strToFloat(const char *__restrict__ str) { return strToFloat(str, 10); }
-            static inline double strToDouble(const char *__restrict__ str) { return strToDouble(str, 10); }
+            template <typename T>
+            static inline T strToInt(const char *__restrict__ str) { return strToInt<T>(str, 10); }
+            template <typename T>
+            static inline T strToFloat(const char *__restrict__ str) { return strToFloat<T>(str, 10); }
             static inline bool strToBool(const char *__restrict__ str) { return strToBool(str, std::strlen(str)); }
 
-            static inline int32_t strToInt(const char *__restrict__ str, const uint8_t base) {
-                return strToInt(str, base, std::strlen(str));
+            template <typename T>
+            static inline T strToInt(const char *__restrict__ str, const uint8_t base) {
+                return strToInt<T>(str, base, std::strlen(str));
             }
-            static inline uint32_t strToUInt(const char *__restrict__ str, const uint8_t base) {
-                return strToUInt(str, base, std::strlen(str));
+            template <typename T>
+            static inline T strToFloat(const char *__restrict__ str, const uint8_t base) {
+                return strToFloat<T>(str, base, std::strlen(str));
             }
-            static inline int64_t strToLong(const char *__restrict__ str, const uint8_t base) {
-                return strToLong(str, base, std::strlen(str));
-            }
-            static inline uint64_t strToULong(const char *__restrict__ str, const uint8_t base) {
-                return strToULong(str, base, std::strlen(str));
-            }
-            static inline float strToFloat(const char *__restrict__ str, const uint8_t base) {
-                return strToFloat(str, base, std::strlen(str));
-            }
-            static inline double strToDouble(const char *__restrict__ str, const uint8_t base) {
-                return strToDouble(str, base, std::strlen(str));
-            }
+            
+            template <typename T>
+            static T strToInt(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+                T result = 0, oldResult = 0;
+                uint8_t digit;
+                char c;
+                for (int64_t i = 0; i < len; i++) {
+                    c = str[i];
+                    if (std::isalnum(c)) {
+                        if (std::isdigit(c)) {
+                            digit = c - '0';
+                        } else if ((c >= 'a') || (c <= 'z')) {
+                            digit = c - 'a' + 10;
+                        } else if ((c >= 'A') || (c <= 'Z')) {
+                            digit = c - 'A' + 10;
+                        }
 
-            static int32_t strToInt(const char *__restrict__ str, const uint8_t base, const int64_t len);
-            static uint32_t strToUInt(const char *__restrict__ str, const uint8_t base, const int64_t len);
-            static int64_t strToLong(const char *__restrict__ str, const uint8_t base, const int64_t len);
-            static uint64_t strToULong(const char *__restrict__ str, const uint8_t base, const int64_t len);
-            static float strToFloat(const char *__restrict__ str, const uint8_t base, const int64_t len);
-            static double strToDouble(const char *__restrict__ str, const uint8_t base, const int64_t len);
+                        // Not our base
+                        if (digit >= base) {
+                            UTF8Str msg = formatString("Unexpected character (%02x) in strToInt(): %s", c, str);
+                            throw std::runtime_error(msg.get());
+                        }
+
+                        oldResult = result;
+                        result = (result * base) + digit;
+
+                        // Test for overflow
+                        if (result < oldResult) {
+                            UTF8Str msg = formatString("Integer overflows strToInt(): %s", str);
+                            throw std::runtime_error(msg.get());
+                        }
+                    } else if (!((c == '-') || (c == '+')) && (i == 0)) {
+                        UTF8Str msg = formatString("Unexpected character (%02x) in strToInt(): %s", c, str);
+                        throw std::runtime_error(msg.get());
+                    }
+                }
+                
+                // Check for negative values
+                if (str[0] == '-') result = -result;
+
+                return result;
+            }
+            template <typename T>
+            static T strToFloat(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+                T result = static_cast<T>(0), fraction = result;
+                uint8_t digit;
+                bool hasFraction = false;
+                int16_t exponent = 0;
+                char c;
+                for (int64_t i = 0; i < len; i++) {
+                    c = str[i];
+                    if (std::isalnum(c)) {
+                        if (std::isdigit(c)) {
+                            digit = c - '0';
+                        } else if ((c >= 'a') || (c <= 'z')) {
+                            digit = c - 'a' + 10;
+                        } else if ((c >= 'A') || (c <= 'Z')) {
+                            digit = c - 'A' + 10;
+                        }
+
+                        // Not our base
+                        if (digit >= base) {
+                            UTF8Str msg = formatString("Unexpected character (%02x) in strToFloat(): %s", c, str);
+                            throw std::runtime_error(msg.get());
+                        }
+
+                        if (hasFraction) {
+                            fraction = (fraction * static_cast<T>(base)) + static_cast<T>(digit);
+                            exponent--;
+                        } else {
+                            result = (result * static_cast<T>(base)) + static_cast<T>(digit);
+                        }
+                    } else if (c == '.') {
+                        hasFraction = true;
+                    } else if (!((c == '-') || (c == '+')) && (i == 0)) {
+                        UTF8Str msg = formatString("Unexpected character (%02x) in strToFloat(): %s", c, str);
+                        throw std::runtime_error(msg.get());
+                    }
+                }
+
+                result += fraction / std::pow(base, -exponent);
+
+                // Test for overflow
+                if (std::isinf(result)) {
+                    UTF8Str msg = formatString("Float overflows strToFloat(): %s", str);
+                    throw std::runtime_error(msg.get());
+                }
+                
+                // Check for negative values
+                if (str[0] == '-') result = -result;
+
+                return result;
+            }
             static bool strToBool(const char *__restrict__ str, const int64_t len);
             
             template <typename T>
@@ -59,7 +134,7 @@ namespace game {
             static inline UTF8Str floatToStr(T val) { return floatToStr(val, 10); }
             static inline UTF8Str boolToStr(const bool boolean) { return boolToStr(boolean, UPPERCASE_FIRST); }
             static UTF8Str boolToStr(const bool boolean, const StringCases caseType) noexcept;
-            static UTF8Str ptrToStr(const void* ptr) { return ptrToStr(ptr, 0); }
+            static inline UTF8Str ptrToStr(const void* ptr) { return ptrToStr(ptr, 0); }
             static UTF8Str ptrToStr(const void* ptr, const int32_t flags) noexcept;
             
             template <typename T>
@@ -116,11 +191,6 @@ namespace game {
             };
 
             // Functions
-            template <typename T>
-            static void _strToInt(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result);
-            template <typename T>
-            static void _strToFloat(const char*__restrict__ str, const int64_t len, const uint8_t base, T& result);
-
             template <typename T>
             static UTF8Str _intToStr(T val, uint8_t base, int64_t minDigits, const int32_t flags) noexcept;
             template <typename T>

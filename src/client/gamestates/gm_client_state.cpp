@@ -15,7 +15,7 @@ namespace game {
         // Listen/send to server
     }
 
-    void ClientState::render(const double lag) {
+    void ClientState::render(const float128_t lag) {
         camera_.update(lag);
 
         auto& renderer = Client::instance().renderer();

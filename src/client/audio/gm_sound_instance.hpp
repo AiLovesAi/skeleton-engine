@@ -2,6 +2,7 @@
 
 #include "gm_sound.hpp"
 
+#include <common/headers/float.hpp>
 #include <server/entities/gm_entity.hpp>
 
 #include <unordered_map>
@@ -16,17 +17,17 @@ namespace game {
             // Functions
             Sound* sound() const { return _sound; }
             Entity entity() const { return _entity; }
-            float pitch() const { return _pitch; }
-            float volume() const { return _volume; }
-            float position() const { return _position; }
+            float32_t pitch() const { return _pitch; }
+            float32_t volume() const { return _volume; }
+            float32_t position() const { return _position; }
 
         private:
             // Variables
             Sound* _sound = nullptr;
             Entity _entity;
 
-            float _pitch = 1.f;
-            float _volume = 1.f;
+            float32_t _pitch = 1.f;
+            float32_t _volume = 1.f;
             size_t _position = 0; // Position in sound data
     };
     

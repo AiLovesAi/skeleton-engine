@@ -35,7 +35,7 @@ namespace game {
             int64_t size() { return _buffer._head; }
             std::shared_ptr<const uint8_t> data() {
                 uint8_t* buffer = static_cast<uint8_t*>(std::malloc(_buffer._head));
-                std::memcpy(buffer, _buffer.bkv_, _buffer._head);
+                std::memcpy(buffer, _buffer._bkv, _buffer._head);
                 std::shared_ptr<const uint8_t> data(buffer, std::free);
                 return data;
             }

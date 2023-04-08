@@ -1,6 +1,8 @@
 #pragma once
 
 #include "gm_render_component.hpp"
+
+#include <common/headers/float.hpp>
 #include <server/entities/gm_entity.hpp>
 
 namespace game {
@@ -10,7 +12,7 @@ namespace game {
             ClientComponents(EntityPool entityPool) : _entityPool{entityPool} {}
         
             // Functions
-            void render(const double lag);
+            void render(const float128_t lag);
             
             RenderPool& ai() { return render_; }
             

@@ -18,7 +18,7 @@ namespace game {
         client.setGameState(new HostState("world"));
     }
 
-    void MenuState::render(const double lag) {
+    void MenuState::render(const float128_t lag) {
         auto& renderer = Client::instance().renderer();
         auto commandBuffer = renderer.beginFrame();
         renderer.beginSwapChainRenderPass(commandBuffer);

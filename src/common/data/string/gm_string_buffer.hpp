@@ -7,13 +7,14 @@
 
 namespace game {
     class StringBuffer {
+        #define STRBUFSIZ 64
         public:
             // Constructors
-            StringBuffer() : _capacity{BUFSIZ} {
-                _buffer = static_cast<char*>(std::malloc(BUFSIZ));
+            StringBuffer() : _capacity{STRBUFSIZ} {
+                _buffer = static_cast<char*>(std::malloc(STRBUFSIZ));
             }
             StringBuffer(const size_t capacity) : _capacity{capacity} {
-                _buffer = static_cast<char*>(std::malloc(BUFSIZ));
+                _buffer = static_cast<char*>(std::malloc(STRBUFSIZ));
             }
             StringBuffer(const char*__restrict__ str, const size_t len) : _len{len}, _capacity{len + 1} {
                 _buffer = static_cast<char*>(std::malloc(_capacity));
@@ -29,8 +30,12 @@ namespace game {
             }
 
             // Functions
+            char* get();
+            inline size_t len () { return _len; }
             inline void clear() { _len = 0; }
             UTF8Str str();
+
+            bool cmp(const char c, const size_t index) { return _buffer[index] == c; }
             
             inline void set(const char*__restrict__ str) { set(str, std::strlen(str)); }
             inline void set(const char*__restrict__ str, const size_t len) {
@@ -42,6 +47,8 @@ namespace game {
             size_t append(const char*__restrict__ str, const size_t len);
             size_t append(const UTF8Str& str);
             size_t append(const char c);
+
+            size_t setIndex(const char c, const size_t index);
 
             /// @brief Checks if @p size fits in @p ptr, given its @p capacity.
             /// If there is not room in @p ptr, it is reallocated with double the capacity.

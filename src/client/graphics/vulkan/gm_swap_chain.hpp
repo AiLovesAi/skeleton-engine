@@ -3,6 +3,8 @@
 #include "gm_graphics_device.hpp"
 #include "gm_graphics_instance.hpp"
 
+#include <common/headers/float.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,8 +32,8 @@ namespace game {
             uint32_t width() { return _extent.width; }
             uint32_t height() { return _extent.height; }
 
-            float extentAspectRatio() {
-                return static_cast<float>(_extent.width) / static_cast<float>(_extent.height);
+            float32_t extentAspectRatio() {
+                return static_cast<float32_t>(_extent.width) / static_cast<float32_t>(_extent.height);
             }
             VkFormat findDepthFormat() {
                 return _graphicsDevice.findSupportedFormat(

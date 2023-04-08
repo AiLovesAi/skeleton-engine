@@ -16,8 +16,8 @@ namespace game {
     template <> const char SBKV::BKVSuffixMap<int32_t>::suffix[] = "";
     template <> const char SBKV::BKVSuffixMap<uint64_t>::suffix[] = "UL";
     template <> const char SBKV::BKVSuffixMap<int64_t>::suffix[] = "L";
-    template <> const char SBKV::BKVSuffixMap<float>::suffix[] = "F";
-    template <> const char SBKV::BKVSuffixMap<double>::suffix[] = "";
+    template <> const char SBKV::BKVSuffixMap<float32_t>::suffix[] = "F";
+    template <> const char SBKV::BKVSuffixMap<float128_t>::suffix[] = "";
 
     template <typename T>
     inline void setSBKVCopyValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, const std::string& val) {
@@ -143,14 +143,14 @@ namespace game {
 
     inline void setSBKVValueDouble(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-        double v;
-        std::memcpy(&v, data + i + keyLen + 1, sizeof(double));
-        v = Endianness::ntohd(v);
+        float128_t v;
+        std::memcpy(&v, data + i + keyLen + 1, sizeof(float128_t));
+        v = Endianness::ntohf(v);
 
         const std::string val = std::to_string(v);
         try {
             StringBuffer::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<double>::suffix)),
+                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float128_t>::suffix)),
                 head, capacity
             );
         } catch (std::runtime_error& e) { throw; }
@@ -158,11 +158,11 @@ namespace game {
         // Key
         i += BKV::BKV_KEY_SIZE;
         setStr(data, sbkv, i, head, capacity, keyLen);
-        i += sizeof(double);
+        i += sizeof(float128_t);
         sbkv[head++] = ':';
 
         // Value
-        setSBKVCopyValue<double>(data, sbkv, i, head, val);
+        setSBKVCopyValue<float128_t>(data, sbkv, i, head, val);
         i--;
     }
 
@@ -183,21 +183,21 @@ namespace game {
         size = Endianness::ntoh(size);
 
         // Values
-        double v;
+        float128_t v;
         std::string val;
         for (uint16_t index = 0; index < size; index++) {
-            std::memcpy(&v, data + i, sizeof(double));
-            i += sizeof(double);
-            v = Endianness::ntohd(v);
+            std::memcpy(&v, data + i, sizeof(float128_t));
+            i += sizeof(float128_t);
+            v = Endianness::ntohf(v);
             val = std::to_string(v);
 
             try {
                 StringBuffer::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<double>::suffix) + 1),
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float128_t>::suffix) + 1),
                     head, capacity
                 );
             } catch (std::runtime_error& e) { throw; }
-            setSBKVCopyValue<double>(data, sbkv, i, head, val);
+            setSBKVCopyValue<float128_t>(data, sbkv, i, head, val);
         }
         sbkv[head - 1] = ']'; // Replace last comma with close bracket
         sbkv[head++] = ',';
@@ -205,14 +205,14 @@ namespace game {
 
     inline void setSBKVValueFloat(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, int64_t& capacity) {
         const uint8_t keyLen = data[++i];
-        float v;
-        std::memcpy(&v, data + i + keyLen + 1, sizeof(float));
+        float32_t v;
+        std::memcpy(&v, data + i + keyLen + 1, sizeof(float32_t));
         v = Endianness::ntohf(v);
 
         const std::string val = std::to_string(v);
         try {
             StringBuffer::checkResize(sbkv,
-                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float>::suffix)),
+                static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float32_t>::suffix)),
                 head, capacity
             );
         } catch (std::runtime_error& e) { throw; }
@@ -220,11 +220,11 @@ namespace game {
         // Key
         i += BKV::BKV_KEY_SIZE;
         setStr(data, sbkv, i, head, capacity, keyLen);
-        i += sizeof(float);
+        i += sizeof(float32_t);
         sbkv[head++] = ':';
 
         // Value
-        setSBKVCopyValue<float>(data, sbkv, i, head, val);
+        setSBKVCopyValue<float32_t>(data, sbkv, i, head, val);
         i--;
     }
 
@@ -245,21 +245,21 @@ namespace game {
         size = Endianness::ntoh(size);
 
         // Values
-        float v;
+        float32_t v;
         std::string val;
         for (uint16_t index = 0; index < size; index++) {
-            std::memcpy(&v, data + i, sizeof(float));
-            i += sizeof(float);
+            std::memcpy(&v, data + i, sizeof(float32_t));
+            i += sizeof(float32_t);
             v = Endianness::ntohf(v);
             val = std::to_string(v);
 
             try {
                 StringBuffer::checkResize(sbkv,
-                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float>::suffix) + 1),
+                    static_cast<int64_t>(head + val.length() + sizeof(SBKV::BKVSuffixMap<float32_t>::suffix) + 1),
                     head, capacity
                 );
             } catch (std::runtime_error& e) { throw; }
-            setSBKVCopyValue<float>(data, sbkv, i, head, val);
+            setSBKVCopyValue<float32_t>(data, sbkv, i, head, val);
         }
         sbkv[head - 1] = ']'; // Replace last comma with close bracket
         sbkv[head++] = ',';

@@ -7,15 +7,15 @@ namespace game {
         const Entity entity,
         World& world,
         Window& window,
-        float fov,
-        float clipNear,
-        float clipFar
+        float32_t fov,
+        float32_t clipNear,
+        float32_t clipFar
     ) : _entity{entity}, _world{world}, _window{window}, _fov{fov}, _clipNear{clipNear}, _clipFar{clipFar} {
         _world.serverComponents().transform().create(entity);
         updatePerspective();
     }
 
-    void Camera::update(const double lag) {
+    void Camera::update(const float128_t lag) {
         if (_window.wasResized()) updatePerspective();
         if (_world.serverComponents().transform().get(_entity).dirty()) updateView();
     }

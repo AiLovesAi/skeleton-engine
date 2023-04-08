@@ -11,19 +11,19 @@ namespace game {
         
     }
 
-    void BKV_Builder::setFloat(BKV_t& bkv, const UTF8Str& key, const float value) {
+    void BKV_Builder::setFloat(BKV_t& bkv, const UTF8Str& key, const float32_t value) {
 
     }
 
-    void BKV_Builder::setFloatList(BKV_t& bkv, const UTF8Str& key, const float* value) {
+    void BKV_Builder::setFloatList(BKV_t& bkv, const UTF8Str& key, const float32_t* value) {
 
     }
 
-    void BKV_Builder::setDouble(BKV_t& bkv, const UTF8Str& key, const double value) {
+    void BKV_Builder::setDouble(BKV_t& bkv, const UTF8Str& key, const float128_t value) {
 
     }
 
-    void BKV_Builder::setDoubleList(BKV_t& bkv, const UTF8Str& key, const double* value) {
+    void BKV_Builder::setDoubleList(BKV_t& bkv, const UTF8Str& key, const float128_t* value) {
 
     }
 

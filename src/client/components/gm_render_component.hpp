@@ -1,5 +1,6 @@
 #pragma once
 
+#include <common/headers/float.hpp>
 #include <server/components/gm_physics_component.hpp>
 #include <server/entities/gm_entity.hpp>
 
@@ -14,7 +15,7 @@ namespace game {
             RenderComponent(const Entity entity);
 
             // Functions
-            void render(const double lag, const WorldTransform& parentTransform, bool dirty);
+            void render(const float128_t lag, const WorldTransform& parentTransform, bool dirty);
 
             Entity entity() const { return _entity; }
         
@@ -35,7 +36,7 @@ namespace game {
             RenderComponent& get(const Entity entity) { return _pool[_indexMap[entity]]; }
             size_t size() const { return _size; };
 
-            void render(const double lag);
+            void render(const float128_t lag);
 
         private:
             // Variables

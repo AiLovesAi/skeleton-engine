@@ -65,12 +65,12 @@ namespace game {
 
         // Main game loop
         auto previousTime = std::chrono::high_resolution_clock::now();
-        double lag = 0.0f;
+        float128_t lag = 0.0f;
         while (Core::running && !_window.shouldClose()) {
             glfwPollEvents();
 
             auto currentTime = std::chrono::high_resolution_clock::now();
-            double elapsedTime = std::chrono::duration<double, std::chrono::milliseconds::period>(currentTime - previousTime).count();
+            float128_t elapsedTime = std::chrono::duration<float128_t, std::chrono::milliseconds::period>(currentTime - previousTime).count();
             previousTime = currentTime;
             lag += elapsedTime;
 

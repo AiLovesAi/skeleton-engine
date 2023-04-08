@@ -16,12 +16,12 @@ namespace game {
         
         // Increase compound depth and return to name state for next input
         try {
-            StringBuffer::checkResize(_buffer.bkv_, _buffer._head + BKV::BKV_COMPOUND_SIZE + 1, _buffer._head, _buffer._capacity);
+            StringBuffer::checkResize(_buffer._bkv, _buffer._head + BKV::BKV_COMPOUND_SIZE + 1, _buffer._head, _buffer._capacity);
         } catch (std::runtime_error &e) { throw; }
-        _buffer.bkv_[_buffer._tagHead] = BKV::BKV_COMPOUND;
+        _buffer._bkv[_buffer._tagHead] = BKV::BKV_COMPOUND;
         if (_buffer._tagHead == _buffer._head) { // This will be true for the opening compound
             _buffer._head++;
-            _buffer.bkv_[_buffer._head] = '\0'; // 0 for name length
+            _buffer._bkv[_buffer._head] = '\0'; // 0 for name length
             _buffer._head++;
         }
         _depth.push(_buffer._head);
@@ -39,9 +39,9 @@ namespace game {
 
     void BKV_Parser::closeCompound() {
         try {
-            StringBuffer::checkResize(_buffer.bkv_, _buffer._head + 1, _buffer._head, _buffer._capacity);
+            StringBuffer::checkResize(_buffer._bkv, _buffer._head + 1, _buffer._head, _buffer._capacity);
         } catch (std::runtime_error &e) { throw; }
-        _buffer.bkv_[_buffer._head] = BKV::BKV_END;
+        _buffer._bkv[_buffer._head] = BKV::BKV_END;
         _buffer._head++;
 
         int64_t size = _buffer._head - _depth.top() + sizeof(uint32_t);
@@ -52,7 +52,7 @@ namespace game {
             throw std::runtime_error(msg.get());
         }
         uint32_t len = Endianness::hton(static_cast<uint32_t>(size));
-        std::memcpy(_buffer.bkv_ + _depth.top(), &len, BKV::BKV_COMPOUND_SIZE);
+        std::memcpy(_buffer._bkv + _depth.top(), &len, BKV::BKV_COMPOUND_SIZE);
         _depth.pop();
         _buffer._valHead = _buffer._head;
         _buffer._tagHead = _buffer._head;
@@ -64,7 +64,7 @@ namespace game {
             
             // Reallocate to use only as much memory as necessary
             _buffer._capacity = _buffer._head;
-            _buffer.bkv_ = static_cast<uint8_t*>(std::realloc(_buffer.bkv_, _buffer._capacity));
+            _buffer._bkv = static_cast<uint8_t*>(std::realloc(_buffer._bkv, _buffer._capacity));
         }
     }
 
@@ -95,7 +95,7 @@ namespace game {
                 throw std::runtime_error(msg.get());
             }
             
-            _buffer.bkv_[_buffer._tagHead] = _tag;
+            _buffer._bkv[_buffer._tagHead] = _tag;
             if (c == '}') {
                 try { closeCompound(); } catch (std::runtime_error &e) { throw; }
             }

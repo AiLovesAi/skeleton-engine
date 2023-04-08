@@ -4,6 +4,8 @@
 #include "../gm_client.hpp"
 #include "../graphics/vulkan/gm_renderer.hpp"
 
+#include <common/headers/float.hpp>
+
 namespace game {
     class MenuState : public GameState {
         public:
@@ -13,7 +15,7 @@ namespace game {
             
             // Functions
             virtual void update() override;
-            virtual void render(const double lag) override;
+            virtual void render(const float128_t lag) override;
 
         private:
             // Variables

@@ -39,5 +39,8 @@ namespace game {
             static bool isAscii(const char*__restrict__ str, const int64_t len) noexcept;
             static inline UTF8Str asAscii(const char*__restrict__ str) { return asAscii(str, std::strlen(str)); }
             static UTF8Str asAscii(const char*__restrict__ str, const int64_t len) noexcept;
+
+            // Translates escape character into its ASCII counterpart
+            static char escapeChar(const char c) noexcept;
     };
 }

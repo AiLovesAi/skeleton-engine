@@ -1,6 +1,7 @@
 #include "gm_server_instance.hpp"
 
 #include <common/gm_core.hpp>
+#include <common/headers/float.hpp>
 #include <common/data/file/gm_logger.hpp>
 #include <common/system/gm_threads.hpp>
 
@@ -26,10 +27,10 @@ namespace game {
 
         // Main game loop
         auto previousTime = std::chrono::high_resolution_clock::now();
-        double lag = 0.0f;
+        float128_t lag = 0.0f;
         while (Core::running) {
             auto currentTime = std::chrono::high_resolution_clock::now();
-            double elapsedTime = std::chrono::duration<double, std::chrono::milliseconds::period>(currentTime - previousTime).count();
+            float128_t elapsedTime = std::chrono::duration<float128_t, std::chrono::milliseconds::period>(currentTime - previousTime).count();
             previousTime = currentTime;
             lag += elapsedTime;
 

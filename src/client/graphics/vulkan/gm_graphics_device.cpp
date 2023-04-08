@@ -1,5 +1,6 @@
 #include "gm_graphics_device.hpp"
 
+#include <common/headers/float.hpp>
 #include <common/system/gm_system.hpp>
 #include <common/data/file/gm_logger.hpp>
 
@@ -184,7 +185,7 @@ namespace game {
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
 
-        float queuePriority = 1.0f;
+        float32_t queuePriority = 1.0f;
         for (uint32_t queueFamily : uniqueQueueFamilies) {
             VkDeviceQueueCreateInfo queueCreateInfo = {};
             queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;

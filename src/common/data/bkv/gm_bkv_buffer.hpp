@@ -2,6 +2,8 @@
 
 #include "gm_bkv.hpp"
 
+#include "../../headers/string.hpp"
+
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -11,16 +13,16 @@ namespace game {
         public:
             // Constructors
             BKV_Buffer() {
-                _capacity = BUFSIZ;
-                bkv_ = static_cast<uint8_t*>(std::malloc(_capacity));
-                bkv_[0] = BKV::BKV_COMPOUND;
+                _capacity = STRBUFSIZ;
+                _bkv = static_cast<uint8_t*>(std::malloc(_capacity));
+                _bkv[0] = BKV::BKV_COMPOUND;
             }
             BKV_Buffer(const int64_t capacity) : _capacity{capacity} {
-                bkv_ = static_cast<uint8_t*>(std::malloc(capacity));
-                bkv_[0] = BKV::BKV_COMPOUND;
+                _bkv = static_cast<uint8_t*>(std::malloc(capacity));
+                _bkv[0] = BKV::BKV_COMPOUND;
             }
             
-            ~BKV_Buffer() { std::free(bkv_); }
+            ~BKV_Buffer() { std::free(_bkv); }
 
             // Functions
             void reset() {
@@ -41,7 +43,7 @@ namespace game {
             friend class BKV_Parser_State_Complete;
 
             // Variables
-            uint8_t* bkv_;
+            uint8_t* _bkv;
             int64_t _capacity = 0; // Capacity of BKV
             int64_t _head     = 0; // Current index of BKV
             int64_t _tagHead  = 0; // Starts at current tagID and flushes with head when the key/value pair is completed

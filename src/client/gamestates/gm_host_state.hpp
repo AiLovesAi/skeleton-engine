@@ -6,6 +6,7 @@
 #include "../graphics/vulkan/gm_renderer.hpp"
 #include "../graphics/game/gm_camera.hpp"
 
+#include <common/headers/float.hpp>
 #include <server/gm_server.hpp>
 
 #include <string>
@@ -20,7 +21,7 @@ namespace game {
 
             // Functions
             virtual void update() override;
-            virtual void render(const double lag) override;
+            virtual void render(const float128_t lag) override;
 
         private:
             // Variables
@@ -32,7 +33,7 @@ namespace game {
                 _server.world(),
                 Client::instance().window(),
                 45.f,
-                std::numeric_limits<float>::min(),
+                std::numeric_limits<float32_t>::min(),
                 100.0f
             };
     };

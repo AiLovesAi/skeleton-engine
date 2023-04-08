@@ -2,6 +2,8 @@
 
 #include "gm_type_aliaser.hpp"
 
+#include <common/headers/float.hpp>
+
 #include <cstdint>
 #include <bit>
 
@@ -12,6 +14,10 @@ namespace game {
             template <typename T>
             static inline T swapBytes(const T data) {
                 return ByteSwapper<T, sizeof(T)>().swap(data);
+            }
+            template <typename T>
+            static inline T swapBytesFloat(const T data) {
+                return ByteSwapperFloat<T, sizeof(T)>().swap(data);
             }
 
             template <typename T>
@@ -40,19 +46,6 @@ namespace game {
                 return htonf(data);
             }
             
-            template <typename T>
-            static inline T htond(const T data) {
-                if constexpr (std::endian::native == std::endian::big) {
-                    return data;
-                } else {
-                    return swapBytesDouble(data);
-                }
-            }
-            template <typename T>
-            static inline T ntohd(const T data) {
-                return htond(data);
-            }
-            
         private:
             // Functions
             static inline uint8_t swapBytes1(const uint8_t data) {
@@ -77,21 +70,30 @@ namespace game {
                     ((data << 40) & 0x00ff000000000000) |
                     ((data << 56) & 0xff00000000000000);
             }
-            static double swapBytesFloat(const float data) {
-                float res;
+            static float32_t swapBytesFloat32(const float32_t data) {
+                float32_t res;
                 const char *src = (const char *) &data;
                 char *dst = (char *) &res;
-                for (uint8_t i = 0; i < sizeof(float); i++) {
-                    dst[i] = src[sizeof(float) - i - 1];
+                for (uint8_t i = 0; i < sizeof(float32_t); i++) {
+                    dst[i] = src[sizeof(float32_t) - i - 1];
                 }
                 return res;
             }
-            static double swapBytesDouble(const double data) {
-                double res;
+            static float64_t swapBytesFloat64(const float64_t data) {
+                float64_t res;
                 const char *src = (const char *) &data;
                 char *dst = (char *) &res;
-                for (uint8_t i = 0; i < sizeof(double); i++) {
-                    dst[i] = src[sizeof(double) - i - 1];
+                for (uint8_t i = 0; i < sizeof(float64_t); i++) {
+                    dst[i] = src[sizeof(float64_t) - i - 1];
+                }
+                return res;
+            }
+            static float128_t swapBytesFloat128(const float128_t data) {
+                float128_t res;
+                const char *src = (const char *) &data;
+                char *dst = (char *) &res;
+                for (uint8_t i = 0; i < sizeof(float128_t); i++) {
+                    dst[i] = src[sizeof(float128_t) - i - 1];
                 }
                 return res;
             }
@@ -127,6 +129,22 @@ namespace game {
                         uint64_t result = swapBytes8(TypeAliaser<T, uint64_t>(data).get());
                         return TypeAliaser<uint64_t, T>(result).get();
                     }
+            };
+
+            template <typename T, size_t tSize> class ByteSwapperFloat;
+            template <typename T> class ByteSwapperFloat<T,4> {
+                public:
+                    T swap(const T data) const { return swapBytesFloat32(data); }
+            };
+            
+            template <typename T> class ByteSwapperFloat<T,8> {
+                public:
+                    T swap(const T data) const { return swapBytesFloat64(data); }
+            };
+            
+            template <typename T> class ByteSwapperFloat<T,16> {
+                public:
+                    T swap(const T data) const { return swapBytesFloat128(data); }
             };
     };
 }

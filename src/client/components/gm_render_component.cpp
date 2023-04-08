@@ -8,7 +8,7 @@ namespace game {
 
     }
 
-    void RenderComponent::render(const double lag, const WorldTransform& parentTransform, bool dirty) {
+    void RenderComponent::render(const float128_t lag, const WorldTransform& parentTransform, bool dirty) {
 
     }
 
@@ -28,7 +28,7 @@ namespace game {
         _entityPool.destroy(entity); // Kill the entity
     }
 
-    void RenderPool::render(const double lag) {
+    void RenderPool::render(const float128_t lag) {
         for (size_t i = 0; i < _pool.size(); i++) {
             // if (_pool[i].parent == nullptr)
             _pool[i].render(lag, PhysicsComponent::origin, false);

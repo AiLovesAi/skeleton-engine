@@ -13,7 +13,7 @@ namespace game {
             _arrayStart = parser._buffer._head;
             _arrayTagHead = parser._buffer._tagHead;
             try {
-                StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + BKV::BKV_ARRAY_SIZE, parser._buffer._head, parser._buffer._capacity);
+                StringBuffer::checkResize(parser._buffer._bkv, parser._buffer._head + BKV::BKV_ARRAY_SIZE, parser._buffer._head, parser._buffer._capacity);
             } catch (std::runtime_error &e) {
                 reset();
                 throw;
@@ -43,9 +43,9 @@ namespace game {
                 parser._stateTree.pop(); // Back to specific tag state
             } else if (c == ']') {
                 // End array
-                parser._buffer.bkv_[_arrayTagHead] = parser._tag;
+                parser._buffer._bkv[_arrayTagHead] = parser._tag;
                 uint32_t val = Endianness::hton(static_cast<uint16_t>(_size));
-                std::memcpy(parser._buffer.bkv_ + _arrayStart, &val, BKV::BKV_ARRAY_SIZE);
+                std::memcpy(parser._buffer._bkv + _arrayStart, &val, BKV::BKV_ARRAY_SIZE);
                 
                 reset();
                 parser._buffer._valHead = parser._buffer._head;

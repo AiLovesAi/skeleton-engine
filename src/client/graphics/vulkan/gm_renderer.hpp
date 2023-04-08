@@ -5,6 +5,8 @@
 #include "gm_swap_chain.hpp"
 #include "../window/gm_window.hpp"
 
+#include <common/headers/float.hpp>
+
 namespace game {
     class Renderer {
         public:
@@ -17,7 +19,7 @@ namespace game {
             Renderer &operator=(const Renderer &&) = delete;
 
             VkRenderPass renderPass() const { return _swapChain->renderPass(); }
-            float aspectRatio() const { return _swapChain->extentAspectRatio(); }
+            float32_t aspectRatio() const { return _swapChain->extentAspectRatio(); }
             VkCommandBuffer currentCommandBuffer() const { return _commandBuffers[_currentFrameIndex]; }
             int frameIndex() const { return _currentFrameIndex; }
 

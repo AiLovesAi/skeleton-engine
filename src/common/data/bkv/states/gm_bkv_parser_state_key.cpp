@@ -14,13 +14,13 @@ namespace game {
         uint8_t len = static_cast<uint8_t>(_keyLen);
 
         try {
-            StringBuffer::checkResize(parser._buffer.bkv_, parser._buffer._head + 2 + _keyLen,
+            StringBuffer::checkResize(parser._buffer._bkv, parser._buffer._head + 2 + _keyLen,
                 parser._buffer._head, parser._buffer._capacity
             );
         } catch (std::runtime_error &e) { throw; }
-        std::memcpy(parser._buffer.bkv_ + parser._buffer._head + 1, &len, BKV::BKV_KEY_SIZE);
+        std::memcpy(parser._buffer._bkv + parser._buffer._head + 1, &len, BKV::BKV_KEY_SIZE);
         parser._buffer._head += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
-        std::memcpy(parser._buffer.bkv_ + parser._buffer._head, _key, _keyLen);
+        std::memcpy(parser._buffer._bkv + parser._buffer._head, _key, _keyLen);
         parser._buffer._head += _keyLen;
         parser._buffer._valHead = parser._buffer._head;
         parser._stateTree.push(&parser._findTagState);
@@ -42,7 +42,7 @@ namespace game {
         if (_escapeChar) {
             _escapeChar = false;
 
-            char b = BKV_Parser_State_String::getEscapeChar(c);
+            char b = String::escapeChar(c);
             if (b < 0) {
                 UTF8Str msg = FormatString::formatString("Invalid break character in SBKV key at %ld: %02x",
                     parser._charactersRead, c

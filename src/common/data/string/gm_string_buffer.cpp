@@ -11,6 +11,13 @@ namespace game {
         copy[_len] = '\0';
         return UTF8Str{static_cast<int64_t>(_len), std::shared_ptr<const char>(copy, std::free)};
     }
+    char* StringBuffer::get() {
+        try {
+            checkResize(_buffer, _len + 1, _len, _capacity);
+        } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+        _buffer[_len] = '\0';
+        return _buffer;
+    }
 
     size_t StringBuffer::append(const char*__restrict__ str, const size_t len) {
         try {
@@ -34,6 +41,23 @@ namespace game {
             checkResize(_buffer, _len + 1, _len, _capacity);
         } catch (std::runtime_error& e) { Logger::crash(e.what()); }
         _buffer[_len++] = c;
+        return _len;
+    }
+
+    size_t StringBuffer::setIndex(const char c, const size_t index) {
+        if (index < _len) {
+            _buffer[index] = c;
+        } else if (index == _len) {
+            try {
+                checkResize(_buffer, _len + 1, _len, _capacity);
+            } catch (std::runtime_error& e) { Logger::crash(e.what()); }
+            _buffer[_len++] = c;
+        } else {
+            UTF8Str msg = FormatString::formatString(
+                "Index is greater than one more than length in setIndex(): %ld > (%ld + 1)", index, _len
+            );
+            Logger::crash(msg);
+        }
         return _len;
     }
 }

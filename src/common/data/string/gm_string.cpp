@@ -77,4 +77,28 @@ namespace game {
         dst = static_cast<char*>(std::realloc(dst, newLen + 1));
         return UTF8Str{newLen, std::shared_ptr<const char>(dst, std::free)};
     }
+
+    char String::escapeChar(const char c) noexcept {
+        switch (c) {
+            case '\"': return '\"';
+            case '\'': return '\'';
+            case '\\': return '\\';
+            case '0': return '\0';
+            case '1': return '\1';
+            case '2': return '\2';
+            case '3': return '\3';
+            case '4': return '\4';
+            case '5': return '\5';
+            case '6': return '\6';
+            case '7': return '\7';
+            case 'a': return '\a';
+            case 'b': return '\b';
+            case 'f': return '\f';
+            case 'n': return '\n';
+            case 'r': return '\r';
+            case 't': return '\t';
+            case 'v': return '\v';
+            default: return -1;
+        }
+    }
 }

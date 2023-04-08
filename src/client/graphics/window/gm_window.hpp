@@ -1,6 +1,7 @@
 #pragma once
 
 #include <common/headers/string.hpp>
+#include <common/headers/float.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -28,7 +29,7 @@ class Window {
         GLFWwindow* window() const { return _window; }
         bool shouldClose() { return glfwWindowShouldClose(_window); }
         VkExtent2D extent() { return {static_cast<uint32_t>(_width), static_cast<uint32_t>(_height)}; }
-        float aspectRatio() { return static_cast<float>(_width) / static_cast<float>(_height); }
+        float32_t aspectRatio() { return static_cast<float32_t>(_width) / static_cast<float32_t>(_height); }
         bool wasResized() { return _frameBufferResized; }
         bool isFocused() { return _focused; }
         void resetWindowResizedFlag() { _frameBufferResized = false; }
