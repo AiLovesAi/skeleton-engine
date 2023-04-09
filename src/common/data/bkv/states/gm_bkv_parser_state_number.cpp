@@ -91,7 +91,7 @@ namespace game {
                         }
                     } else {
                         if (parser._tag & BKV::BKV_UNSIGNED) {
-                            uint64_t val = FormatString::strToInt<uint64_t>(_numBuffer.get(), 10, _numBuffer.len());
+                            uint64_t val = FormatString::strToUInt<uint64_t>(_numBuffer.get(), 10, _numBuffer.len());
                             // Make sure value doesn't overflow
                             if (val > UINT32_MAX) {
                                 parser._tag |= BKV::BKV_I64;
@@ -135,7 +135,7 @@ namespace game {
                     parser._tag |= BKV::BKV_I8;
                     try {
                         if (parser._tag & BKV::BKV_UNSIGNED) {
-                            uint8_t val = FormatString::strToInt<uint8_t>(_numBuffer.get(), 10, _numBuffer.len());
+                            uint8_t val = FormatString::strToUInt<uint8_t>(_numBuffer.get(), 10, _numBuffer.len());
                             _appendValue(parser, val);
                         } else {
                             int8_t val = FormatString::strToInt<int8_t>(_numBuffer.get(), 10, _numBuffer.len());
@@ -175,7 +175,7 @@ namespace game {
                     parser._tag |= BKV::BKV_I32;
                     try {
                         if (parser._tag & BKV::BKV_UNSIGNED) {
-                            uint32_t val = FormatString::strToInt<uint32_t>(_numBuffer.get(), 10, _numBuffer.len());
+                            uint32_t val = FormatString::strToUInt<uint32_t>(_numBuffer.get(), 10, _numBuffer.len());
                             _appendValue(parser, val);
                         } else {
                             int32_t val = FormatString::strToInt<int32_t>(_numBuffer.get(), 10, _numBuffer.len());
@@ -191,7 +191,7 @@ namespace game {
                     parser._tag |= BKV::BKV_I64;
                     try {
                         if (parser._tag & BKV::BKV_UNSIGNED) {
-                            uint64_t val = FormatString::strToInt<uint64_t>(_numBuffer.get(), 10, _numBuffer.len());
+                            uint64_t val = FormatString::strToUInt<uint64_t>(_numBuffer.get(), 10, _numBuffer.len());
                             _appendValue(parser, val);
                         } else {
                             int64_t val = FormatString::strToInt<int64_t>(_numBuffer.get(), 10, _numBuffer.len());
@@ -207,7 +207,7 @@ namespace game {
                     parser._tag |= BKV::BKV_I16;
                     try {
                         if (parser._tag & BKV::BKV_UNSIGNED) {
-                            uint16_t val = FormatString::strToInt<uint16_t>(_numBuffer.get(), 10, _numBuffer.len());
+                            uint16_t val = FormatString::strToUInt<uint16_t>(_numBuffer.get(), 10, _numBuffer.len());
                             _appendValue(parser, val);
                         } else {
                             int16_t val = FormatString::strToInt<int16_t>(_numBuffer.get(), 10, _numBuffer.len());

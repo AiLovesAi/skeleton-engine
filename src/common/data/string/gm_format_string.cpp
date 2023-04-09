@@ -3,7 +3,6 @@
 #include "gm_string.hpp"
 #include "gm_string_buffer.hpp"
 #include "../file/gm_logger.hpp"
-#include "../../headers/float.hpp"
 
 #include <cstdarg>
 #include <cstring>
@@ -495,7 +494,7 @@ namespace game {
                     int64_t val = va_arg(args, int64_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -503,7 +502,7 @@ namespace game {
                     int32_t val = va_arg(args, int32_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -514,7 +513,7 @@ namespace game {
                     uint64_t val = va_arg(args, uint64_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -522,7 +521,7 @@ namespace game {
                     uint32_t val = va_arg(args, uint32_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -534,7 +533,7 @@ namespace game {
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision),
                         flags | FORMAT_SCIENTIFIC);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -543,7 +542,7 @@ namespace game {
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision),
                         flags | FORMAT_SCIENTIFIC);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -555,7 +554,7 @@ namespace game {
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision),
                         flags | FORMAT_SCIENTIFIC_UPPERCASE);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -564,7 +563,7 @@ namespace game {
                     UTF8Str valStr = FormatString::_intToStr(val, 10, std::max(minDigits, precision),
                         flags | FORMAT_SCIENTIFIC_UPPERCASE);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -575,7 +574,7 @@ namespace game {
                     uint64_t val = va_arg(args, uint64_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 8, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -583,7 +582,7 @@ namespace game {
                     uint32_t val = va_arg(args, uint32_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 8, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -594,7 +593,7 @@ namespace game {
                     uint64_t val = va_arg(args, uint64_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -602,7 +601,7 @@ namespace game {
                     uint32_t val = va_arg(args, uint32_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision), flags);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -613,7 +612,7 @@ namespace game {
                     uint64_t val = va_arg(args, uint64_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision), flags | FORMAT_UPPERCASE);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -621,7 +620,7 @@ namespace game {
                     uint32_t val = va_arg(args, uint32_t);
                     UTF8Str valStr = FormatString::_intToStr(val, 16, std::max(minDigits, precision), flags | FORMAT_UPPERCASE);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -629,21 +628,32 @@ namespace game {
             } return false;
             case 'f':
             case 'F': { // Float
-                float128_t val = va_arg(args, float128_t);
-                if (!(flags & FORMAT_PRECISION)) precision = 6;
-                UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags);
-                try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
-                } catch (std::runtime_error& e) { throw; }
-                std::memcpy(dst + len, valStr.get(), valStr.length());
-                len += valStr.length();
+                if (flags & FORMAT_LONG) {
+                    float128_t val = va_arg(args, float128_t);
+                    if (!(flags & FORMAT_PRECISION)) precision = 6;
+                    UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags);
+                    try {
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.get(), valStr.length());
+                    len += valStr.length();
+                } else {
+                    float64_t val = va_arg(args, float64_t);
+                    if (!(flags & FORMAT_PRECISION)) precision = 6;
+                    UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags);
+                    try {
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
+                    } catch (std::runtime_error& e) { throw; }
+                    std::memcpy(dst + len, valStr.get(), valStr.length());
+                    len += valStr.length();
+                }
             } return false;
             case 'e': { // Scientific notation
                 float128_t val = va_arg(args, float128_t);
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags | FORMAT_SCIENTIFIC_LOWERCASE);
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -653,7 +663,7 @@ namespace game {
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 10, precision, minDigits, flags | FORMAT_SCIENTIFIC_UPPERCASE);
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -667,7 +677,7 @@ namespace game {
                     exponent > static_cast<int64_t>(precision) ? (flags | FORMAT_SCIENTIFIC_LOWERCASE) : flags
                 );
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -681,7 +691,7 @@ namespace game {
                     exponent > static_cast<int64_t>(precision) ? (flags | FORMAT_SCIENTIFIC_UPPERCASE) : flags
                 );
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -691,7 +701,7 @@ namespace game {
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, flags);
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -701,7 +711,7 @@ namespace game {
                 if (!(flags & FORMAT_PRECISION)) precision = 6;
                 UTF8Str valStr = FormatString::_floatToStr(val, 16, precision, minDigits, flags | FORMAT_UPPERCASE);
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -709,7 +719,7 @@ namespace game {
             case 'c': { // Character
                 char c = static_cast<char>(va_arg(args, int));
                 try {
-                    StringBuffer::_checkResize(dst, len + 1, len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + 1, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 dst[len++] = c;
             } return false;
@@ -718,7 +728,7 @@ namespace game {
                 const int64_t strLen = precision ?
                     std::min(std::strlen(str), static_cast<size_t>(precision)) : std::strlen(str);
                 try {
-                    StringBuffer::_checkResize(dst, len + strLen, len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + strLen, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, str, strLen);
                 len += strLen;
@@ -727,7 +737,7 @@ namespace game {
                 const void* ptr = va_arg(args, void*);
                 UTF8Str valStr = FormatString::ptrToStr(ptr, flags);
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -736,7 +746,7 @@ namespace game {
                 const bool boolean = static_cast<bool>(va_arg(args, int));
                 UTF8Str valStr = FormatString::boolToStr(boolean);
                 try {
-                    StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 std::memcpy(dst + len, valStr.get(), valStr.length());
                 len += valStr.length();
@@ -746,14 +756,14 @@ namespace game {
                 if (flags & FORMAT_LONG) {
                     UTF8Str valStr = FormatString::boolToStr(boolean, UPPERCASE_ALL);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
                 } else {
                     UTF8Str valStr = FormatString::boolToStr(boolean, UPPERCASE_FIRST);
                     try {
-                        StringBuffer::_checkResize(dst, len + valStr.length(), len, capacity);
+                        StringBuffer::checkResizeNoFormat(dst, len + valStr.length(), len, capacity);
                     } catch (std::runtime_error& e) { throw; }
                     std::memcpy(dst + len, valStr.get(), valStr.length());
                     len += valStr.length();
@@ -767,7 +777,7 @@ namespace game {
             // Characters
             case '%': { // '%'
                 try {
-                    StringBuffer::_checkResize(dst, len + 1, len, capacity);
+                    StringBuffer::checkResizeNoFormat(dst, len + 1, len, capacity);
                 } catch (std::runtime_error& e) { throw; }
                 dst[len++] = '%';
             } return false;
@@ -811,7 +821,7 @@ namespace game {
                     } break;
                     default: { // Copy to dst
                         try {
-                            StringBuffer::_checkResize(dst, len + 1, len, capacity);
+                            StringBuffer::checkResizeNoFormat(dst, len + 1, len, capacity);
                         } catch (std::runtime_error& e) { Logger::crash(e.what()); }
                         dst[len++] = c;
                     } break;
@@ -835,5 +845,186 @@ namespace game {
         ) return true;
         
         return false;
+    }
+
+    template <typename T>
+    T FormatString::_strToInt(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        T result = 0, oldResult = 0;
+        uint8_t digit;
+        char c;
+        for (int64_t i = 0; i < len; i++) {
+            c = str[i];
+            if (std::isalnum(c)) {
+                if (std::isdigit(c)) {
+                    digit = c - '0';
+                } else if ((c >= 'a') || (c <= 'z')) {
+                    digit = c - 'a' + 10;
+                } else if ((c >= 'A') || (c <= 'Z')) {
+                    digit = c - 'A' + 10;
+                }
+
+                // Not our base
+                if (digit >= base) {
+                    UTF8Str msg = formatString("Unexpected character (%02x) in strToInt(): %s", c, str);
+                    throw std::runtime_error(msg.get());
+                }
+
+                oldResult = result;
+                result = (result * base) + digit;
+
+                // Test for overflow
+                if (result < oldResult) {
+                    UTF8Str msg = formatString("Integer overflows strToInt(): %s", str);
+                    throw std::runtime_error(msg.get());
+                }
+            } else if (!((c == '-') || (c == '+')) && (i == 0)) {
+                UTF8Str msg = formatString("Unexpected character (%02x) in strToInt(): %s", c, str);
+                throw std::runtime_error(msg.get());
+            }
+        }
+
+        return result;
+    }
+    
+    template <typename T>
+    T FormatString::_strToFloat(const char*__restrict__ str, const uint8_t base, const int64_t len) {
+        T result = static_cast<T>(0), fraction = result;
+        uint8_t digit;
+        bool hasFraction = false;
+        int16_t exponent = 0;
+        char c;
+        for (int64_t i = 0; i < len; i++) {
+            c = str[i];
+            if (std::isalnum(c)) {
+                if (std::isdigit(c)) {
+                    digit = c - '0';
+                } else if ((c >= 'a') || (c <= 'z')) {
+                    digit = c - 'a' + 10;
+                } else if ((c >= 'A') || (c <= 'Z')) {
+                    digit = c - 'A' + 10;
+                }
+
+                // Not our base
+                if (digit >= base) {
+                    UTF8Str msg = formatString("Unexpected character (%02x) in strToFloat(): %s", c, str);
+                    throw std::runtime_error(msg.get());
+                }
+
+                if (hasFraction) {
+                    fraction = (fraction * static_cast<float32_t>(base)) + static_cast<float32_t>(digit);
+                    exponent--;
+                } else {
+                    result = (result * static_cast<float32_t>(base)) + static_cast<float32_t>(digit);
+                }
+            } else if (c == '.') {
+                hasFraction = true;
+            } else if (!((c == '-') || (c == '+')) && (i == 0)) {
+                UTF8Str msg = formatString("Unexpected character (%02x) in strToFloat(): %s", c, str);
+                throw std::runtime_error(msg.get());
+            }
+        }
+
+        result += fraction / std::pow(base, -exponent);
+
+        // Test for overflow
+        if (std::isinf(result)) {
+            UTF8Str msg = formatString("Float overflows strToFloat(): %s", str);
+            throw std::runtime_error(msg.get());
+        }
+        
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    
+    int8_t FormatString::_strToInt8(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        int8_t result = _strToInt<int8_t>(str, base, len);
+        
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    uint8_t FormatString::_strToIntU8(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToInt<uint8_t>(str, base, len);
+    }
+    int16_t FormatString::_strToInt16(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        int16_t result = _strToInt<int16_t>(str, base, len);
+        
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    uint16_t FormatString::_strToIntU16(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToInt<uint16_t>(str, base, len);
+    }
+    int32_t FormatString::_strToInt32(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        int32_t result = _strToInt<int32_t>(str, base, len);
+
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    uint32_t FormatString::_strToIntU32(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToInt<uint32_t>(str, base, len);
+    }
+    int64_t FormatString::_strToInt64(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        int64_t result = _strToInt<int64_t>(str, base, len);
+
+        // Check for negative values
+        if (str[0] == '-') result = -result;
+
+        return result;
+    }
+    uint64_t FormatString::_strToIntU64(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToInt<uint64_t>(str, base, len);
+    }
+
+    float32_t FormatString::_strToFloat32(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToFloat<float32_t>(str, base, len);
+    }
+    float64_t FormatString::_strToFloat64(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToFloat<float64_t>(str, base, len);
+    }
+    float128_t FormatString::_strToFloat128(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+        return _strToFloat<float128_t>(str, base, len);
+    }
+    
+    UTF8Str FormatString::_intToStr8(int8_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStrU8(uint8_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStr16(int16_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStrU16(uint16_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr<uint16_t>(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStr32(int32_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStrU32(uint32_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr<uint32_t>(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStr64(int64_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_intToStrU64(uint64_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr<uint64_t>(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    
+    UTF8Str FormatString::_floatToStr32(float32_t val, uint8_t base, int64_t precision, int64_t minDigits) {
+        return _floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_floatToStr64(float64_t val, uint8_t base, int64_t precision, int64_t minDigits) {
+        return _floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
+    }
+    UTF8Str FormatString::_floatToStr128(float128_t val, uint8_t base, int64_t precision, int64_t minDigits) {
+        return _floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
     }
 }

@@ -16,6 +16,7 @@ namespace game {
             void reset() {
                 _hasDecimal = false;
                 _hasNegative = false;
+                _numBuffer.clear();
             }
             virtual void parse(BKV_Parser& parser, const char c);
 

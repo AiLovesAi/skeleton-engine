@@ -13,17 +13,17 @@ using namespace game;
 #include <common/data/bkv/gm_sbkv.hpp>
 void test() {
     try {
-        uint64_t a = FormatString::strToInt<uint64_t>("ffffffffffffffff", 16);
+        uint64_t a = FormatString::strToUInt<uint64_t>("ffffffffffffffff", 16);
         UTF8Str a1 = FormatString::formatString("%lx", a);
         Logger::log(LOG_INFO, a1);
         int32_t b = FormatString::strToInt<int32_t>("-69696969");
-        UTF8Str b1 = FormatString::formatString("%ld", b);
+        UTF8Str b1 = FormatString::formatString("%d", b);
         Logger::log(LOG_INFO, b1);
         float32_t c = FormatString::strToFloat<float32_t>("-0.00012345");
         UTF8Str c1 = FormatString::formatString("%f", c);
         Logger::log(LOG_INFO, c1);
         float128_t d = FormatString::strToFloat<float128_t>("-0000.0000000000000000694206942069420694206942069420314159265358972");
-        UTF8Str d1 = FormatString::formatString("%.10f", d);
+        UTF8Str d1 = FormatString::formatString("%.18lf", d);
         Logger::log(LOG_INFO, d1);
         bool e = FormatString::strToBool("TRUE");
         UTF8Str e1 = FormatString::formatString("%B", e);
@@ -35,7 +35,7 @@ void test() {
     std::memcpy(buffer, data, sizeof(data));
     std::stringstream msg;
     msg << "SBKV: " << buffer;
-    Logger::log(LOG_INFO, msg.str());
+    Logger::log(LOG_INFO, msg.str().c_str());
     
     UTF8Str stringified{sizeof(data), std::shared_ptr<const char>(buffer, std::free)};
     try {
@@ -48,7 +48,7 @@ void test() {
         Logger::log(LOG_INFO, "Parsed SBKV.");
         msg.str("");
         msg << sbkv.get();
-        Logger::log(LOG_INFO, msg.str());
+        Logger::log(LOG_INFO, msg.str().c_str());
         Logger::log(LOG_INFO, "Complete.");
         
         bkv = BKV::bkvFromSBKV(stringified);
@@ -60,7 +60,7 @@ void test() {
         Logger::log(LOG_INFO, "Reparsed SBKV.");
         msg.str("");
         msg << sbkv.get();
-        Logger::log(LOG_INFO, msg.str());
+        Logger::log(LOG_INFO, msg.str().c_str());
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
     
 }

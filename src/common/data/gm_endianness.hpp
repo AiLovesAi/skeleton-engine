@@ -70,6 +70,7 @@ namespace game {
                     ((data << 40) & 0x00ff000000000000) |
                     ((data << 56) & 0xff00000000000000);
             }
+            
             static float32_t swapBytesFloat32(const float32_t data) {
                 float32_t res;
                 const char *src = (const char *) &data;
@@ -106,7 +107,6 @@ namespace game {
                         return data;
                     }
             };
-            
             template <typename T> class ByteSwapper<T,2> {
                 public:
                     T swap(const T data) const {
@@ -114,7 +114,6 @@ namespace game {
                         return TypeAliaser<uint16_t, T>(result).get();
                     }
             };
-            
             template <typename T> class ByteSwapper<T,4> {
                 public:
                     T swap(const T data) const {
@@ -122,7 +121,6 @@ namespace game {
                         return TypeAliaser<uint32_t, T>(result).get();
                     }
             };
-            
             template <typename T> class ByteSwapper<T,8> {
                 public:
                     T swap(const T data) const {
@@ -136,12 +134,10 @@ namespace game {
                 public:
                     T swap(const T data) const { return swapBytesFloat32(data); }
             };
-            
             template <typename T> class ByteSwapperFloat<T,8> {
                 public:
                     T swap(const T data) const { return swapBytesFloat64(data); }
             };
-            
             template <typename T> class ByteSwapperFloat<T,16> {
                 public:
                     T swap(const T data) const { return swapBytesFloat128(data); }

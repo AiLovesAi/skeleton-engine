@@ -135,7 +135,7 @@ namespace game {
                 "Operating System: %s\n"
                 "Physical Memory: %lu Bytes\n"
                 "CPU: %s\n"
-                "CPU Threads: %d\n"
+                "CPU Threads: %u\n"
                 "Graphics Device: %s\n"
                 "Crashing Thread: %s\n",
                 

@@ -18,6 +18,7 @@ namespace game {
             void reset() {
                 _strChar = 0;
                 _escapeChar = false;
+                _str.clear();
             }
             virtual void parse(BKV_Parser& parser, const char c);
             
