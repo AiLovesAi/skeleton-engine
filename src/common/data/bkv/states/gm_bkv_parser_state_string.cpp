@@ -57,8 +57,7 @@ namespace game {
             }
 
             // 0x01 for true
-            parser._buffer._bkv[parser._buffer._head] = 0x01;
-            parser._buffer._head++;
+            parser._buffer._bkv[parser._buffer._head++] = 0x01;
         } else if ((_str.len() == 5) && (
             (_str.cmp('f', 0) || _str.cmp('F', 0)) &&
             (_str.cmp('a', 1) || _str.cmp('A', 1)) &&
@@ -78,8 +77,7 @@ namespace game {
             }
 
             // 0x00 for false
-            parser._buffer._bkv[parser._buffer._head] = 0x00;
-            parser._buffer._head++;
+            parser._buffer._bkv[parser._buffer._head++] = 0x00;
         }
     }
 

@@ -10,6 +10,6 @@ namespace game {
             struct BKVSuffixMap { static const char suffix[]; };
             
             // Functions
-            static UTF8Str sbkvFromBKV(const BKV_t& bkv);
+            static UTF8Str sbkvFromBKV(const BKV& bkv);
     };
 }

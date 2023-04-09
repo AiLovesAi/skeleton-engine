@@ -7,20 +7,6 @@
 #include <memory>
 
 namespace game {
-    typedef struct BKV_t_ {
-        private:
-            int64_t _size;
-            std::shared_ptr<const uint8_t> _data;
-
-        public:
-            BKV_t_(int64_t size, std::shared_ptr<const uint8_t> data) :
-                _size{size}, _data{data} {}
-            
-            int64_t size() const { return _size; }
-            std::shared_ptr<const uint8_t> data() const { return _data; }
-            const uint8_t* get() const { return _data.get(); }
-    } BKV_t;
-
     class BKV {
         public:
             // Types
@@ -90,8 +76,42 @@ namespace game {
                 BKV_STR_SIZE = sizeof(uint16_t),
                 BKV_STR_MAX = UINT16_MAX,
             };
+
+            // Constructors
+            BKV(int64_t size, std::shared_ptr<const uint8_t> data) : _size{size}, _data{data} {}
+            ~BKV() {}
+            
+            BKV& operator=(const BKV& bkv) {
+                _size = bkv.size();
+                uint8_t* copy = static_cast<uint8_t*>(std::malloc(_size));
+                std::memcpy(copy, bkv.get(), _size);
+                _data = std::shared_ptr<const uint8_t>(copy, std::free);
+                return *this;
+            }
             
             // Functions
-            static BKV_t bkvFromSBKV(const UTF8Str& stringified);
+            static BKV bkvFromSBKV(const UTF8Str& stringified);
+            
+            int64_t size() const { return _size; }
+            std::shared_ptr<const uint8_t> data() const { return _data; }
+            const uint8_t* get() const { return _data.get(); }
+
+            template <typename T>
+            T getInt(const UTF8Str& location);
+            template <typename T>
+            T getIntArray(const UTF8Str& location);
+            template <typename T>
+            T getFloat(const UTF8Str& location);
+            template <typename T>
+            T getFloatArray(const UTF8Str& location);
+            bool getBool(const UTF8Str& location);
+            bool getBoolArray(const UTF8Str& location);
+            UTF8Str getString(const UTF8Str& location);
+            UTF8Str* getStringArray(const UTF8Str& location);
+
+        private:
+            // Variables
+            int64_t _size;
+            std::shared_ptr<const uint8_t> _data;
     };
 }

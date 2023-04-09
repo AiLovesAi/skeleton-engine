@@ -11,7 +11,9 @@ using namespace game;
 #include <common/data/file/gm_file.hpp>
 #include <common/data/bkv/gm_bkv.hpp>
 #include <common/data/bkv/gm_sbkv.hpp>
+#include <common/data/bkv/gm_bkv_builder.hpp>
 void test() {
+    // FormatString/strToInt test
     try {
         UTF8Str test = FormatString::formatString("%lu", sizeof(float128_t));
         Logger::log(LOG_INFO, test);
@@ -46,6 +48,7 @@ void test() {
         Logger::log(LOG_INFO, k1);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
 
+    // SBKV -> BKV -> SBKV test
     char8_t data[] = u8"{ Test:{ id:-127., str: hi,\"☺☺☺\":-69, '☺☺☺':ok, names:[\"Tyrone\", 'dodo', '錯世☺', Steve] soul:{ personality:crappy-go-fucky, lifespan:'3 gays to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.1f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
     char *buffer = static_cast<char*>(std::malloc(sizeof(data)));
     std::memcpy(buffer, data, sizeof(data));
@@ -55,7 +58,7 @@ void test() {
     
     UTF8Str stringified{sizeof(data), std::shared_ptr<const char>(buffer, std::free)};
     try {
-        BKV_t bkv = BKV::bkvFromSBKV(stringified);
+        BKV bkv = BKV::bkvFromSBKV(stringified);
         Logger::log(LOG_INFO, "Parsed BKV.");
         File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data()};
         File::writeFile("bkv.txt", contents);
@@ -77,8 +80,24 @@ void test() {
         msg.str("");
         msg << sbkv.get();
         Logger::log(LOG_INFO, msg.str().c_str());
+        msg.str("");
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
     
+    // BKV_Builder test
+    try {
+        BKV_Builder builder;
+        builder.openCompound(UTF8Str("Example1"));
+        builder.closeCompound();
+        BKV bkv = builder.build();
+        BKV bkv2 = BKV::bkvFromSBKV(UTF8Str("{Example1:{}}"));
+        File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data()};
+        File::writeFile("built-bkv.txt", contents);
+        File::FileContents contents2{static_cast<size_t>(bkv2.size()), bkv2.data()};
+        File::writeFile("built-bkv-compare.txt", contents2);
+        UTF8Str sbkv = SBKV::sbkvFromBKV(bkv);
+        msg << "Built SBKV: " << sbkv.get();
+        Logger::log(LOG_INFO, msg.str().c_str());
+    } catch (std::runtime_error& e) { Logger::crash(e.what()); }
 }
 
 int main (int argc, char** argv)

@@ -470,7 +470,7 @@ namespace game {
         }
     }
 
-    UTF8Str SBKV::sbkvFromBKV(const BKV_t& bkv) {
+    UTF8Str SBKV::sbkvFromBKV(const BKV& bkv) {
         int64_t capacity = bkv.size(); // Should be at least bkvSize
         char* sbkv = static_cast<char*>(std::malloc(capacity));
 

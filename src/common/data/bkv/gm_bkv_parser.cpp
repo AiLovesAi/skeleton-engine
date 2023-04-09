@@ -43,7 +43,7 @@ namespace game {
         } catch (std::runtime_error &e) { throw; }
         _buffer._bkv[_buffer._head++] = BKV::BKV_END;
 
-        int64_t size = _buffer._head - _depth.top() + sizeof(uint32_t);
+        int64_t size = _buffer._head - _depth.top() - BKV::BKV_COMPOUND_SIZE;
         if ((size <= 0) || (size > BKV::BKV_COMPOUND_MAX)) {
             UTF8Str msg = FormatString::formatString("BKV compound bigger than maximum size at index %d: %ld/%u",
                 _depth.top(), size, BKV::BKV_COMPOUND_MAX

@@ -21,12 +21,12 @@ namespace game {
     template <> const uint8_t BKV::BKVTypeMap<float32_t>::tagID = BKV::BKV_FLOAT;
     template <> const uint8_t BKV::BKVTypeMap<float128_t>::tagID = BKV::BKV_DOUBLE;
 
-    BKV_t BKV::bkvFromSBKV(const UTF8Str& stringified) {
+    BKV BKV::bkvFromSBKV(const UTF8Str& stringified) {
         const char* sbkv = stringified.get();
         BKV_Parser buf;
         for (int64_t i = 0; i < stringified.length(); i++) {
             try { buf.state()->parse(buf, sbkv[i]); } catch (std::runtime_error &e) { throw; }
         }
-        return BKV_t{buf.size(), buf.data()};
+        return BKV(buf.size(), buf.data());
     }
 }

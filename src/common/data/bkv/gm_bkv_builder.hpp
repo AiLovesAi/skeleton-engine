@@ -5,32 +5,46 @@
 
 #include "../../headers/float.hpp"
 
+#include <stack>
+
 namespace game {
     class BKV_Builder {
         public:
+            // Constructors
+            BKV_Builder() {
+                _buffer._bkv[1] = 0;
+                _buffer._head = BKV::BKV_COMPOUND_SIZE + 2;
+            }
+            ~BKV_Builder() {}
+
             // Functions
-            BKV_t build() {
-                uint8_t* buffer = static_cast<uint8_t*>(std::malloc(_buffer._head));
-                std::memcpy(buffer, _buffer._bkv, _buffer._head);
-                std::shared_ptr<const uint8_t> data(buffer, std::free);
-                return BKV_t{_buffer._head, data};
+            [[nodiscard]] BKV build();
+
+            inline void reset() {
+                _depth = std::stack<int32_t>();
+                _buffer.reset();
+                _buffer._head = BKV::BKV_COMPOUND_SIZE + 2;
             }
 
+            void openCompound(const UTF8Str& key);
+            void closeCompound();
+
             template<typename T>
-            void setInt(BKV_t& bkv, const UTF8Str& key, const T  value);
+            void setInt(const UTF8Str& key, const T  value);
             template<typename T>
-            void setIntList(BKV_t& bkv, const UTF8Str& key, const T* value, const uint32_t size);
-            void setFloat(BKV_t& bkv, const UTF8Str& key, const float32_t value);
-            void setFloatList(BKV_t& bkv, const UTF8Str& key, const float32_t* value);
-            void setDouble(BKV_t& bkv, const UTF8Str& key, const float128_t value);
-            void setDoubleList(BKV_t& bkv, const UTF8Str& key, const float128_t* value);
-            void setBool(BKV_t& bkv, const UTF8Str& key, const bool value);
-            void setBoolList(BKV_t& bkv, const UTF8Str& key, const bool* value);
-            void setStr(BKV_t& bkv, const UTF8Str& key, const UTF8Str& value);
-            void setStrList(BKV_t& bkv, const UTF8Str& key, const UTF8Str* value, const uint16_t size);
+            void setIntArray(const UTF8Str& key, const T* value, const uint32_t size);
+            template<typename T>
+            void setFloat(const UTF8Str& key, const T value);
+            template<typename T>
+            void setFloatArray(const UTF8Str& key, const T* value);
+            void setBool(const UTF8Str& key, const bool value);
+            void setBoolArray(const UTF8Str& key, const bool* value);
+            void setStr(const UTF8Str& key, const UTF8Str& value);
+            void setStrArray(const UTF8Str& key, const UTF8Str* value, const uint16_t size);
         
         private:
             // Variables
             BKV_Buffer _buffer;
+            std::stack<int32_t> _depth; // Current compound depth containing the start of the compound that flushes with head when it completes
     };
 }

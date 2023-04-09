@@ -18,7 +18,8 @@ namespace game {
                 parser._buffer._head, parser._buffer._capacity
             );
         } catch (std::runtime_error &e) { throw; }
-        std::memcpy(parser._buffer._bkv + parser._buffer._head + 1, &len, BKV::BKV_KEY_SIZE);
+
+        parser._buffer._bkv[parser._buffer._head + 1] = len;
         parser._buffer._head += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
         std::memcpy(parser._buffer._bkv + parser._buffer._head, _key, _keyLen);
         parser._buffer._head += _keyLen;
@@ -51,13 +52,11 @@ namespace game {
                 throw std::runtime_error(msg.get());
             }
             
-            _key[_keyLen] = b;
-            _keyLen++;
+            _key[_keyLen++] = b;
         } else if (c == '\\') {
             _escapeChar = true;
         } else {
-            _key[_keyLen] = c;
-            _keyLen++;
+            _key[_keyLen++] = c;
         }
     }
 
