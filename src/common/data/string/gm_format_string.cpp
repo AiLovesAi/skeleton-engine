@@ -298,7 +298,7 @@ namespace game {
     template <typename T>
     UTF8Str FormatString::_floatToStr(T val, uint8_t base, int64_t precision, int64_t minDigits, const int32_t flags) noexcept {
         const bool isNeg = val < 0;
-        T absN = isNeg ? -val : val;
+        T absVal = isNeg ? -val : val;
         
         // Input validation
         if (std::isnan(val)) {
@@ -312,10 +312,10 @@ namespace game {
         // Handle scientific notation
         // Use scientific notation for very large or small values that may overflow int64_t
         if ((flags & FORMAT_SCIENTIFIC) ||
-            (absN > INT64_MAX) ||
-            ((absN < 0.0000000000000001) && (absN > 0))
-        ) return _floatToStrScientific(absN, isNeg, base, precision, minDigits, flags);
-        else return _floatToStrDecimal(absN, isNeg, base, precision, minDigits, flags);
+            (absVal > INT64_MAX) ||
+            ((absVal < 1.e-17) && (absVal > 0))
+        ) return _floatToStrScientific(absVal, isNeg, base, precision, minDigits, flags);
+        else return _floatToStrDecimal(absVal, isNeg, base, precision, minDigits, flags);
     }
 
     UTF8Str FormatString::boolToStr(const bool boolean, const StringCases caseType) noexcept {

@@ -38,6 +38,12 @@ void test() {
         Logger::log(LOG_INFO, g1);
         UTF8Str h1 = FormatString::formatString("%.18lf", LDBL_MAX);
         Logger::log(LOG_INFO, h1);
+        UTF8Str i1 = FormatString::formatString("%.18lf", LDBL_MIN);
+        Logger::log(LOG_INFO, i1);
+        UTF8Str j1 = FormatString::formatString("%.18lf", static_cast<float128_t>(INFINITY));
+        Logger::log(LOG_INFO, j1);
+        UTF8Str k1 = FormatString::formatString("%.18lf", static_cast<float128_t>(NAN));
+        Logger::log(LOG_INFO, k1);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
 
     char8_t data[] = u8"{ Test:{ id:-127., str: hi,\"☺☺☺\":-69, '☺☺☺':ok, names:[\"Tyrone\", 'dodo', '錯世☺', Steve] soul:{ personality:crappy-go-fucky, lifespan:'3 gays to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.1f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
