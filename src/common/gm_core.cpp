@@ -13,16 +13,13 @@ namespace game {
     UTF8Str Core::VERSION = EMPTY_STR;
     std::atomic<bool> Core::running = false;
 
-    void Core::init(const char*__restrict__ logFile, const char*__restrict__ crashFile) {
+    void Core::init(const UTF8Str& logFile, const UTF8Str& crashFile) {
         Threads::registerThread(std::this_thread::get_id(), UTF8Str{"Main", sizeof("Main") - 1});
         std::srand(std::time(0));
 
         System::init();
         File::init();
-        Logger::init(
-            UTF8Str{static_cast<int64_t>(std::strlen(logFile)), std::shared_ptr<const char>(logFile, [](const char*){})},
-            UTF8Str{static_cast<int64_t>(std::strlen(crashFile)), std::shared_ptr<const char>(crashFile, [](const char*){})}
-        );
+        Logger::init(logFile, crashFile);
 
         UTF8Str msg = FormatString::formatString(
             "Hardware details:\n"

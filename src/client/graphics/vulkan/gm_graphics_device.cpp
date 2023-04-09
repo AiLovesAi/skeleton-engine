@@ -44,7 +44,7 @@ namespace game {
         }
 
         vkGetPhysicalDeviceProperties(physicalDevice_, &properties);
-        System::setGPU(UTF8Str{static_cast<int64_t>(std::strlen(properties.deviceName)), std::shared_ptr<const char>(properties.deviceName, [](const char*){})});
+        System::setGPU(UTF8Str{properties.deviceName});
         
         UTF8Str deviceNameMsg = FormatString::formatString("Using physical device: %s", properties.deviceName);
         Logger::log(LOG_INFO, deviceNameMsg);

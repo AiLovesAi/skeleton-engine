@@ -27,20 +27,20 @@ namespace game {
             // Functions
             static void init(const UTF8Str& logPath, const UTF8Str& crashPath);
             static void setPaths(const UTF8Str& logPath, const UTF8Str& crashPath);
-            static inline void log(const int logType, const char*__restrict__ message) {
-                log(logType, UTF8Str{static_cast<int64_t>(std::strlen(message)), std::shared_ptr<const char>(message, [](const char*){})});
+            static inline void log(const int logType, const char*__restrict__ const message) {
+                log(logType, UTF8Str{message});
             }
             static void log(const int logType, const UTF8Str& message);
 
-            static inline void logSync(const int logType, const char*__restrict__ message, const std::thread::id& threadId) {
-                logSync(logType, UTF8Str{static_cast<int64_t>(std::strlen(message)), std::shared_ptr<const char>(message, [](const char*){})}, threadId);
+            static inline void logSync(const int logType, const char*__restrict__ const message, const std::thread::id& threadId) {
+                logSync(logType, UTF8Str{message}, threadId);
             }
             static inline void logSync(const int logType, const UTF8Str& message, const std::thread::id& threadId) {
                 logSync_(logType, message, threadId);
             }
             
-            [[noreturn]] static inline void crash(const char*__restrict__ message) {
-                crash(UTF8Str{static_cast<int64_t>(std::strlen(message)), std::shared_ptr<const char>(message, [](const char*){})});
+            [[noreturn]] static inline void crash(const char*__restrict__ const message) {
+                crash(UTF8Str{message});
             }
             [[noreturn]] static void crash(const UTF8Str& message);
 

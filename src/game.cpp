@@ -102,7 +102,7 @@ void test() {
 
 int main (int argc, char** argv)
 {
-    Core::init("../logs/latest.log", "../logs/crash.txt");
+    Core::init(UTF8Str{"../logs/latest.log"}, UTF8Str{"../logs/crash.txt"});
     
     test();
     Client::init();
