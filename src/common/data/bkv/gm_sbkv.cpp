@@ -20,8 +20,8 @@ namespace game {
     template <> const char SBKV::BKVSuffixMap<float128_t>::suffix[] = "";
 
     template <typename T>
-    inline void setSBKVCopyValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, const std::string& val) {
-        std::memcpy(sbkv + head, val.c_str(), val.length());
+    inline void setSBKVCopyValue(const uint8_t* data, char*& sbkv, int64_t& i, int64_t& head, const UTF8Str& val) {
+        std::memcpy(sbkv + head, val.get(), val.length());
         head += val.length();
         std::memcpy(sbkv + head, SBKV::BKVSuffixMap<T>::suffix, sizeof(SBKV::BKVSuffixMap<T>::suffix) - 1);
         head += sizeof(SBKV::BKVSuffixMap<T>::suffix) - 1;
@@ -84,7 +84,7 @@ namespace game {
         std::memcpy(&value, data + i + keyLen + 1, sizeof(T));
         value = Endianness::ntoh(value);
 
-        const std::string val = std::to_string(value);
+        const UTF8Str val = FormatString::intToStr(value);
         try {
             StringBuffer::checkResize(sbkv,
                 static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<T>::suffix)),
@@ -121,12 +121,12 @@ namespace game {
 
         // Values
         T v;
-        std::string val;
+        UTF8Str val;
         for (uint16_t index = 0; index < size; index++) {
             std::memcpy(&v, data + i, sizeof(T));
             i += sizeof(T);
             v = Endianness::ntoh(v);
-            val = std::to_string(v);
+            val = FormatString::intToStr(v);
 
             try {
                 StringBuffer::checkResize(sbkv,
@@ -147,7 +147,7 @@ namespace game {
         std::memcpy(&v, data + i + keyLen + 1, sizeof(float128_t));
         v = Endianness::ntohf(v);
 
-        const std::string val = std::to_string(v);
+        const UTF8Str val = FormatString::floatToStr(v);
         try {
             StringBuffer::checkResize(sbkv,
                 static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float128_t>::suffix)),
@@ -184,12 +184,12 @@ namespace game {
 
         // Values
         float128_t v;
-        std::string val;
+        UTF8Str val;
         for (uint16_t index = 0; index < size; index++) {
             std::memcpy(&v, data + i, sizeof(float128_t));
             i += sizeof(float128_t);
             v = Endianness::ntohf(v);
-            val = std::to_string(v);
+            val = FormatString::floatToStr(v);
 
             try {
                 StringBuffer::checkResize(sbkv,
@@ -209,7 +209,7 @@ namespace game {
         std::memcpy(&v, data + i + keyLen + 1, sizeof(float32_t));
         v = Endianness::ntohf(v);
 
-        const std::string val = std::to_string(v);
+        const UTF8Str val = FormatString::floatToStr(v);
         try {
             StringBuffer::checkResize(sbkv,
                 static_cast<int64_t>(head + keyLen + val.length() + 2 + sizeof(SBKV::BKVSuffixMap<float32_t>::suffix)),
@@ -246,12 +246,12 @@ namespace game {
 
         // Values
         float32_t v;
-        std::string val;
+        UTF8Str val;
         for (uint16_t index = 0; index < size; index++) {
             std::memcpy(&v, data + i, sizeof(float32_t));
             i += sizeof(float32_t);
             v = Endianness::ntohf(v);
-            val = std::to_string(v);
+            val = FormatString::floatToStr(v);
 
             try {
                 StringBuffer::checkResize(sbkv,
