@@ -109,7 +109,7 @@ namespace game {
         if (flags & FORMAT_LEFT_JUSTIFIED) {
             while (len < minDigits) str[len++] = ' ';
         }
-        
+
         str[len] = '\0';
         str = static_cast<char*>(std::realloc(str, len + 1));
         return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
@@ -119,7 +119,7 @@ namespace game {
     UTF8Str FormatString::_floatToStrScientific(const T absVal, const bool isNeg, const uint8_t base,
         const int64_t precision, const int64_t minDigits, const int32_t flags) noexcept
     {
-        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-9999") + minDigits));
+        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-9999") + precision + minDigits));
         int64_t len = 0;
         
         // Find exponent
@@ -222,7 +222,7 @@ namespace game {
 
         // Find decimal part
         T decimal = absVal - static_cast<T>(integer);
-        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-99") + minDigits));
+        char* str = static_cast<char*>(std::malloc(MAX_DIGITS + sizeof("-.E-99") + precision + minDigits));
 
         // Make 'precision' digits of decimal an integer
         decimal *= std::pow(base, precision);

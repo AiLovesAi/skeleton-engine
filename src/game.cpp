@@ -28,6 +28,12 @@ void test() {
         bool e = FormatString::strToBool("TRUE");
         UTF8Str e1 = FormatString::formatString("%B", e);
         Logger::log(LOG_INFO, e1);
+        float64_t f = FormatString::strToFloat<float64_t>("1234567890.12345678901");
+        UTF8Str f1 = FormatString::formatString("%.18f", f);
+        Logger::log(LOG_INFO, f1);
+        float32_t g = FormatString::strToFloat<float32_t>("654321.789");
+        UTF8Str g1 = FormatString::formatString("%.18f", g);
+        Logger::log(LOG_INFO, g1);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
 
     char8_t data[] = u8"{ Test:{ id:-127., str: hi,\"☺☺☺\":-69, '☺☺☺':ok, names:[\"Tyrone\", 'dodo', '錯世☺', Steve] soul:{ personality:crappy-go-fucky, lifespan:'3 gays to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.1f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
