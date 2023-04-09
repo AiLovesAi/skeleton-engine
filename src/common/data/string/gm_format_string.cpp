@@ -127,13 +127,13 @@ namespace game {
             0 : static_cast<int16_t>(std::floor(std::log(absVal) / std::log(base)));
 
         // Test for very close values (ie. 99.999... giving 2 instead of 1 due to rounding)
-        T powVal = absVal * std::pow(base, -exponent);
+        T powVal = absVal * std::pow(static_cast<T>(base), -exponent);
         if (powVal > base) {
             exponent--;
-            powVal = absVal * std::pow(base, -exponent);
+            powVal = absVal * std::pow(static_cast<T>(base), -exponent);
         } else if ((powVal < 1) && (absVal != 0.0)) {
             exponent++;
-            powVal = absVal * std::pow(base, -exponent);
+            powVal = absVal * std::pow(static_cast<T>(base), -exponent);
         }
 
         // Prepend if required

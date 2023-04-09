@@ -13,6 +13,8 @@ using namespace game;
 #include <common/data/bkv/gm_sbkv.hpp>
 void test() {
     try {
+        UTF8Str test = FormatString::formatString("%lu", sizeof(float128_t));
+        Logger::log(LOG_INFO, test);
         uint64_t a = FormatString::strToUInt<uint64_t>("ffffffffffffffff", 16);
         UTF8Str a1 = FormatString::formatString("%lx", a);
         Logger::log(LOG_INFO, a1);
@@ -34,6 +36,8 @@ void test() {
         float32_t g = FormatString::strToFloat<float32_t>("654321.789");
         UTF8Str g1 = FormatString::formatString("%.18f", g);
         Logger::log(LOG_INFO, g1);
+        UTF8Str h1 = FormatString::formatString("%.18lf", LDBL_MAX);
+        Logger::log(LOG_INFO, h1);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
 
     char8_t data[] = u8"{ Test:{ id:-127., str: hi,\"☺☺☺\":-69, '☺☺☺':ok, names:[\"Tyrone\", 'dodo', '錯世☺', Steve] soul:{ personality:crappy-go-fucky, lifespan:'3 gays to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.1f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
