@@ -31,7 +31,7 @@
 namespace fs = std::filesystem;
 
 namespace game {
-    UTF8Str File::_executableDir = UTF8Str{sizeof("NULL") - 1, std::shared_ptr<const char>("NULL", [](const char*){})};;
+    UTF8Str File::_executableDir = EMPTY_STR;
     std::mutex File::_fileMtx;
 
     void File::init() {
