@@ -15,8 +15,7 @@ namespace game {
             static void removeThread(const std::thread::id& id) { _threads.erase(id); }
 
             static UTF8Str threadName(const std::thread::id& id) {
-                return _threads.contains(id) ? _threads.find(id)->second :
-                    UTF8Str{sizeof("Async") - 1, std::shared_ptr<const char>("Async", [](const char*){})};
+                return _threads.contains(id) ? _threads.find(id)->second : UTF8Str{"Async", sizeof("Async") - 1};
             }
 
         private:

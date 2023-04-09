@@ -14,9 +14,7 @@ namespace game {
     std::atomic<bool> Core::running = false;
 
     void Core::init(const char*__restrict__ logFile, const char*__restrict__ crashFile) {
-        Threads::registerThread(std::this_thread::get_id(),
-            UTF8Str{sizeof("Main") - 1, std::shared_ptr<const char>("Main", [](const char*){})}
-        );
+        Threads::registerThread(std::this_thread::get_id(), UTF8Str{"Main", sizeof("Main") - 1});
         std::srand(std::time(0));
 
         System::init();

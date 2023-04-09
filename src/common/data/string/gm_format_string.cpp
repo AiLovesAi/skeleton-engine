@@ -302,9 +302,9 @@ namespace game {
         
         // Input validation
         if (std::isnan(val)) {
-            return UTF8Str{sizeof("NaN") - 1, std::shared_ptr<const char>("NaN", [](const char*){})};
+            return UTF8Str{"NaN", sizeof("NaN") - 1};
         } else if (std::isinf(val)) {
-            return UTF8Str{sizeof("Inf") - 1, std::shared_ptr<const char>("Inf", [](const char*){})};
+            return UTF8Str{"Inf", sizeof("Inf") - 1};
         }
         if (precision > MAX_DIGITS) precision = 6;
         if (base <= 1 || base > 36) base = 10;
@@ -360,7 +360,7 @@ namespace game {
 
     UTF8Str FormatString::ptrToStr(const void* ptr, const int32_t flags) noexcept {
         if (!ptr) {
-            return UTF8Str{sizeof("(NULL)") - 1, std::shared_ptr<const char>("(NULL)", [](const char*){})};
+            return UTF8Str{"(nullptr)", sizeof("(nullptr)") - 1};
         }
 
         const size_t ptrVal = reinterpret_cast<const size_t>(ptr);

@@ -19,8 +19,8 @@
 namespace game {
     static std::mutex mtx_;
     static std::atomic<bool> crashed_ = false;
-    UTF8Str Logger::_logPath = UTF8Str{sizeof("latest.log") - 1, std::shared_ptr<const char>("latest.log", [](const char*){})};
-    UTF8Str Logger::_crashPath = UTF8Str{sizeof("crash.log") - 1, std::shared_ptr<const char>("crash.log", [](const char*){})};
+    UTF8Str Logger::_logPath = UTF8Str{"latest.log", sizeof("latest.log") - 1};
+    UTF8Str Logger::_crashPath = UTF8Str{"crash.log", sizeof("crash.log") - 1};
     void signalHandler(int signum);
 
     void Logger::init(const UTF8Str& logPath, const UTF8Str& crashPath) {
