@@ -32,7 +32,6 @@ set(CMAKE_CPP_FLAGS
 )
 set(CMAKE_L_FLAGS
 	-Wl,--export-all-symbol
-	-static-libgcc -static-libstdc++
 )
 
 else()
