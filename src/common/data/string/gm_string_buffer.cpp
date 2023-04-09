@@ -60,4 +60,31 @@ namespace game {
         }
         return _len;
     }
+
+    void StringBuffer::_checkResize(void*& ptr, const size_t size, const size_t prevSize, size_t& capacity) {
+        if ((size * 2) < prevSize) {
+            throw std::runtime_error(
+                FormatString::formatString(
+                    "New buffer size overflows to be less than previous size: (%ld * 2) < %d.", size, prevSize
+                ).get()
+            );
+        }
+
+        if (size > capacity) {
+            capacity = size * 2;
+            ptr = ::realloc(ptr, capacity);
+        }
+    }
+
+    void StringBuffer::_checkResizeNoFormat(void*& ptr, const size_t size, const size_t prevSize, size_t& capacity) {
+        if ((size * 2) < prevSize) {
+            throw std::runtime_error("New buffer size overflows to be less than previous size in string format function.");
+        }
+        
+        if (size > capacity) {
+            capacity = size * 2;
+            ptr = std::realloc(ptr, capacity);
+        }
+    }
+
 }

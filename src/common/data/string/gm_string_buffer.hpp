@@ -57,19 +57,12 @@ namespace game {
             /// @param prevSize Last size before current check for overflow checking
             /// @param capacity The current capacity of the buffer
             template <typename T1, typename T2>
-            static void checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
-                if ((size * 2) < prevSize) {
-                    throw std::runtime_error(
-                        FormatString::formatString(
-                            "New buffer size overflows to be less than previous size: (%ld * 2) < %d.", size, prevSize
-                        ).get()
-                    );
-                }
-
-                if (size > capacity) {
-                    capacity = size * 2;
-                    ptr = static_cast<T1*>(std::realloc(ptr, capacity));
-                }
+            static inline void checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
+                void* p = static_cast<void*>(ptr);
+                size_t c = static_cast<size_t>(capacity);
+                _checkResize(p, static_cast<size_t>(size), static_cast<size_t>(prevSize), c);
+                ptr = static_cast<T1*>(p);
+                capacity = static_cast<T2>(c);
             }
 
         protected:
@@ -77,18 +70,19 @@ namespace game {
 
             // Functions
             template <typename T1, typename T2>
-            static void _checkResize(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
-                if ((size * 2) < prevSize) {
-                    throw std::runtime_error("New buffer size overflows to be less than previous size in string format function.");
-                }
-                
-                if (size > capacity) {
-                    capacity = size * 2;
-                    ptr = static_cast<T1*>(std::realloc(ptr, capacity));
-                }
+            static inline void checkResizeNoFormat(T1*& ptr, const T2 size, const T2 prevSize, T2& capacity) {
+                void* p = static_cast<void*>(ptr);
+                size_t c = static_cast<size_t>(capacity);
+                _checkResizeNoFormat(p, static_cast<size_t>(size), static_cast<size_t>(prevSize), c);
+                ptr = static_cast<T1*>(p);
+                capacity = static_cast<T2>(c);
             }
         
         private:
+            // Functions
+            static void _checkResize(void*& ptr, const size_t size, const size_t prevSize, size_t& capacity);
+            static void _checkResizeNoFormat(void*& ptr, const size_t size, const size_t prevSize, size_t& capacity);
+            
             // Variables
             size_t _len = 0;
             size_t _capacity = 0;
