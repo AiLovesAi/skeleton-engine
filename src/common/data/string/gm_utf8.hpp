@@ -18,7 +18,10 @@ namespace game {
                 _len = std::strlen(str);
                 _str = std::shared_ptr<const char>(str, [](const char*){});
             }
-            UTF8Str_(const char* const str, const size_t len) : _len{len} {
+            UTF8Str_(const char* const str, const int64_t len) : _len{len} {
+                _str = std::shared_ptr<const char>(str, [](const char*){});
+            }
+            UTF8Str_(const char* const str, const size_t len) : _len{static_cast<int64_t>(len)} {
                 _str = std::shared_ptr<const char>(str, [](const char*){});
             }
             UTF8Str_(const UTF8Str_& str) : _len{str.length()} {
