@@ -88,18 +88,19 @@ void test() {
         float128_t nums[] = {0.l, 1.l, 3.14159265l, -0.0006942069};
         UTF8Str strs[3];
         strs[0] = UTF8Str{"test1"};
-        strs[1] = UTF8Str{"test1"};
-        strs[2] = UTF8Str{"test1"};
+        strs[1] = UTF8Str{"test2.0"};
+        strs[2] = UTF8Str{"test3.1.0"};
         BKV_Builder builder;
-        BKV bkv = builder
-            .openCompound(UTF8Str("Example1"))
-                .setString("name", "sam")
-                .setValue<uint8_t>("age", 20)
-                .setBool("alive", true)
-                .setValueArray<float128_t>("nums", nums, (sizeof(nums) / sizeof(float128_t)))
-                .setStringArray("strs", strs, (sizeof(strs) / sizeof(UTF8Str)))
-            .closeCompound()
-        .build();
+        builder.openCompound(UTF8Str("Example1"))
+            .setString("name", "sam")
+            .setValue<uint8_t>("age", 20)
+            .setBool("alive", true)
+            .setValueArray<float128_t>("nums", nums, (sizeof(nums) / sizeof(float128_t)))
+            .setStringArray("strs", strs, (sizeof(strs) / sizeof(UTF8Str)))
+        .closeCompound();
+        Logger::log(LOG_INFO, "Completed building BKV.");
+        BKV bkv = builder.build();
+        Logger::log(LOG_INFO, "Copied BKV.");
         BKV bkv2 = BKV::bkvFromSBKV(UTF8Str("{Example1:{name:'sam',age:20,alive:True,nums:[0.0,1.0,3.14159265,-0.0006942069],'strs':[test1, test2,test3]}}"));
         File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data()};
         File::writeFile("built-bkv.txt", contents);
