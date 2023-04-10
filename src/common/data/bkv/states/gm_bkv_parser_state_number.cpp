@@ -26,15 +26,11 @@ namespace game {
         reset();
 
         if ((c == '}') || (c == ',') || (c == ']')) {
-            try { parser.endKV(c); } catch (std::runtime_error &e) {
-                reset();
-                throw;
-            }
+            try { parser.endKV(c); } catch (std::runtime_error &e) { throw; }
         } else {
-            UTF8Str msg = FormatString::formatString("Invalid character in SBKV number at index %ld: %02x",
+            throw std::runtime_error(FormatString::formatString("Invalid character in SBKV number at index %ld: %02x",
                 parser._charactersRead, c
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
     }
 
@@ -56,11 +52,11 @@ namespace game {
             else if (c == '-') _hasNegative = true;
 
             if (_numBuffer.len() >= UINT8_MAX) {
-                UTF8Str msg = FormatString::formatString("Too many digits in SBKV number at index %ld: %lu/%lu digits.",
-                    parser._charactersRead, (_numBuffer.len() + 1), UINT8_MAX
-                );
                 reset();
-                throw std::runtime_error(msg.get());
+                throw std::runtime_error(FormatString::formatString(
+                    "Too many digits in SBKV number at index %ld: %lu/%lu digits.",
+                    parser._charactersRead, (_numBuffer.len() + 1), UINT8_MAX
+                ).get());
             }
 
             try { _numBuffer.append(c); } catch (std::runtime_error& e) {
@@ -75,9 +71,10 @@ namespace game {
                 case '}': {
                     // Use integer if possible, long otherwise
                     if (!_numBuffer.len()) {
-                        UTF8Str msg = FormatString::formatString("BKV number has no value at index %ld.", parser._charactersRead);
                         reset();
-                        throw std::runtime_error(msg.get());
+                        throw std::runtime_error(FormatString::formatString(
+                            "BKV number has no value at index %ld.", parser._charactersRead
+                        ).get());
                     }
                     if (_hasDecimal) {
                         try {
@@ -221,20 +218,20 @@ namespace game {
                 case 'U':
                 case 'u': {
                     if (_hasNegative) {
-                        UTF8Str msg = FormatString::formatString("Negative BKV number is supposed to be unsigned at index %ld.",
-                            parser._charactersRead
-                        );
                         reset();
-                        throw std::runtime_error(msg.get());
+                        throw std::runtime_error(FormatString::formatString(
+                            "Negative BKV number is supposed to be unsigned at index %ld.",
+                            parser._charactersRead
+                        ).get());
                     }
                     parser._tag |= BKV::BKV_UNSIGNED;
                 } break;
                 default: {
-                    UTF8Str msg = FormatString::formatString("Invalid character in SBKV number at index %ld: %02x.",
-                        parser._charactersRead, c
-                    );
                     reset();
-                    throw std::runtime_error(msg.get());
+                    throw std::runtime_error(FormatString::formatString(
+                        "Invalid character in SBKV number at index %ld: %02x.",
+                        parser._charactersRead, c
+                    ).get());
                 }
             }
         }

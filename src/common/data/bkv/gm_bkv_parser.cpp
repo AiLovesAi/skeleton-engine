@@ -11,8 +11,8 @@ namespace game {
     void BKV_Parser::openCompound() {
         // Input validation
         if (_tag & BKV::BKV_ARRAY) {
-            UTF8Str msg = FormatString::formatString("Compound in unclosed BKV array at %ld", _charactersRead);
-            throw std::runtime_error(msg.get());
+            reset();
+            throw std::runtime_error(FormatString::formatString("Compound in unclosed BKV array at %ld", _charactersRead).get());
         }
         
         // Increase compound depth and return to name state for next input
@@ -30,10 +30,11 @@ namespace game {
         _buffer._tagHead = _buffer._head;
         
         if (_depth.size() > BKV::BKV_COMPOUND_DEPTH_MAX) {
-            UTF8Str msg = FormatString::formatString("Reached maximum compound depth in SBKV at index %ld: %lu/%u",
+            reset();
+            throw std::runtime_error(FormatString::formatString(
+                "Reached maximum compound depth in SBKV at index %ld: %lu/%u",
                 _charactersRead, _depth.size(), BKV::BKV_COMPOUND_DEPTH_MAX
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
     }
 
@@ -45,10 +46,11 @@ namespace game {
 
         int64_t size = _buffer._head - _depth.top() - BKV::BKV_COMPOUND_SIZE;
         if ((size <= 0) || (size > BKV::BKV_COMPOUND_MAX)) {
-            UTF8Str msg = FormatString::formatString("BKV compound bigger than maximum size at index %d: %ld/%u",
+            reset();
+            throw std::runtime_error(FormatString::formatString(
+                "BKV compound bigger than maximum size at index %d: %ld/%u",
                 _depth.top(), size, BKV::BKV_COMPOUND_MAX
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
         const uint32_t len = Endianness::hton(static_cast<uint32_t>(size));
         std::memcpy(_buffer._bkv + _depth.top(), &len, BKV::BKV_COMPOUND_SIZE);
@@ -72,17 +74,18 @@ namespace game {
         if (_tag & BKV::BKV_ARRAY) {
             // Input validation
             if (c == '}') {
-                UTF8Str msg = FormatString::formatString("Closing character is '}' when in SBKV array at index: %ld", _charactersRead);
-                throw std::runtime_error(msg.get());
+                reset();
+                throw std::runtime_error(FormatString::formatString(
+                    "Closing character is '}' when in SBKV array at index: %ld", _charactersRead
+                ).get());
             }
 
             // Make sure tag has not changed
             if (!_arrayState._arrayTag) {
                 _arrayState._arrayTag = _tag;
             } else if (_tag != _arrayState._arrayTag) {
-                UTF8Str msg = FormatString::formatString("Array value changed data type at index: %ld", _charactersRead);
                 reset();
-                throw std::runtime_error(msg.get());
+                throw std::runtime_error(FormatString::formatString("Array value changed data type at index: %ld", _charactersRead).get());
             }
 
             _stateTree.push(&_arrayState);
@@ -90,15 +93,19 @@ namespace game {
         } else {
             // Input validation
             if (c == ']') {
-                UTF8Str msg = FormatString::formatString("Closing character is ']' when not in SBKV array at index: %ld",
+                reset();
+                throw std::runtime_error(FormatString::formatString(
+                    "Closing character is ']' when not in SBKV array at index: %ld",
                     _charactersRead
-                );
-                throw std::runtime_error(msg.get());
+                ).get());
             }
             
             _buffer._bkv[_buffer._tagHead] = _tag;
             if (c == '}') {
-                try { closeCompound(); } catch (std::runtime_error &e) { throw; }
+                try { closeCompound(); } catch (std::runtime_error &e) {
+                    reset();
+                    throw;
+                }
             }
             if (_depth.size()) _stateTree.pop();
             _buffer._tagHead = _buffer._head;

@@ -21,7 +21,7 @@ namespace game {
         File::init();
         Logger::init(logFile, crashFile);
 
-        UTF8Str msg = FormatString::formatString(
+        Logger::log(LOG_INFO, FormatString::formatString(
             "Hardware details:\n"
             "\tCPU: %s\n"
             "\tCPU threads: %d\n"
@@ -32,7 +32,6 @@ namespace game {
             System::cpuThreadCount(),
             System::physicalMemory(),
             System::OS().get()
-        );
-        Logger::log(LOG_INFO, msg.get());
+        ));
     }
 }

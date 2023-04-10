@@ -53,10 +53,9 @@ namespace game {
             } catch (std::runtime_error& e) { Logger::crash(e.what()); }
             _buffer[_len++] = c;
         } else {
-            UTF8Str msg = FormatString::formatString(
+            Logger::crash(FormatString::formatString(
                 "Index is greater than one more than length in setIndex(): %ld > (%ld + 1)", index, _len
-            );
-            Logger::crash(msg);
+            ));
         }
         return _len;
     }

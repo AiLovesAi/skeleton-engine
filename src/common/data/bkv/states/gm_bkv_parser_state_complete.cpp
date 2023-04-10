@@ -13,10 +13,10 @@ namespace game {
         if (std::isspace(c) || (c == '\0')) {
             return;
         } else {
-            UTF8Str msg = FormatString::formatString("Enclosing BKV compound has already been closed and the bkv is finished at index: %d.",
+            throw std::runtime_error(FormatString::formatString(
+                "Enclosing BKV compound has already been closed and the bkv is finished at index: %d.",
                 parser._charactersRead
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
     }
 }

@@ -33,18 +33,15 @@ namespace game {
         if (ret != LZMA_OK) {
             switch (ret) {
                 case LZMA_MEM_ERROR: {
-                    UTF8Str msg = FormatString::formatString("Ran out of memory while decompressing file: %s");
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Ran out of memory while decompressing file: %s", filepath));
                 }
 
                 case LZMA_OPTIONS_ERROR: {
-                    UTF8Str msg = FormatString::formatString("Unsupported decompressor flags for file: %s", filepath);
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Unsupported decompressor flags for file: %s", filepath));
                 }
 
                 default: {
-                    UTF8Str msg = FormatString::formatString("Unknown error occurred while decompressing file: %s", filepath);
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Unknown error occurred while decompressing file: %s", filepath));
                 }
             }
         }
@@ -58,10 +55,7 @@ namespace game {
         // Open file
         File::_fileMtx.lock();
         FILE* f = std::fopen(filepath, "rb");
-        if (f == nullptr) {
-            UTF8Str msg = FormatString::formatString("Error opening file: %s", filepath);
-            Logger::crash(msg);
-        }
+        if (!f) Logger::crash(FormatString::formatString("Error opening file: %s", filepath));
         
         size_t head = 0, c = 0;
         uint8_t inbuf[BUFSIZ], outbuf[BUFSIZ];
@@ -106,33 +100,27 @@ namespace game {
 
                 switch (ret) {
                     case LZMA_MEM_ERROR: {
-                        UTF8Str msg = FormatString::formatString("Ran out of memory while decompressing file: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Ran out of memory while decompressing file: %s", filepath));
                     }
 
                     case LZMA_DATA_ERROR: {
-                        UTF8Str msg = FormatString::formatString("Corrupted data encountered while decompressing file: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Corrupted data encountered while decompressing file: %s", filepath));
                     }
 
                     case LZMA_FORMAT_ERROR: {
-                        UTF8Str msg = FormatString::formatString("Input file for decompression is not in xz format: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Input file for decompression is not in xz format: %s", filepath));
                     }
 
                     case LZMA_OPTIONS_ERROR: {
-                        UTF8Str msg = FormatString::formatString("Unsupported compression options for file: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Unsupported compression options for file: %s", filepath));
                     }
 
                     case LZMA_BUF_ERROR: {
-                        UTF8Str msg = FormatString::formatString("Compressed file is truncated or otherwise corrupt: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Compressed file is truncated or otherwise corrupt: %s", filepath));
                     }
 
                     default: {
-                        UTF8Str msg = FormatString::formatString("Unknown error occurred while decompressing file: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Unknown error occurred while decompressing file: %s", filepath));
                     }
                 }
             }
@@ -163,23 +151,19 @@ namespace game {
         if (ret != LZMA_OK) {
             switch (ret) {
                 case LZMA_MEM_ERROR: {
-                    UTF8Str msg = FormatString::formatString("Ran out of memory while decompressing file: %s", filepath);
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Ran out of memory while decompressing file: %s", filepath));
                 }
 
                 case LZMA_OPTIONS_ERROR: {
-                    UTF8Str msg = FormatString::formatString("Unsupported decompressor flags for file: %s", filepath);
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Unsupported decompressor flags for file: %s", filepath));
                 }
                 
                 case LZMA_UNSUPPORTED_CHECK: {
-                    UTF8Str msg = FormatString::formatString("Unsupported integrity check for file: %s", filepath);
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Unsupported integrity check for file: %s", filepath));
                 }
 
                 default: {
-                    UTF8Str msg = FormatString::formatString("Unknown error occurred while decompressing file: %s", filepath);
-                    Logger::crash(msg);
+                    Logger::crash(FormatString::formatString("Unknown error occurred while decompressing file: %s", filepath));
                 }
             }
         }
@@ -193,10 +177,7 @@ namespace game {
         // Open file
         File::_fileMtx.lock();
         FILE* f = fopen(filepath, append ? "ab" : "wb");
-        if (f == nullptr) {
-            UTF8Str msg = FormatString::formatString("Error opening file: %s", filepath);
-            Logger::crash(msg);
-        }
+        if (!f) Logger::crash(FormatString::formatString("Error opening file: %s", filepath));
 
         const size_t len = contents.length();
         const uint8_t* data = contents.get();
@@ -243,18 +224,15 @@ namespace game {
 
                 switch (ret) {
                     case LZMA_MEM_ERROR: {
-                        UTF8Str msg = FormatString::formatString("Ran out of memory while compressing file: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Ran out of memory while compressing file: %s", filepath));
                     }
 
                     case LZMA_DATA_ERROR: {
-                        UTF8Str msg = FormatString::formatString("File size is greater than maximum (2^63 bytes): %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("File size is greater than maximum (2^63 bytes): %s", filepath));
                     }
 
                     default: {
-                        UTF8Str msg = FormatString::formatString("Unknown error occurred while compressing file: %s", filepath);
-                        Logger::crash(msg);
+                        Logger::crash(FormatString::formatString("Unknown error occurred while compressing file: %s", filepath));
                     }
                 }
             }

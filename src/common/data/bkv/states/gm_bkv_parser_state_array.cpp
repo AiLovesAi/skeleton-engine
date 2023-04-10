@@ -35,10 +35,11 @@ namespace game {
                 // Continue array
                 _size++;
                 if (_size > BKV::BKV_ARRAY_MAX) {
-                    UTF8Str msg = FormatString::formatString("Too many indicies in SBKV array at %ld: %ld/%ld indicies.",
-                        parser._charactersRead, _size, BKV::BKV_ARRAY_MAX
-                    );
                     reset();
+                    throw std::runtime_error(FormatString::formatString(
+                        "Too many indicies in SBKV array at %ld: %ld/%ld indicies.",
+                        parser._charactersRead, _size, BKV::BKV_ARRAY_MAX
+                    ).get());
                 }
                 parser._stateTree.pop(); // Back to specific tag state
             } else if (c == ']') {
@@ -55,11 +56,11 @@ namespace game {
                 parser._buffer._tagHead = parser._buffer._head;
                 parser._tag = 0;
             } else {
-                UTF8Str msg = FormatString::formatString("Invalid character in SBKV array at index %ld: %02x",
-                    parser._charactersRead, c
-                );
                 reset();
-                throw std::runtime_error(msg.get());
+                throw std::runtime_error(FormatString::formatString(
+                    "Invalid character in SBKV array at index %ld: %02x",
+                    parser._charactersRead, c
+                ).get());
             }
         }
     }

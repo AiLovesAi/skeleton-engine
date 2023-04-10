@@ -6,20 +6,20 @@ namespace game {
     [[nodiscard]] BKV BKV_Builder::build() {
         // Input validation
         if (_depth.size()) {
-            UTF8Str msg = FormatString::formatString("There are %lu unclosed compounds in BKV Builder in build().",
+            throw std::runtime_error(FormatString::formatString(
+                "There are %lu unclosed compounds in BKV Builder in build().",
                 _depth.size()
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
         
         // Add full compound size
         // NOTE: Would be two, but the closing compound has not been added
         int64_t size = _buffer._head - 1 - BKV::BKV_COMPOUND_SIZE;
         if ((size <= 0) || (size > BKV::BKV_COMPOUND_MAX)) {
-            UTF8Str msg = FormatString::formatString("BKV Builder main compound bigger than maximum size: %ld/%u",
+            throw std::runtime_error(FormatString::formatString(
+                "BKV Builder main compound bigger than maximum size: %ld/%u",
                 size, BKV::BKV_COMPOUND_MAX
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
 
         // Set compound length
@@ -40,10 +40,10 @@ namespace game {
     void BKV_Builder::_setKeyTag(const UTF8Str& key, const uint8_t tag, const uint64_t size) {
         // Input validation
         if (key.length() > BKV::BKV_KEY_MAX) {
-            UTF8Str msg = FormatString::formatString("Key length in BKV Builder exceeds maximum in openCompound(): %ld/%u",
+            throw std::runtime_error(FormatString::formatString(
+                "Key length in BKV Builder exceeds maximum in openCompound(): %ld/%u",
                 key.length(), BKV::BKV_KEY_MAX
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
 
         // Allocate space
@@ -73,10 +73,10 @@ namespace game {
         _buffer._head += BKV::BKV_COMPOUND_SIZE;
 
         if (_depth.size() > BKV::BKV_COMPOUND_DEPTH_MAX) {
-            UTF8Str msg = FormatString::formatString("Reached maximum compound depth in BKV Builder in openCompound(): %lu/%u",
+            throw std::runtime_error(FormatString::formatString(
+                "Reached maximum compound depth in BKV Builder in openCompound(): %lu/%u",
                 _depth.size(), BKV::BKV_COMPOUND_DEPTH_MAX
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
 
         return *this;
@@ -91,10 +91,10 @@ namespace game {
 
         int64_t size = _buffer._head - _depth.top() - BKV::BKV_COMPOUND_SIZE;
         if ((size <= 0) || (size > BKV::BKV_COMPOUND_MAX)) {
-            UTF8Str msg = FormatString::formatString("BKV Builder compound bigger than maximum size at index %d: %ld/%u",
+            throw std::runtime_error(FormatString::formatString(
+                "BKV Builder compound bigger than maximum size at index %d: %ld/%u",
                 _depth.top(), size, BKV::BKV_COMPOUND_MAX
-            );
-            throw std::runtime_error(msg.get());
+            ).get());
         }
 
         // Set compound length
@@ -255,64 +255,84 @@ namespace game {
     
     // Specializations
     template<> BKV_Builder BKV_Builder::setValue<int8_t>(const UTF8Str& key, const int8_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int8: %d", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_I8);
     }
     template<> BKV_Builder BKV_Builder::setValue<uint8_t>(const UTF8Str& key, const uint8_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint8: %u", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_UI8);
     }
     template<> BKV_Builder BKV_Builder::setValue<int16_t>(const UTF8Str& key, const int16_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int16: %d", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_I16);
     }
     template<> BKV_Builder BKV_Builder::setValue<uint16_t>(const UTF8Str& key, const uint16_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint16: %u", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_UI16);
     }
     template<> BKV_Builder BKV_Builder::setValue<int32_t>(const UTF8Str& key, const int32_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int32: %d", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_I32);
     }
     template<> BKV_Builder BKV_Builder::setValue<uint32_t>(const UTF8Str& key, const uint32_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint32: %u", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_UI32);
     }
     template<> BKV_Builder BKV_Builder::setValue<int64_t>(const UTF8Str& key, const int64_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int64: %ld", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_I64);
     }
     template<> BKV_Builder BKV_Builder::setValue<uint64_t>(const UTF8Str& key, const uint64_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint64: %lu", value));
         return BKV_Builder::_setInt(key, value, BKV::BKV_UI64);
     }
     template<> BKV_Builder BKV_Builder::setValue<float32_t>(const UTF8Str& key, const float32_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing float32: %f", value));
         return BKV_Builder::_setFloat(key, value, BKV::BKV_FLOAT);
     }
     template<> BKV_Builder BKV_Builder::setValue<float128_t>(const UTF8Str& key, const float128_t value) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing float128: %lf", value));
         return BKV_Builder::_setFloat(key, value, BKV::BKV_DOUBLE);
     }
     
     template<> BKV_Builder BKV_Builder::setValueArray<int8_t>(const UTF8Str& key, const int8_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int8 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_I8);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<uint8_t>(const UTF8Str& key, const uint8_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint8 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_UI8);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<int16_t>(const UTF8Str& key, const int16_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int16 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_I16);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<uint16_t>(const UTF8Str& key, const uint16_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint16 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_UI16);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<int32_t>(const UTF8Str& key, const int32_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int32 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_I32);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<uint32_t>(const UTF8Str& key, const uint32_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint32 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_UI32);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<int64_t>(const UTF8Str& key, const int64_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing int64 array of size: %u", arraySize));
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_I64);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<uint64_t>(const UTF8Str& key, const uint64_t* values, const uint16_t arraySize) {
         return BKV_Builder::_setIntArray(key, values, arraySize, BKV::BKV_UI64);
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing uint64 array of size: %u", arraySize));
     }
     template<> BKV_Builder BKV_Builder::setValueArray<float32_t>(const UTF8Str& key, const float32_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing float32 array of size: %u", arraySize));
         return BKV_Builder::_setFloatArray(key, values, arraySize, BKV::BKV_FLOAT);
     }
     template<> BKV_Builder BKV_Builder::setValueArray<float128_t>(const UTF8Str& key, const float128_t* values, const uint16_t arraySize) {
+        Logger::log(LOG_INFO, FormatString::formatString("Parsing float128 array of size: %u", arraySize));
         return BKV_Builder::_setFloatArray(key, values, arraySize, BKV::BKV_DOUBLE);
     }
 }

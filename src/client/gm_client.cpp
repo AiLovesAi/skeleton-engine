@@ -6,6 +6,7 @@
 #include "graphics/vulkan/gm_swap_chain.hpp"
 
 #include <common/data/file/gm_logger.hpp>
+#include <common/system/gm_system.hpp>
 
 #include <thread>
 
@@ -49,6 +50,14 @@ namespace game {
 
             initialized_ = true;
         }
+        
+        Logger::log(LOG_INFO, FormatString::formatString(
+            "Graphics hardware:\n"
+            "\tGraphics device: %s\n"
+            "\tMonitor: %s",
+            System::GPU(),
+            System::monitor()
+        ));
     }
 
     void Client::start() {

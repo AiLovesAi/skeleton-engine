@@ -2,6 +2,7 @@
 
 #include <common/headers/file.hpp>
 #include <common/headers/string.hpp>
+#include <common/system/gm_system.hpp>
 
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,15 +13,10 @@ namespace game {
     Window::Window(const UTF8Str& title) {
         // Get monitor for window position, width, and height
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        {
-            const char* monitorName = glfwGetMonitorName(monitor);
-            UTF8Str msg = FormatString::formatString("Using monitor: %s", monitorName);
-            Logger::log(LOG_INFO, msg);
-        }
+        System::setMonitor(UTF8Str{glfwGetMonitorName(monitor)});
 
         // Set window width & height
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         _width = mode->width / 2;
         _height = mode->height / 2;
         
@@ -30,15 +26,9 @@ namespace game {
     Window::Window(int w, int h, const UTF8Str& title) : _width{w}, _height{h} {
         // Get monitor for window position
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        System::setMonitor(UTF8Str{glfwGetMonitorName(monitor)});
 
-        {
-            const char* monitorName = glfwGetMonitorName(monitor);
-            UTF8Str msg = FormatString::formatString("Using monitor: %s", monitorName);
-            Logger::log(LOG_INFO, msg);
-        }
-
-        createWindow(title, mode);
+        createWindow(title, glfwGetVideoMode(monitor));
     }
 
     Window::~Window() {
@@ -88,8 +78,7 @@ namespace game {
     }
 
     void Window::errorCallback(int error, const char*__restrict__ description) {
-        UTF8Str msg = FormatString::formatString("GLFW error code %d: %s", error, description);
-        Logger::log(LOG_ERR, msg);
+        Logger::log(LOG_ERR, FormatString::formatString("GLFW error code %d: %s", error, description));
     }
 
     void Window::framebufferResizeCallback(GLFWwindow* glfwWindow, int width, int height) {

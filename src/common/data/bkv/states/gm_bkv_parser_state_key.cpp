@@ -17,7 +17,10 @@ namespace game {
             StringBuffer::checkResize(parser._buffer._bkv, parser._buffer._head + 2 + _keyLen,
                 parser._buffer._head, parser._buffer._capacity
             );
-        } catch (std::runtime_error &e) { throw; }
+        } catch (std::runtime_error &e) {
+            reset();
+            throw;
+        }
 
         parser._buffer._bkv[parser._buffer._head + 1] = len;
         parser._buffer._head += 1 + BKV::BKV_KEY_SIZE; // Add 1 for tag (added later)
@@ -32,11 +35,11 @@ namespace game {
     void BKV_Parser_State_Key::continueKey(BKV_Parser& parser, const char c) {
         // Build string
         if (_keyLen >= static_cast<int16_t>(BKV::BKV_KEY_MAX)) {
-            UTF8Str msg = FormatString::formatString("Too many characters in SBKV key at %ld: %ld/%ld characters.",
-                parser._charactersRead, (_keyLen + 1), BKV::BKV_KEY_MAX
-            );
             reset();
-            throw std::runtime_error(msg.get());
+            throw std::runtime_error(FormatString::formatString(
+                "Too many characters in SBKV key at %ld: %ld/%u characters.",
+                parser._charactersRead, (_keyLen + 1), BKV::BKV_KEY_MAX
+            ).get());
         }
 
         // Toggle break character after it breaks once
@@ -45,11 +48,11 @@ namespace game {
 
             char b = String::escapeChar(c);
             if (b < 0) {
-                UTF8Str msg = FormatString::formatString("Invalid break character in SBKV key at %ld: %02x",
-                    parser._charactersRead, c
-                );
                 reset();
-                throw std::runtime_error(msg.get());
+                throw std::runtime_error(FormatString::formatString(
+                    "Invalid break character in SBKV key at %ld: %02x",
+                    parser._charactersRead, c
+                ).get());
             }
             
             _key[_keyLen++] = b;
@@ -67,20 +70,31 @@ namespace game {
             if (c == '{') {
                 parser.openCompound();
             } else {
-                UTF8Str msg = FormatString::formatString("Opening compound not found in SBKV, first character was: %02x", c);
-                throw std::runtime_error(msg.get());
+                reset();
+                throw std::runtime_error(FormatString::formatString(
+                    "Opening compound not found in SBKV, first character was: %02x", c
+                ).get());
             }
         } else if (_strChar) { // Any UTF-8 string allowed
             // NOTE: Checking to see if a UTF-8 character piece matches strChar is unnecessary because all UTF-8 characters
             // start with the first bit set, which is the signed bit. All ASCII characters have the signed bit cleared.
             if (c == _strChar && !_escapeChar) {
-                try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }
+                try { completeKey(parser, c); } catch (std::runtime_error &e) {
+                    reset();
+                    throw;
+                }
             } else {
-                try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }
+                try { continueKey(parser, c); } catch (std::runtime_error &e) {
+                    reset();
+                    throw;
+                }
             }
         } else if ((c == '}') && !_keyLen) {
             // Compound ended or is empty, and another one is ending. Ex: {ex1:{ex2:{id:1}},xe:5}
-            try { parser.closeCompound(); } catch (std::runtime_error &e) { throw; }
+            try { parser.closeCompound(); } catch (std::runtime_error &e) {
+                reset();
+                throw;
+            }
         } else if ((std::isspace(c) || (c == ',')) && !_keyLen) {
             // Whitespace, igore OR
             // In case a compound just ended and we are at the comma following it, just continue. Ex: {ex1:{ex2:{id:1}},xe:5}
@@ -88,14 +102,22 @@ namespace game {
         } else if (((c == '\'') || (c == '"')) && !_keyLen) {
             _strChar = c;
         } else if (std::isalpha(c) || (_keyLen && (std::isdigit(c) || c == '_' || c == '.' || c == '+' || c == '-'))) {
-            try { continueKey(parser, c); } catch (std::runtime_error &e) { throw; }
+            try { continueKey(parser, c); } catch (std::runtime_error &e) {
+                reset();
+                throw;
+            }
         } else if (c == ':') {
-            try { completeKey(parser, c); } catch (std::runtime_error &e) { throw; }
+            try { completeKey(parser, c); } catch (std::runtime_error &e) {
+                reset();
+                throw;
+            }
         } else {
             // If a compound hasn't just ended, this is an unexpected input
-            UTF8Str msg = FormatString::formatString("Invalid character in SBKV key at %ld: %02x", parser._charactersRead, c);
             reset();
-            throw std::runtime_error(msg.get());
+            throw std::runtime_error(FormatString::formatString(
+                "Invalid character in SBKV key at %ld: %02x",
+                parser._charactersRead, c
+            ).get());
         }
     }
 }

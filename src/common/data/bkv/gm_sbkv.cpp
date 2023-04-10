@@ -464,8 +464,10 @@ namespace game {
                 setSBKVValueBool(data, sbkv, i, head, capacity);
                 break;
             default: {
-                UTF8Str msg = FormatString::formatString("Invalid character in BKV at index %ld: %02x.", i, data[i]);
-                throw std::runtime_error(msg.get());
+                throw std::runtime_error(FormatString::formatString(
+                    "Invalid character in BKV at index %ld: %02x.",
+                    i, data[i]
+                ).get());
             }
         }
     }

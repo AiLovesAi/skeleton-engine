@@ -25,6 +25,7 @@ namespace game {
     UTF8Str System::_OS = EMPTY_STR;
     UTF8Str System::_CPU = EMPTY_STR;
     UTF8Str System::_GPU = EMPTY_STR;
+    UTF8Str System::_monitor = EMPTY_STR;
 
     void System::init() {
         findOS();

@@ -47,10 +47,7 @@ namespace game {
     }
 
     File::FileContents const File::readFile(const char* filepath) {
-        if (!fs::exists(filepath)) {
-            UTF8Str msg = FormatString::formatString("File not found: %s", filepath);
-            Logger::crash(msg);
-        }
+        if (!fs::exists(filepath)) Logger::crash(FormatString::formatString("File not found: %s", filepath));
         
         // Allocate
         uint8_t buf[BUFSIZ];
@@ -60,10 +57,7 @@ namespace game {
         // Open file
         _fileMtx.lock();
         FILE* f = std::fopen(filepath, "rb");
-        if (!f) {
-            UTF8Str msg = FormatString::formatString("Could not open file: %s", filepath);
-            Logger::crash(msg);
-        }
+        if (!f) Logger::crash(FormatString::formatString("Could not open file: %s", filepath));
 
         // Read
         size_t head = 0, c = 0;
@@ -88,19 +82,13 @@ namespace game {
     }
 
     void const File::writeFile(const char* filepath, const FileContents& contents, const bool append) {
-        if (append && !fs::exists(filepath)) {
-            UTF8Str msg = FormatString::formatString("File not found: %s", filepath);
-            Logger::crash(msg);
-        }
+        if (append && !fs::exists(filepath)) Logger::crash(FormatString::formatString("File not found: %s", filepath));
 
 
         // Open file
         _fileMtx.lock();
         FILE* f = std::fopen(filepath, append ? "ab" : "wb");
-        if (!f) {
-            UTF8Str msg = FormatString::formatString("Could not open file: %s", filepath);
-            Logger::crash(msg);
-        }
+        if (!f) Logger::crash(FormatString::formatString("Could not open file: %s", filepath));
 
         // Write
         const size_t len = contents.length();

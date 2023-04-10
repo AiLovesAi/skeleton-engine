@@ -32,8 +32,10 @@ namespace game {
             try { parser.state()->parse(parser, c); } catch (std::runtime_error &e) { throw; }
         } else if (c == '[') {
             if (parser._tag & BKV::BKV_ARRAY) {
-                UTF8Str msg = FormatString::formatString("New array in unclosed BKV array at %ld", parser._charactersRead);
-                throw std::runtime_error(msg.get());
+                throw std::runtime_error(FormatString::formatString(
+                    "New array in unclosed BKV array at %ld",
+                    parser._charactersRead
+                ).get());
             }
 
             parser._tag |= BKV::BKV_ARRAY;
@@ -50,8 +52,10 @@ namespace game {
             // Whitespace or colon, ignore
             return;
         } else {
-            UTF8Str msg = FormatString::formatString("Invalid character in SBKV at %ld: %02x", parser._charactersRead, c);
-            throw std::runtime_error(msg.get());
+            throw std::runtime_error(FormatString::formatString(
+                "Invalid character in SBKV at %ld: %02x",
+                parser._charactersRead, c
+            ).get());
         }
     }
 }

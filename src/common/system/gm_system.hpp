@@ -29,10 +29,12 @@ namespace game {
             static void init();
 
             static void setGPU(const UTF8Str GPU) { _GPU = GPU; }
+            static void setMonitor(const UTF8Str monitor) { _monitor = monitor; }
 
             static UTF8Str OS() { return _OS; }
             static UTF8Str CPU() { return _CPU; }
             static UTF8Str GPU() { return _GPU; }
+            static UTF8Str monitor() { return _monitor; }
             static uint32_t cpuThreadCount() { return _CPU_THREAD_COUNT; }
             static size_t physicalMemory() { return _PHYSICAL_MEMORY; }
         
@@ -47,5 +49,6 @@ namespace game {
             static UTF8Str _OS;
             static UTF8Str _CPU;
             static UTF8Str _GPU;
+            static UTF8Str _monitor;
     };
 }

@@ -130,6 +130,7 @@ namespace game {
                 // Crash report
                 "---- Crash Report ----\n"
                 "Time: %d/%d/%d %d:%02d %s\n" // M/D/YYYY H:MM XM
+                "Crashing Thread: %s\n"
                 "Description: %s\n\n"
                 "--- System Details ---\n"
                 "Operating System: %s\n"
@@ -137,11 +138,12 @@ namespace game {
                 "CPU: %s\n"
                 "CPU Threads: %u\n"
                 "Graphics Device: %s\n"
-                "Crashing Thread: %s\n",
+                "Monitor: %s\n",
                 
-                // What happened and when
+                // Who/what/when/where/why/how
                 (now->tm_mon + 1), now->tm_mday, (now->tm_year - 100), // Date
                 (now->tm_hour % 12), now->tm_min, ((now->tm_hour < 12) ? "AM" : "PM"), // Time
+                Threads::threadName(std::this_thread::get_id()).get(),
                 message.get(), // Description
 
                 // Hardware details
@@ -150,7 +152,7 @@ namespace game {
                 System::CPU().get(),
                 System::cpuThreadCount(),
                 System::GPU().get(),
-                Threads::threadName(std::this_thread::get_id()).get()
+                System::monitor().get()
             );
             std::perror(msg.get());
 

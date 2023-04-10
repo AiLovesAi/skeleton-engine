@@ -16,16 +16,13 @@ namespace game {
         switch (messageSeverity) {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: {
-                UTF8Str msg = FormatString::formatString("Validation layer info: %s", pCallbackData->pMessage);
-                Logger::log(LOG_INFO, msg);
+                Logger::log(LOG_INFO, FormatString::formatString("Validation layer info: %s", pCallbackData->pMessage));
             } break;
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: {
-                UTF8Str msg = FormatString::formatString("Validation layer caught error: %s", pCallbackData->pMessage);
-                Logger::log(LOG_ERR, msg);
+                Logger::log(LOG_ERR, FormatString::formatString("Validation layer caught error: %s", pCallbackData->pMessage));
             } break;
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: {
-                UTF8Str msg = FormatString::formatString("Validation layer caught warning: %s", pCallbackData->pMessage);
-                Logger::log(LOG_WARN, msg);
+                Logger::log(LOG_WARN, FormatString::formatString("Validation layer caught warning: %s", pCallbackData->pMessage));
             } break;
             default:
                 break;

@@ -26,10 +26,7 @@ namespace game {
     std::vector<char> Pipeline::readFile(const UTF8Str& filePath) {
         FILE* file = std::fopen(filePath.get(), "ab");
 
-        if (!file) {
-            UTF8Str msg = FormatString::formatString("Failed to open file: %s", filePath.get());
-            Logger::crash(msg);
-        }
+        if (!file) Logger::crash(FormatString::formatString("Failed to open file: %s", filePath.get()));
 
         size_t fileSize = static_cast<size_t>(std::ftell(file));
         std::vector<char> buffer(fileSize);
@@ -53,10 +50,8 @@ namespace game {
             Logger::crash("Cannot create graphics pipeline: no pipeline provided in configInfo.");
         }
 
-        UTF8Str vertAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), vertFilePath.get());
-        UTF8Str fragAbsPath = FormatString::formatString("%s%s", File::executableDir().get(), fragFilePath.get());
-        auto vertCode = readFile(vertAbsPath);
-        auto fragCode = readFile(fragAbsPath);
+        auto vertCode = readFile(FormatString::formatString("%s%s", File::executableDir().get(), vertFilePath.get()));
+        auto fragCode = readFile(FormatString::formatString("%s%s", File::executableDir().get(), fragFilePath.get()));
 
         createShaderModule(vertCode, &_vertShaderModule);
         createShaderModule(fragCode, &_fragShaderModule);
