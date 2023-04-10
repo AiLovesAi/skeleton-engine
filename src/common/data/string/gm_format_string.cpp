@@ -937,8 +937,9 @@ namespace game {
 
         return result;
     }
-    
-    int8_t FormatString::_strToInt8(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+
+    // Specializations
+    template<> int8_t FormatString::strToInt<int8_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         int8_t result = _strToInt<int8_t>(str, base, len);
         
         // Check for negative values
@@ -946,10 +947,10 @@ namespace game {
 
         return result;
     }
-    uint8_t FormatString::_strToIntU8(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> uint8_t FormatString::strToInt<uint8_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToInt<uint8_t>(str, base, len);
     }
-    int16_t FormatString::_strToInt16(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> int16_t FormatString::strToInt<int16_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         int16_t result = _strToInt<int16_t>(str, base, len);
         
         // Check for negative values
@@ -957,74 +958,72 @@ namespace game {
 
         return result;
     }
-    uint16_t FormatString::_strToIntU16(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> uint16_t FormatString::strToInt<uint16_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToInt<uint16_t>(str, base, len);
     }
-    int32_t FormatString::_strToInt32(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> int32_t FormatString::strToInt<int32_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         int32_t result = _strToInt<int32_t>(str, base, len);
-
+        
         // Check for negative values
         if (str[0] == '-') result = -result;
 
         return result;
     }
-    uint32_t FormatString::_strToIntU32(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> uint32_t FormatString::strToInt<uint32_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToInt<uint32_t>(str, base, len);
     }
-    int64_t FormatString::_strToInt64(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> int64_t FormatString::strToInt<int64_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         int64_t result = _strToInt<int64_t>(str, base, len);
-
+        
         // Check for negative values
         if (str[0] == '-') result = -result;
 
         return result;
     }
-    uint64_t FormatString::_strToIntU64(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> uint64_t FormatString::strToInt<uint64_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToInt<uint64_t>(str, base, len);
     }
-
-    float32_t FormatString::_strToFloat32(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> float32_t FormatString::strToFloat<float32_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToFloat<float32_t>(str, base, len);
     }
-    float64_t FormatString::_strToFloat64(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> float64_t FormatString::strToFloat<float64_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToFloat<float64_t>(str, base, len);
     }
-    float128_t FormatString::_strToFloat128(const char *__restrict__ str, const uint8_t base, const int64_t len) {
+    template<> float128_t FormatString::strToFloat<float128_t>(const char *__restrict__ str, const uint8_t base, const int64_t len) {
         return _strToFloat<float128_t>(str, base, len);
     }
-    
-    UTF8Str FormatString::_intToStr8(int8_t val, uint8_t base, int64_t minDigits) {
+
+    template<> UTF8Str FormatString::intToStr<int8_t>(int8_t val, uint8_t base, int64_t minDigits) {
         return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_intToStrU8(uint8_t val, uint8_t base, int64_t minDigits) {
+    template<> UTF8Str FormatString::intToStr<uint8_t>(uint8_t val, uint8_t base, int64_t minDigits) {
         return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_intToStr16(int16_t val, uint8_t base, int64_t minDigits) {
+    template<> UTF8Str FormatString::intToStr<int16_t>(int16_t val, uint8_t base, int64_t minDigits) {
         return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_intToStrU16(uint16_t val, uint8_t base, int64_t minDigits) {
-        return _intToStr<uint16_t>(val, base, minDigits, FORMAT_DIGITAL);
-    }
-    UTF8Str FormatString::_intToStr32(int32_t val, uint8_t base, int64_t minDigits) {
+    template<> UTF8Str FormatString::intToStr<uint16_t>(uint16_t val, uint8_t base, int64_t minDigits) {
         return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_intToStrU32(uint32_t val, uint8_t base, int64_t minDigits) {
-        return _intToStr<uint32_t>(val, base, minDigits, FORMAT_DIGITAL);
-    }
-    UTF8Str FormatString::_intToStr64(int64_t val, uint8_t base, int64_t minDigits) {
+    template<> UTF8Str FormatString::intToStr<int32_t>(int32_t val, uint8_t base, int64_t minDigits) {
         return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_intToStrU64(uint64_t val, uint8_t base, int64_t minDigits) {
-        return _intToStr<uint64_t>(val, base, minDigits, FORMAT_DIGITAL);
+    template<> UTF8Str FormatString::intToStr<uint32_t>(uint32_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
     }
-    
-    UTF8Str FormatString::_floatToStr32(float32_t val, uint8_t base, int64_t precision, int64_t minDigits) {
+    template<> UTF8Str FormatString::intToStr<int64_t>(int64_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    template<> UTF8Str FormatString::intToStr<uint64_t>(uint64_t val, uint8_t base, int64_t minDigits) {
+        return _intToStr(val, base, minDigits, FORMAT_DIGITAL);
+    }
+    template<> UTF8Str FormatString::floatToStr<float32_t>(float32_t val, uint8_t base, int64_t precision, int64_t minDigits) {
         return _floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_floatToStr64(float64_t val, uint8_t base, int64_t precision, int64_t minDigits) {
+    template<> UTF8Str FormatString::floatToStr<float64_t>(float64_t val, uint8_t base, int64_t precision, int64_t minDigits) {
         return _floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
     }
-    UTF8Str FormatString::_floatToStr128(float128_t val, uint8_t base, int64_t precision, int64_t minDigits) {
+    template<> UTF8Str FormatString::floatToStr<float128_t>(float128_t val, uint8_t base, int64_t precision, int64_t minDigits) {
         return _floatToStr(val, base, precision, minDigits, FORMAT_DIGITAL);
     }
 }

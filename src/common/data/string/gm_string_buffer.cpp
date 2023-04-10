@@ -65,7 +65,7 @@ namespace game {
         if ((size * 2) < prevSize) {
             throw std::runtime_error(
                 FormatString::formatString(
-                    "New buffer size overflows to be less than previous size: (%ld * 2) < %d.", size, prevSize
+                    "New buffer size overflows to be less than previous size: (%lu * 2) < %lu.", size, prevSize
                 ).get()
             );
         }

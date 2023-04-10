@@ -17,7 +17,7 @@ void test() {
     try {
         UTF8Str test = FormatString::formatString("%lu", sizeof(float128_t));
         Logger::log(LOG_INFO, test);
-        uint64_t a = FormatString::strToUInt<uint64_t>("ffffffffffffffff", 16);
+        uint64_t a = FormatString::strToInt<uint64_t>("ffffffffffffffff", 16);
         UTF8Str a1 = FormatString::formatString("%lx", a);
         Logger::log(LOG_INFO, a1);
         int32_t b = FormatString::strToInt<int32_t>("-69696969");
@@ -85,11 +85,22 @@ void test() {
     
     // BKV_Builder test
     try {
+        float128_t nums[] = {0.l, 1.l, 3.14159265l, -0.0006942069};
+        UTF8Str strs[3];
+        strs[0] = UTF8Str{"test1"};
+        strs[1] = UTF8Str{"test1"};
+        strs[2] = UTF8Str{"test1"};
         BKV_Builder builder;
-        builder.openCompound(UTF8Str("Example1"));
-        builder.closeCompound();
-        BKV bkv = builder.build();
-        BKV bkv2 = BKV::bkvFromSBKV(UTF8Str("{Example1:{}}"));
+        BKV bkv = builder
+            .openCompound(UTF8Str("Example1"))
+                .setString("name", "sam")
+                .setValue<uint8_t>("age", 20)
+                .setBool("alive", true)
+                .setValueArray<float128_t>("nums", nums, (sizeof(nums) / sizeof(float128_t)))
+                .setStringArray("strs", strs, (sizeof(strs) / sizeof(UTF8Str)))
+            .closeCompound()
+        .build();
+        BKV bkv2 = BKV::bkvFromSBKV(UTF8Str("{Example1:{name:'sam',age:20,alive:True,nums:[0.0,1.0,3.14159265,-0.0006942069],'strs':[test1, test2,test3]}}"));
         File::FileContents contents{static_cast<size_t>(bkv.size()), bkv.data()};
         File::writeFile("built-bkv.txt", contents);
         File::FileContents contents2{static_cast<size_t>(bkv2.size()), bkv2.data()};
