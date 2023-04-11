@@ -24,6 +24,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # set compiler flags
 if(CMAKE_BUILD_TYPE EQUAL DEBUG)
 
+message(STATUS "Compiling in debug mode")
+
 set(CMAKE_CPP_FLAGS
 	-Wall -Werror -Wno-volatile
 	-O0 -pipe -m64
@@ -35,6 +37,8 @@ set(CMAKE_L_FLAGS
 )
 
 else()
+
+message(STATUS "Compiling in release mode")
 
 set(CMAKE_CPP_FLAGS
 	-Wall -Werror -Wno-volatile

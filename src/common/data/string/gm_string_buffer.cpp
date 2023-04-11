@@ -9,7 +9,7 @@ namespace game {
         char* copy = static_cast<char*>(std::malloc(_len + 1));
         std::memcpy(copy, _buffer, _len);
         copy[_len] = '\0';
-        return UTF8Str{static_cast<int64_t>(_len), std::shared_ptr<const char>(copy, std::free)};
+        return UTF8Str{copy, static_cast<int64_t>(_len)};
     }
     char* StringBuffer::get() {
         try {

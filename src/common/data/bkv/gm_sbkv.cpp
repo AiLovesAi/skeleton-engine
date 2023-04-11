@@ -491,6 +491,6 @@ namespace game {
         // Reallocate to use only as much memory as necessary
         capacity = head;
         sbkv = static_cast<char*>(std::realloc(sbkv, capacity));
-        return UTF8Str{capacity - 1, std::shared_ptr<const char>(sbkv, std::free)};
+        return UTF8Str{sbkv, capacity - 1};
     }
 }

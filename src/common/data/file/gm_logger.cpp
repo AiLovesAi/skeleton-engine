@@ -50,8 +50,8 @@ namespace game {
         std::memcpy(crashPathStr + File::executableDir().length(), crashPath.get(), crashPath.length());
         crashPathStr[crashPathLen] = '\0';
         
-        Logger::_logPath = UTF8Str{logPathLen, std::shared_ptr<const char>(logPathStr, std::free)};
-        Logger::_crashPath = UTF8Str{crashPathLen, std::shared_ptr<const char>(crashPathStr, std::free)};
+        Logger::_logPath = UTF8Str{logPathStr, logPathLen};
+        Logger::_crashPath = UTF8Str{crashPathStr, crashPathLen};
         File::ensureParentDir(Logger::_logPath);
         File::ensureParentDir(Logger::_crashPath);
 

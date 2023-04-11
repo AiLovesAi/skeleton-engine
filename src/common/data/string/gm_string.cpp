@@ -75,7 +75,7 @@ namespace game {
 
         dst[newLen] = '\0';
         dst = static_cast<char*>(std::realloc(dst, newLen + 1));
-        return UTF8Str{newLen, std::shared_ptr<const char>(dst, std::free)};
+        return UTF8Str{dst, newLen};
     }
 
     char String::escapeChar(const char c) noexcept {

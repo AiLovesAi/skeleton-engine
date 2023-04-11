@@ -112,7 +112,7 @@ namespace game {
 
         str[len] = '\0';
         str = static_cast<char*>(std::realloc(str, len + 1));
-        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+        return UTF8Str{str, len};
     }
 
     template <typename T>
@@ -208,7 +208,7 @@ namespace game {
 
         str[len] = '\0';
         str = static_cast<char*>(std::realloc(str, len + 1));
-        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+        return UTF8Str{str, len};
     }
 
     template <typename T>
@@ -254,7 +254,7 @@ namespace game {
 
             str[len] = '\0';
             str = static_cast<char*>(std::realloc(str, len + 1));
-            return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+            return UTF8Str{str, len};
         }
         
         // Get integer part
@@ -292,7 +292,7 @@ namespace game {
 
         str[len] = '\0';
         str = static_cast<char*>(std::realloc(str, len + 1));
-        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+        return UTF8Str{str, len};
     }
     
     template <typename T>
@@ -355,7 +355,7 @@ namespace game {
 
         str[len] = '\0';
         str = static_cast<char*>(std::realloc(str, len + 1));
-        return UTF8Str{len, std::shared_ptr<const char>(str, std::free)};
+        return UTF8Str{str, len};
     }
 
     UTF8Str FormatString::ptrToStr(const void* ptr, const int32_t flags) noexcept {
@@ -833,7 +833,7 @@ namespace game {
         va_end(args);
         dst[len] = '\0';
         dst = static_cast<char*>(std::realloc(dst, len + 1));
-        return UTF8Str{len, std::shared_ptr<const char>(dst, std::free)};
+        return UTF8Str{dst, len};
     }
 
     bool FormatString::strToBool(const char*__restrict__ str, const int64_t len) {
