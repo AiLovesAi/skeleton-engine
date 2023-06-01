@@ -41,6 +41,9 @@ namespace game {
             inline BKV_Builder setBool(const char*__restrict__ key, const bool value) {
                 return setBool(UTF8Str{key}, value);
             }
+            inline BKV_Builder setBoolArray(const char*__restrict__ key, const bool* values, const uint16_t arraySize) {
+                return setBoolArray(UTF8Str{key}, values, arraySize);
+            }
             inline BKV_Builder setString(const char*__restrict__ key, const char*__restrict__ value) {
                 return setString(UTF8Str{key}, UTF8Str{value});
             }
@@ -58,11 +61,13 @@ namespace game {
             template <typename T>
             BKV_Builder setValueArray(const UTF8Str& key, const T* values, const uint16_t arraySize);
             BKV_Builder setBool(const UTF8Str& key, const bool value);
+            BKV_Builder setBoolArray(const UTF8Str& key, const bool* values, const uint16_t arraySize);
             BKV_Builder setString(const UTF8Str& key, const UTF8Str& value);
             BKV_Builder setStringArray(const UTF8Str& key, const UTF8Str* value, const uint16_t arraySize);
 
         private:
             // Functions
+            void addStrs(const UTF8Str& value, const uint16_t arraySize);
             void _setKeyTag(const UTF8Str& key, const uint8_t tag, const uint64_t size);
             template <typename T>
             BKV_Builder _setInt(const UTF8Str& key, const T value, const uint8_t tag);

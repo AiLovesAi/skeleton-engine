@@ -47,7 +47,7 @@ void test() {
         UTF8Str k1 = FormatString::formatString("%.18lf", static_cast<float128_t>(NAN));
         Logger::log(LOG_INFO, k1);
     } catch (std::runtime_error& e) { Logger::crash(e.what()); }
-
+    
     // SBKV -> BKV -> SBKV test
     char8_t data[] = u8"{ Test:{ id:-127., str: hi,\"☺☺☺\":-69, '☺☺☺':ok, names:[\"Tyrone\", 'dodo', '錯世☺', Steve] soul:{ personality:crappy-go-fucky, lifespan:'3 gays to live', alive:True }, bills_In_Wallet: [10b,20b,1b,1b,10b, 5b], funnyNumber:42069L }, TotalCost:100.2, MiniCost: -100.1f, unsigned:[5us, 6969US, 2uS, 65535Us], Finish:el_fin }";
     char *buffer = static_cast<char*>(std::malloc(sizeof(data)));
@@ -85,27 +85,32 @@ void test() {
     
     // BKV_Builder test
     try {
-        float128_t* nums = static_cast<float128_t*>(std::malloc(sizeof(float128_t) * 4));
-        nums[0] = 0.l;
-        nums[1] = 1.l;
-        nums[2] = 3.14159265l;
-        nums[3] = -0.0006942069l;
-        UTF8Str* strs = static_cast<UTF8Str*>(std::malloc(sizeof(UTF8Str) * 3));
+        float128_t nums[] = {0.l, 1.l, 3.14159265l, -0.0006942069l};
+        UTF8Str strs[3];
         strs[0] = UTF8Str{"test1"};
         strs[1] = UTF8Str{"test2.0"};
         strs[2] = UTF8Str{"test3.1.0"};
         BKV_Builder builder;
-        builder.openCompound("Example1")
-            .setString("name", "sam")
-            .setValue<uint8_t>("age", 20)
-            .setBool("alive", true)
-            .setValueArray<float128_t>("nums", nums, 3)
-            .setStringArray("strs", strs, 4)
-            .openCompound("comp")
-            .closeCompound()
-        .closeCompound();
-        std::free(nums);
-        std::free(strs);
+        // builder.openCompound("Example1")
+        //     .setString("name", "sam")
+        //     .setValue<uint8_t>("age", 20)
+        //     .setBool("alive", true)
+        //     .setValueArray<float128_t>("nums", nums, 3)
+        //     .setStringArray("strs", strs, 4)
+        //     .openCompound("comp")
+        //     .closeCompound()
+        // .closeCompound();
+        builder.openCompound("Example1");
+    __asm__("addq $0x420, %rax\nsubq $0x420, %rax"); // TODO FIXME
+            builder.setString("name", "sam");
+    __asm__("addq $0x69, %rax\nsubq $0x69, %rax"); // TODO FIXME
+            builder.setValue<uint8_t>("age", 20);
+            builder.setBool("alive", true);
+            builder.setValueArray<float128_t>("nums", nums, 3);
+            builder.setStringArray("strs", strs, 4);
+            builder.openCompound("comp");
+            builder.closeCompound();
+        builder.closeCompound();
         Logger::log(LOG_INFO, "Completed building BKV.");
         BKV bkv2 = BKV::bkvFromSBKV(UTF8Str{"{Example1:{name:'sam',age:20,alive:True,nums:[0.0,1.0,3.14159265,-0.0006942069],'strs':[test1, test2,test3],comp:{}}}"});
         BKV bkv = builder.build();

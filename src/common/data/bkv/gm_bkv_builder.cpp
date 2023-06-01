@@ -78,6 +78,7 @@ namespace game {
             ).get());
         }
 
+        Logger::log(LOG_INFO, "Opened compound");
         return *this;
     }
 
@@ -106,6 +107,7 @@ namespace game {
         std::memcpy(_buffer._bkv + _depth.top(), &len, BKV::BKV_COMPOUND_SIZE);
         _depth.pop();
 
+        Logger::log(LOG_INFO, "Closed compound");
         return *this;
     }
 
@@ -120,6 +122,7 @@ namespace game {
         std::memcpy(_buffer._bkv + _buffer._head, &v, sizeof(T));
         _buffer._head += sizeof(T);
 
+        Logger::log(LOG_INFO, "Set int");
         return *this;
     }
 
@@ -128,9 +131,7 @@ namespace game {
         const uint16_t arraySize, const uint8_t tag
     ) {
         // Input validation
-        if (!values) {
-            Logger::crash("Array value pointer was null in _setIntArray().");
-        }
+        if (!values) Logger::crash("Array value pointer was null in setIntArray().");
 
         try {
             _setKeyTag(key, tag, BKV::BKV_ARRAY_SIZE + (arraySize * sizeof(T)));
@@ -143,19 +144,13 @@ namespace game {
 
         T v;
         for (uint16_t i = 0; i < arraySize; i++) {
-            // Allocate space
-            try {
-                StringBuffer::checkResize(_buffer._bkv, _buffer._head + static_cast<int64_t>(sizeof(T)),
-                    _buffer._head, _buffer._capacity
-                );
-            } catch (std::runtime_error &e) { throw; }
-
             // Set next value
             v = Endianness::hton(values[i]);
             std::memcpy(_buffer._bkv + _buffer._head, &v, sizeof(T));
             _buffer._head += sizeof(T);
         }
 
+        Logger::log(LOG_INFO, "Set int array");
         return *this;
     }
     
@@ -170,6 +165,7 @@ namespace game {
         std::memcpy(_buffer._bkv + _buffer._head, &v, sizeof(T));
         _buffer._head += sizeof(T);
 
+        Logger::log(LOG_INFO, "Set float");
         return *this;
     }
 
@@ -178,9 +174,7 @@ namespace game {
         const uint16_t arraySize, const uint8_t tag
     ) {
         // Input validation
-        if (!values) {
-            Logger::crash("Array value pointer was null in _setFloatArray().");
-        }
+        if (!values) Logger::crash("Array value pointer was null in setFloatArray().");
 
         try {
             _setKeyTag(key, tag, BKV::BKV_ARRAY_SIZE + (arraySize * sizeof(T)));
@@ -193,19 +187,13 @@ namespace game {
 
         T v;
         for (uint16_t i = 0; i < arraySize; i++) {
-            // Allocate space
-            try {
-                StringBuffer::checkResize(_buffer._bkv, _buffer._head + static_cast<int64_t>(sizeof(T)),
-                    _buffer._head, _buffer._capacity
-                );
-            } catch (std::runtime_error &e) { throw; }
-
             // Set next value
             v = Endianness::htonf(values[i]);
             std::memcpy(_buffer._bkv + _buffer._head, &v, sizeof(T));
             _buffer._head += sizeof(T);
         }
 
+        Logger::log(LOG_INFO, "Set float array");
         return *this;
     }
     
@@ -216,6 +204,28 @@ namespace game {
 
         // Set value
         _buffer._bkv[_buffer._head++] = value;
+
+        Logger::log(LOG_INFO, "Set bool");
+        return *this;
+    }
+    
+    BKV_Builder BKV_Builder::setBoolArray(const UTF8Str& key, const bool* values, const uint16_t arraySize) {
+        // Input validation
+        if (!values) Logger::crash("Array value pointer was null in setBoolArray().");
+
+        try {
+            _setKeyTag(key, BKV::BKV_BOOL, BKV::BKV_ARRAY_SIZE + arraySize);
+        } catch (std::runtime_error& e) { throw; }
+        
+        // Set array size
+        const uint16_t arraySizeNet = Endianness::hton(arraySize);
+        std::memcpy(_buffer._bkv + _buffer._head, &arraySizeNet, BKV::BKV_ARRAY_SIZE);
+        _buffer._head += BKV::BKV_ARRAY_SIZE;
+
+        for (uint16_t i = 0; i < arraySize; i++) {
+            // Set next value
+            _buffer._bkv[_buffer._head++] = values[i];
+        }
 
         return *this;
     }
@@ -239,9 +249,7 @@ namespace game {
 
     BKV_Builder BKV_Builder::setStringArray(const UTF8Str& key, const UTF8Str* values, const uint16_t arraySize) {
         // Input validation
-        if (!values) {
-            Logger::crash("Array value pointer was null in setStringArray().");
-        }
+        if (!values) Logger::crash("Array value pointer was null in setStringArray().");
 
         try {
             _setKeyTag(key, BKV::BKV_STR, BKV::BKV_ARRAY_SIZE);
@@ -270,6 +278,7 @@ namespace game {
             _buffer._head += values[i].length();
         }
 
+        Logger::log(LOG_INFO, "Set string array");
         return *this;
     }
     
